@@ -1,0 +1,9 @@
+{
+  "settingsInheritedFrom": "whitesource-config/whitesource-config@master",
+  "issueSettings": {
+    "minSeverityLevel": "LOW",
+    "issueRepoName": "data-product-tracker",
+    "customLabels": ["type:defect","Sev 1","Mend: dependency security vulnerability","from:security","squad:dpx-api"],
+    "assignees": ["shyamalagowri"]
+  }
+}
