@@ -33,11 +33,11 @@ Changes might occur which impact applications that use this SDK.
 
 ## Overview
 
-The IBM Cloud dph_services Python SDK allows developers to programmatically interact with the following service:
+The IBM Cloud ibm_dpx_services Python SDK allows developers to programmatically interact with the following service:
 
 Service Name | Module Name | Imported Class Name
 --- | --- | ---
-[DPH Service]() | data_product_hub_api_service_v1 | DataProductHubApiServiceV1
+[DPX Service]() | data_product_exchange_api_service_v1 | DataProductExchangeApiServiceV1
 
 ## Prerequisites
 
@@ -52,12 +52,12 @@ Service Name | Module Name | Imported Class Name
 To install, use `pip`:
 
 ```bash
-pip install --upgrade dph_services
+pip install --upgrade ibm_dpx_services
 ```
 
 Then in your code, you can import the appropriate service like this:
 ```
-from dph_services.<service-module-name> import *
+from ibm_dpx_services.<service-module-name> import *
 ```
 where `<service-module-name>` is the service's module name from the table above
 

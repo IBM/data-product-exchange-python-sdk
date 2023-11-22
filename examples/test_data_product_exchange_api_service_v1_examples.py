@@ -20,7 +20,7 @@ Examples for DataProductExchangeApiServiceV1
 from ibm_cloud_sdk_core import ApiException, read_external_sources
 import os
 import pytest
-from dph_services.data_product_exchange_api_service_v1 import *
+from ibm_dpx_services.data_product_exchange_api_service_v1 import *
 
 #
 # This file provides an example of how to use the Data Product Exchange API Service service.

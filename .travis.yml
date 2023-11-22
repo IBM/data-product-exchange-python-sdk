@@ -7,6 +7,9 @@ group: focal
 
 cache: pip
 
+notifications:
+  email: true
+
 matrix:
   include:
     - python: 3.8
@@ -28,7 +31,7 @@ script:
             echo "Skipping systest stage for PR build..."
           fi
 
-To enable semantic-release, uncomment these sections.
+
 before_deploy:
 - nvm install 18
 - node --version

@@ -15,6 +15,6 @@
 # limitations under the License.
 
 """
-Version of dph_services
+Version of ibm_dpx_services
 """
 __version__ = '0.0.1'

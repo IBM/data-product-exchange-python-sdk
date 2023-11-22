@@ -23,7 +23,7 @@ install_project:
 test: test-unit test-int
 
 test-unit:
-	python -m pytest --cov=dph_services test/unit
+	python -m pytest --cov=ibm_dpx_services test/unit
 
 test-int:
 	python -m pytest test/integration

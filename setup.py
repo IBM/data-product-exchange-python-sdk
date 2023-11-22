@@ -20,7 +20,7 @@ import sys
 import pkg_resources
 
 __version__ = '0.0.1'
-PACKAGE_NAME = 'dph_services'
+PACKAGE_NAME = 'ibm_dpx_services'
 PACKAGE_DESC = 'Python client library for DPH Services'
 
 with open('requirements.txt') as f:

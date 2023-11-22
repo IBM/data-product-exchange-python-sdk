@@ -19,7 +19,7 @@ Test methods in the common module
 """
 
 import unittest
-from dph_services import common
+from ibm_dpx_services import common
 
 
 class TestCommon(unittest.TestCase):
@@ -32,7 +32,7 @@ class TestCommon(unittest.TestCase):
         Test the get_sdk_headers method
         """
         headers = common.get_sdk_headers(
-            service_name='dph_services', service_version='V1', operation_id='operation1'
+            service_name='ibm_dpx_services', service_version='V1', operation_id='operation1'
         )
         self.assertIsNotNone(headers)
         self.assertIsNotNone(headers.get('User-Agent'))

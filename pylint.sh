@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python -m pylint dph_services test --exit-zero
+python -m pylint ibm_dpx_services test --exit-zero
