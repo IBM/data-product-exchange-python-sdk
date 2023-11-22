@@ -19,7 +19,7 @@ import os
 import sys
 import pkg_resources
 
-__version__ = '0.1.0'
+__version__ = '0.0.1'
 PACKAGE_NAME = 'dph_services'
 PACKAGE_DESC = 'Python client library for DPH Services'
 
@@ -52,7 +52,7 @@ setup(
     author_email='greeshma.rajendran@ibm.com',
     long_description=readme,
     long_description_content_type='text/markdown',
-    url='https://github.ibm.com/wdp-gov/data-product-python-sdk',
+    url='https://github.com/IBM/data-product-exchange-python-sdk',
     packages=[PACKAGE_NAME],
     include_package_data=True,
     keywords=PACKAGE_NAME,
