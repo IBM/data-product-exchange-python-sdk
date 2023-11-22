@@ -27,11 +27,6 @@ install:
 script:
   - make ci
 
-          else
-            echo "Skipping systest stage for PR build..."
-          fi
-
-
 before_deploy:
 - nvm install 18
 - node --version
