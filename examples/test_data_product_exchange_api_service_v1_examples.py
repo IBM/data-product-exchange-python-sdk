@@ -69,8 +69,7 @@ class TestDataProductExchangeApiServiceV1Examples:
 
             # begin-common
 
-            data_product_exchange_api_service_service = DataProductExchangeApiServiceV1.new_instance(
-            )
+            data_product_exchange_api_service_service = DataProductExchangeApiServiceV1.new_instance()
 
             # end-common
             assert data_product_exchange_api_service_service is not None
@@ -91,9 +90,6 @@ class TestDataProductExchangeApiServiceV1Examples:
         initialize request example
         """
         try:
-            global create_data_product_version_by_catalog_id_link
-            global get_status_by_catalog_id_link
-            global get_list_of_data_product_by_catalog_id_link
             print('\ninitialize() result:')
             # begin-initialize
 
@@ -106,8 +102,11 @@ class TestDataProductExchangeApiServiceV1Examples:
 
             # end-initialize
 
+            global create_data_product_version_by_catalog_id_link
             create_data_product_version_by_catalog_id_link = initialize_resource['container']['id']
+            global get_status_by_catalog_id_link
             get_status_by_catalog_id_link = initialize_resource['container']['id']
+            global get_list_of_data_product_by_catalog_id_link
             get_list_of_data_product_by_catalog_id_link = initialize_resource['container']['id']
         except ApiException as e:
             pytest.fail(str(e))
@@ -118,16 +117,11 @@ class TestDataProductExchangeApiServiceV1Examples:
         create_data_product_version request example
         """
         try:
-            global get_data_product_version_by_user_id_link
-            global update_data_product_version_by_user_id_link
-            global delete_data_product_version_by_user_id_link
-            global get_data_product_by_user_id_link
-            global deliver_data_product_version_by_user_id_link
             print('\ncreate_data_product_version() result:')
             # begin-create_data_product_version
 
             container_reference_model = {
-                # 'id': 'd29c42eb-7100-4b7a-8257-c196dbcca1cd', 
+                # 'id': 'd29c42eb-7100-4b7a-8257-c196dbcca1cd',
                 'id': create_data_product_version_by_catalog_id_link,
                 'type': 'catalog',
             }
@@ -142,10 +136,15 @@ class TestDataProductExchangeApiServiceV1Examples:
 
             # end-create_data_product_version
 
+            global get_data_product_version_by_user_id_link
             get_data_product_version_by_user_id_link = data_product_version['id']
+            global update_data_product_version_by_user_id_link
             update_data_product_version_by_user_id_link = data_product_version['id']
+            global delete_data_product_version_by_user_id_link
             delete_data_product_version_by_user_id_link = data_product_version['id']
+            global get_data_product_by_user_id_link
             get_data_product_by_user_id_link = data_product_version['data_product']['id']
+            global deliver_data_product_version_by_user_id_link
             deliver_data_product_version_by_user_id_link = data_product_version['id']
         except ApiException as e:
             pytest.fail(str(e))

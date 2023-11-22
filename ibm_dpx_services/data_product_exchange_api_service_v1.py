@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# IBM OpenAPI SDK Code Generator Version: 3.79.0-2eb6af3d-20230905-174838
+# IBM OpenAPI SDK Code Generator Version: 3.82.1-2082d402-20231115-195014
 
 """
 Data Product Exchange API Service
@@ -24,7 +24,7 @@ API Version: 1.0.0
 
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List
+from typing import Dict, List, Optional
 import json
 
 from ibm_cloud_sdk_core import BaseService, DetailedResponse
@@ -55,9 +55,7 @@ class DataProductExchangeApiServiceV1(BaseService):
                the specified parameters and external configuration.
         """
         authenticator = get_authenticator_from_environment(service_name)
-        service = cls(
-            authenticator
-            )
+        service = cls(authenticator)
         service.configure_service(service_name)
         return service
 
@@ -81,7 +79,7 @@ class DataProductExchangeApiServiceV1(BaseService):
     def get_initialize_status(
         self,
         *,
-        container_id: str = None,
+        container_id: Optional[str] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -135,8 +133,8 @@ class DataProductExchangeApiServiceV1(BaseService):
     def initialize(
         self,
         *,
-        container: 'ContainerReference' = None,
-        include: List[str] = None,
+        container: Optional['ContainerReference'] = None,
+        include: Optional[List[str]] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -255,8 +253,8 @@ class DataProductExchangeApiServiceV1(BaseService):
     def list_data_products(
         self,
         *,
-        limit: int = None,
-        start: str = None,
+        limit: Optional[int] = None,
+        start: Optional[str] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -308,12 +306,12 @@ class DataProductExchangeApiServiceV1(BaseService):
     def list_data_product_versions(
         self,
         *,
-        asset_container_id: str = None,
-        data_product: str = None,
-        state: str = None,
-        version: str = None,
-        limit: int = None,
-        start: str = None,
+        asset_container_id: Optional[str] = None,
+        data_product: Optional[str] = None,
+        state: Optional[str] = None,
+        version: Optional[str] = None,
+        limit: Optional[int] = None,
+        start: Optional[str] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -374,16 +372,16 @@ class DataProductExchangeApiServiceV1(BaseService):
         self,
         container: 'ContainerReference',
         *,
-        version: str = None,
-        state: str = None,
-        data_product: 'DataProductIdentity' = None,
-        name: str = None,
-        description: str = None,
-        tags: List[str] = None,
-        use_cases: List['UseCase'] = None,
-        domain: 'Domain' = None,
-        type: List[str] = None,
-        parts_out: List['DataProductPart'] = None,
+        version: Optional[str] = None,
+        state: Optional[str] = None,
+        data_product: Optional['DataProductIdentity'] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        use_cases: Optional[List['UseCase']] = None,
+        domain: Optional['Domain'] = None,
+        type: Optional[List[str]] = None,
+        parts_out: Optional[List['DataProductPart']] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -648,7 +646,7 @@ class DataProductExchangeApiServiceV1(BaseService):
         self,
         id: str,
         *,
-        order: 'OrderReference' = None,
+        order: Optional['OrderReference'] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -728,9 +726,9 @@ class AssetPartReference:
     """
     The asset represented in this part.
 
-    :attr str id: The unique identifier of the asset.
-    :attr ContainerReference container: Data product exchange container.
-    :attr str type: (optional) The type of the asset.
+    :param str id: The unique identifier of the asset.
+    :param ContainerReference container: Data product exchange container.
+    :param str type: (optional) The type of the asset.
     """
 
     def __init__(
@@ -738,7 +736,7 @@ class AssetPartReference:
         id: str,
         container: 'ContainerReference',
         *,
-        type: str = None,
+        type: Optional[str] = None,
     ) -> None:
         """
         Initialize a AssetPartReference object.
@@ -809,8 +807,8 @@ class AssetReference:
     """
     The asset referenced by the data product version.
 
-    :attr str id: The unique identifier of the asset.
-    :attr ContainerReference container: Data product exchange container.
+    :param str id: The unique identifier of the asset.
+    :param ContainerReference container: Data product exchange container.
     """
 
     def __init__(
@@ -881,15 +879,15 @@ class ContainerReference:
     """
     Data product exchange container.
 
-    :attr str id: Container identifier.
-    :attr str type: (optional) Container type.
+    :param str id: Container identifier.
+    :param str type: (optional) Container type.
     """
 
     def __init__(
         self,
         id: str,
         *,
-        type: str = None,
+        type: Optional[str] = None,
     ) -> None:
         """
         Initialize a ContainerReference object.
@@ -952,14 +950,13 @@ class ContainerReference:
         CATALOG = 'catalog'
 
 
-
 class DataProduct:
     """
     Data Product.
 
-    :attr str id: Data product identifier.
-    :attr ContainerReference container: Data product exchange container.
-    :attr str name: Name to refer to the data product.
+    :param str id: Data product identifier.
+    :param ContainerReference container: Data product exchange container.
+    :param str name: Name to refer to the data product.
     """
 
     def __init__(
@@ -1039,10 +1036,10 @@ class DataProductCollection:
     """
     A collection of data products.
 
-    :attr int limit: Set a limit on the number of results returned.
-    :attr FirstPage first: First page in the collection.
-    :attr NextPage next: (optional) Next page in the collection.
-    :attr List[DataProduct] data_products: Collection of data products.
+    :param int limit: Set a limit on the number of results returned.
+    :param FirstPage first: First page in the collection.
+    :param NextPage next: (optional) Next page in the collection.
+    :param List[DataProduct] data_products: Collection of data products.
     """
 
     def __init__(
@@ -1051,7 +1048,7 @@ class DataProductCollection:
         first: 'FirstPage',
         data_products: List['DataProduct'],
         *,
-        next: 'NextPage' = None,
+        next: Optional['NextPage'] = None,
     ) -> None:
         """
         Initialize a DataProductCollection object.
@@ -1139,7 +1136,7 @@ class DataProductIdentity:
     """
     Data product identifier.
 
-    :attr str id: Data product identifier.
+    :param str id: Data product identifier.
     """
 
     def __init__(
@@ -1198,12 +1195,12 @@ class DataProductPart:
     """
     DataProductPart.
 
-    :attr AssetPartReference asset: The asset represented in this part.
-    :attr int revision: (optional) The revision number of the asset represented in
+    :param AssetPartReference asset: The asset represented in this part.
+    :param int revision: (optional) The revision number of the asset represented in
           this part.
-    :attr datetime updated_at: (optional) The time for when the part was last
+    :param datetime updated_at: (optional) The time for when the part was last
           updated.
-    :attr List[DeliveryMethod] delivery_methods: (optional) Delivery methods
+    :param List[DeliveryMethod] delivery_methods: (optional) Delivery methods
           describing the delivery options available for this part.
     """
 
@@ -1211,9 +1208,9 @@ class DataProductPart:
         self,
         asset: 'AssetPartReference',
         *,
-        revision: int = None,
-        updated_at: datetime = None,
-        delivery_methods: List['DeliveryMethod'] = None,
+        revision: Optional[int] = None,
+        updated_at: Optional[datetime] = None,
+        delivery_methods: Optional[List['DeliveryMethod']] = None,
     ) -> None:
         """
         Initialize a DataProductPart object.
@@ -1297,29 +1294,29 @@ class DataProductVersion:
     """
     Data Product version.
 
-    :attr str version: The data product version number.
-    :attr str state: The state of the data product version.
-    :attr DataProductIdentity data_product: Data product identifier.
-    :attr str name: The name of the data product version. A name can contain
+    :param str version: The data product version number.
+    :param str state: The state of the data product version.
+    :param DataProductIdentity data_product: Data product identifier.
+    :param str name: The name of the data product version. A name can contain
           letters, numbers, understores, dashes, spaces or periods. Names are mutable and
           reusable.
-    :attr str description: The description of the data product version.
-    :attr str id: The identifier of the data product version.
-    :attr AssetReference asset: The asset referenced by the data product version.
-    :attr List[str] tags: (optional) Tags on the data product.
-    :attr List[UseCase] use_cases: A list of use cases associated with the data
+    :param str description: The description of the data product version.
+    :param str id: The identifier of the data product version.
+    :param AssetReference asset: The asset referenced by the data product version.
+    :param List[str] tags: (optional) Tags on the data product.
+    :param List[UseCase] use_cases: A list of use cases associated with the data
           product version.
-    :attr Domain domain: The business domain associated with the data product
+    :param Domain domain: The business domain associated with the data product
           version.
-    :attr List[str] type: (optional) Type of parts on the data product.
-    :attr List[DataProductPart] parts_out: Outgoing parts of a data product used to
+    :param List[str] type: (optional) Type of parts on the data product.
+    :param List[DataProductPart] parts_out: Outgoing parts of a data product used to
           deliver the data product to consumers.
-    :attr str published_by: (optional) The user who published this data product
+    :param str published_by: (optional) The user who published this data product
           version.
-    :attr datetime published_at: (optional) The time when this data product version
+    :param datetime published_at: (optional) The time when this data product version
           was published.
-    :attr str created_by: The creator of this data product version.
-    :attr datetime created_at: The time when this data product version was created.
+    :param str created_by: The creator of this data product version.
+    :param datetime created_at: The time when this data product version was created.
     """
 
     def __init__(
@@ -1337,10 +1334,10 @@ class DataProductVersion:
         created_by: str,
         created_at: datetime,
         *,
-        tags: List[str] = None,
-        type: List[str] = None,
-        published_by: str = None,
-        published_at: datetime = None,
+        tags: Optional[List[str]] = None,
+        type: Optional[List[str]] = None,
+        published_by: Optional[str] = None,
+        published_at: Optional[datetime] = None,
     ) -> None:
         """
         Initialize a DataProductVersion object.
@@ -1540,7 +1537,6 @@ class DataProductVersion:
         AVAILABLE = 'available'
         RETIRED = 'retired'
 
-
     class TypeEnum(str, Enum):
         """
         type.
@@ -1550,15 +1546,14 @@ class DataProductVersion:
         CODE = 'code'
 
 
-
 class DataProductVersionCollection:
     """
     A collection of data product version summaries.
 
-    :attr int limit: Set a limit on the number of results returned.
-    :attr FirstPage first: First page in the collection.
-    :attr NextPage next: (optional) Next page in the collection.
-    :attr List[DataProductVersionSummary] data_product_versions: Collection of data
+    :param int limit: Set a limit on the number of results returned.
+    :param FirstPage first: First page in the collection.
+    :param NextPage next: (optional) Next page in the collection.
+    :param List[DataProductVersionSummary] data_product_versions: Collection of data
           product versions.
     """
 
@@ -1568,7 +1563,7 @@ class DataProductVersionCollection:
         first: 'FirstPage',
         data_product_versions: List['DataProductVersionSummary'],
         *,
-        next: 'NextPage' = None,
+        next: Optional['NextPage'] = None,
     ) -> None:
         """
         Initialize a DataProductVersionCollection object.
@@ -1599,9 +1594,13 @@ class DataProductVersionCollection:
         if 'next' in _dict:
             args['next'] = NextPage.from_dict(_dict.get('next'))
         if 'data_product_versions' in _dict:
-            args['data_product_versions'] = [DataProductVersionSummary.from_dict(v) for v in _dict.get('data_product_versions')]
+            args['data_product_versions'] = [
+                DataProductVersionSummary.from_dict(v) for v in _dict.get('data_product_versions')
+            ]
         else:
-            raise ValueError('Required property \'data_product_versions\' not present in DataProductVersionCollection JSON')
+            raise ValueError(
+                'Required property \'data_product_versions\' not present in DataProductVersionCollection JSON'
+            )
         return cls(**args)
 
     @classmethod
@@ -1657,15 +1656,15 @@ class DataProductVersionSummary:
     """
     DataProductVersionSummary.
 
-    :attr str version: The data product version number.
-    :attr str state: The state of the data product version.
-    :attr DataProductIdentity data_product: Data product identifier.
-    :attr str name: The name of the data product version. A name can contain
+    :param str version: The data product version number.
+    :param str state: The state of the data product version.
+    :param DataProductIdentity data_product: Data product identifier.
+    :param str name: The name of the data product version. A name can contain
           letters, numbers, understores, dashes, spaces or periods. Names are mutable and
           reusable.
-    :attr str description: The description of the data product version.
-    :attr str id: The identifier of the data product version.
-    :attr AssetReference asset: The asset referenced by the data product version.
+    :param str description: The description of the data product version.
+    :param str id: The identifier of the data product version.
+    :param AssetReference asset: The asset referenced by the data product version.
     """
 
     def __init__(
@@ -1792,13 +1791,12 @@ class DataProductVersionSummary:
         RETIRED = 'retired'
 
 
-
 class DeliveryMethod:
     """
     DeliveryMethod.
 
-    :attr str id: The ID of the delivery method.
-    :attr ContainerReference container: Data product exchange container.
+    :param str id: The ID of the delivery method.
+    :param ContainerReference container: Data product exchange container.
     """
 
     def __init__(
@@ -1869,15 +1867,15 @@ class DeliveryResource:
     """
     DeliveryResource.
 
-    :attr str status: Status of the deliver operation.
-    :attr str href: (optional) Link to monitor the status of the deliver operation.
+    :param str status: Status of the deliver operation.
+    :param str href: (optional) Link to monitor the status of the deliver operation.
     """
 
     def __init__(
         self,
         status: str,
         *,
-        href: str = None,
+        href: Optional[str] = None,
     ) -> None:
         """
         Initialize a DeliveryResource object.
@@ -1945,14 +1943,13 @@ class DeliveryResource:
         FAILED = 'failed'
 
 
-
 class Domain:
     """
     The business domain associated with the data product version.
 
-    :attr str id: The ID of the domain.
-    :attr str name: The display name of the domain.
-    :attr ContainerReference container: (optional) Data product exchange container.
+    :param str id: The ID of the domain.
+    :param str name: The display name of the domain.
+    :param ContainerReference container: (optional) Data product exchange container.
     """
 
     def __init__(
@@ -1960,7 +1957,7 @@ class Domain:
         id: str,
         name: str,
         *,
-        container: 'ContainerReference' = None,
+        container: Optional['ContainerReference'] = None,
     ) -> None:
         """
         Initialize a Domain object.
@@ -2032,19 +2029,19 @@ class ErrorModel:
     """
     ErrorModel.
 
-    :attr str code: (optional)
-    :attr ErrorTargetModel target: (optional)
-    :attr str message: (optional)
-    :attr str more_info: (optional)
+    :param str code: (optional)
+    :param ErrorTargetModel target: (optional)
+    :param str message: (optional)
+    :param str more_info: (optional)
     """
 
     def __init__(
         self,
         *,
-        code: str = None,
-        target: 'ErrorTargetModel' = None,
-        message: str = None,
-        more_info: str = None,
+        code: Optional[str] = None,
+        target: Optional['ErrorTargetModel'] = None,
+        message: Optional[str] = None,
+        more_info: Optional[str] = None,
     ) -> None:
         """
         Initialize a ErrorModel object.
@@ -2117,15 +2114,15 @@ class ErrorTargetModel:
     """
     ErrorTargetModel.
 
-    :attr str type: (optional)
-    :attr str name: (optional)
+    :param str type: (optional)
+    :param str name: (optional)
     """
 
     def __init__(
         self,
         *,
-        type: str = None,
-        name: str = None,
+        type: Optional[str] = None,
+        name: Optional[str] = None,
     ) -> None:
         """
         Initialize a ErrorTargetModel object.
@@ -2188,12 +2185,11 @@ class ErrorTargetModel:
         HEADER = 'header'
 
 
-
 class FirstPage:
     """
     First page in the collection.
 
-    :attr str href: Link to the first page in the collection.
+    :param str href: Link to the first page in the collection.
     """
 
     def __init__(
@@ -2252,31 +2248,33 @@ class InitializeResource:
     """
     InitializeResource.
 
-    :attr ContainerReference container: (optional) Data product exchange container.
-    :attr str href: (optional) Link to monitor the status of the initialize
+    :param ContainerReference container: (optional) Data product exchange container.
+    :param str href: (optional) Link to monitor the status of the initialize
           operation.
-    :attr str status: (optional) Status of the initialize operation.
-    :attr str trace: (optional) The id to trace the failed initialization operation.
-    :attr List[ErrorModel] errors: (optional) The error(s) encountered in the
+    :param str status: (optional) Status of the initialize operation.
+    :param str trace: (optional) The id to trace the failed initialization
+          operation.
+    :param List[ErrorModel] errors: (optional) The error(s) encountered in the
           initialization operation.
-    :attr datetime last_started_at: (optional) Start time of the last
+    :param datetime last_started_at: (optional) Start time of the last
           initialization.
-    :attr datetime last_finished_at: (optional) End time of the last initialization.
-    :attr List[InitializedOption] initialized_options: (optional) Initialized
+    :param datetime last_finished_at: (optional) End time of the last
+          initialization.
+    :param List[InitializedOption] initialized_options: (optional) Initialized
           options.
     """
 
     def __init__(
         self,
         *,
-        container: 'ContainerReference' = None,
-        href: str = None,
-        status: str = None,
-        trace: str = None,
-        errors: List['ErrorModel'] = None,
-        last_started_at: datetime = None,
-        last_finished_at: datetime = None,
-        initialized_options: List['InitializedOption'] = None,
+        container: Optional['ContainerReference'] = None,
+        href: Optional[str] = None,
+        status: Optional[str] = None,
+        trace: Optional[str] = None,
+        errors: Optional[List['ErrorModel']] = None,
+        last_started_at: Optional[datetime] = None,
+        last_finished_at: Optional[datetime] = None,
+        initialized_options: Optional[List['InitializedOption']] = None,
     ) -> None:
         """
         Initialize a InitializeResource object.
@@ -2398,20 +2396,19 @@ class InitializeResource:
         FAILED = 'failed'
 
 
-
 class InitializedOption:
     """
     Initialized options.
 
-    :attr str name: (optional) The name of the option.
-    :attr int version: (optional) The version of the option.
+    :param str name: (optional) The name of the option.
+    :param int version: (optional) The version of the option.
     """
 
     def __init__(
         self,
         *,
-        name: str = None,
-        version: int = None,
+        name: Optional[str] = None,
+        version: Optional[int] = None,
     ) -> None:
         """
         Initialize a InitializedOption object.
@@ -2469,7 +2466,7 @@ class ItemReference:
     """
     ItemReference.
 
-    :attr str id: The unique identifier of an item on an asset list representing a
+    :param str id: The unique identifier of an item on an asset list representing a
           data product order.
     """
 
@@ -2531,12 +2528,12 @@ class JsonPatchOperation:
     This model represents an individual patch operation to be performed on a JSON
     document, as defined by RFC 6902.
 
-    :attr str op: The operation to be performed.
-    :attr str path: The JSON Pointer that identifies the field that is the target of
-          the operation.
-    :attr str from_: (optional) The JSON Pointer that identifies the field that is
+    :param str op: The operation to be performed.
+    :param str path: The JSON Pointer that identifies the field that is the target
+          of the operation.
+    :param str from_: (optional) The JSON Pointer that identifies the field that is
           the source of the operation.
-    :attr object value: (optional) The value to be used within the operation.
+    :param object value: (optional) The value to be used within the operation.
     """
 
     def __init__(
@@ -2544,8 +2541,8 @@ class JsonPatchOperation:
         op: str,
         path: str,
         *,
-        from_: str = None,
-        value: object = None,
+        from_: Optional[str] = None,
+        value: Optional[object] = None,
     ) -> None:
         """
         Initialize a JsonPatchOperation object.
@@ -2629,13 +2626,12 @@ class JsonPatchOperation:
         TEST = 'test'
 
 
-
 class NextPage:
     """
     Next page in the collection.
 
-    :attr str href: Link to the next page in the collection.
-    :attr str start: Start token for pagination to the next page in the collection.
+    :param str href: Link to the next page in the collection.
+    :param str start: Start token for pagination to the next page in the collection.
     """
 
     def __init__(
@@ -2705,10 +2701,10 @@ class OrderReference:
     The order for the data product that should be delivered as part of this delivery
     operation.
 
-    :attr str id: The unique identifier of the asset list representing a data
+    :param str id: The unique identifier of the asset list representing a data
           product order.
-    :attr List[ItemReference] items: (optional) The list of items to be delivered as
-          part of this operation. This list can be a subset of items belonging to this
+    :param List[ItemReference] items: (optional) The list of items to be delivered
+          as part of this operation. This list can be a subset of items belonging to this
           order. All items specified must belong to this order.
     """
 
@@ -2716,7 +2712,7 @@ class OrderReference:
         self,
         id: str,
         *,
-        items: List['ItemReference'] = None,
+        items: Optional[List['ItemReference']] = None,
     ) -> None:
         """
         Initialize a OrderReference object.
@@ -2785,10 +2781,10 @@ class UseCase:
     """
     UseCase.
 
-    :attr str id: The id of the use case associated with the data product.
-    :attr str name: The display name of the use case associated with the data
+    :param str id: The id of the use case associated with the data product.
+    :param str name: The display name of the use case associated with the data
           product.
-    :attr ContainerReference container: (optional) Data product exchange container.
+    :param ContainerReference container: (optional) Data product exchange container.
     """
 
     def __init__(
@@ -2796,7 +2792,7 @@ class UseCase:
         id: str,
         name: str,
         *,
-        container: 'ContainerReference' = None,
+        container: Optional['ContainerReference'] = None,
     ) -> None:
         """
         Initialize a UseCase object.
@@ -2863,6 +2859,7 @@ class UseCase:
     def __ne__(self, other: 'UseCase') -> bool:
         """Return `true` when self and other are not equal, false otherwise."""
         return not self == other
+
 
 ##############################################################################
 # Pagers

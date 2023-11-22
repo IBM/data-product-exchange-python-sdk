@@ -46,8 +46,7 @@ class TestDataProductExchangeApiServiceV1:
         if os.path.exists(config_file):
             os.environ['IBM_CREDENTIALS_FILE'] = config_file
 
-            cls.data_product_exchange_api_service_service = DataProductExchangeApiServiceV1.new_instance(
-            )
+            cls.data_product_exchange_api_service_service = DataProductExchangeApiServiceV1.new_instance()
             assert cls.data_product_exchange_api_service_service is not None
 
             cls.config = read_external_sources(DataProductExchangeApiServiceV1.DEFAULT_SERVICE_NAME)
@@ -63,10 +62,6 @@ class TestDataProductExchangeApiServiceV1:
 
     @needscredentials
     def test_initialize(self):
-        global create_data_product_version_by_catalog_id_link
-        global get_status_by_catalog_id_link
-        global get_list_of_data_product_by_catalog_id_link
-
         # Construct a dict representation of a ContainerReference model
         # container_reference_model = {
         #     'id': 'd29c42eb-7100-4b7a-8257-c196dbcca1cd',
@@ -82,18 +77,15 @@ class TestDataProductExchangeApiServiceV1:
         initialize_resource = response.get_result()
         assert initialize_resource is not None
 
+        global create_data_product_version_by_catalog_id_link
         create_data_product_version_by_catalog_id_link = initialize_resource['container']['id']
+        global get_status_by_catalog_id_link
         get_status_by_catalog_id_link = initialize_resource['container']['id']
+        global get_list_of_data_product_by_catalog_id_link
         get_list_of_data_product_by_catalog_id_link = initialize_resource['container']['id']
 
     @needscredentials
     def test_create_data_product_version(self):
-        global get_data_product_version_by_user_id_link
-        global update_data_product_version_by_user_id_link
-        global delete_data_product_version_by_user_id_link
-        global get_data_product_by_user_id_link
-        global deliver_data_product_version_by_user_id_link
-
         # Construct a dict representation of a ContainerReference model
         container_reference_model = {
             'id': create_data_product_version_by_catalog_id_link,
@@ -152,10 +144,15 @@ class TestDataProductExchangeApiServiceV1:
         data_product_version = response.get_result()
         assert data_product_version is not None
 
+        global get_data_product_version_by_user_id_link
         get_data_product_version_by_user_id_link = data_product_version['id']
+        global update_data_product_version_by_user_id_link
         update_data_product_version_by_user_id_link = data_product_version['id']
+        global delete_data_product_version_by_user_id_link
         delete_data_product_version_by_user_id_link = data_product_version['id']
+        global get_data_product_by_user_id_link
         get_data_product_by_user_id_link = data_product_version['data_product']['id']
+        global deliver_data_product_version_by_user_id_link
         deliver_data_product_version_by_user_id_link = data_product_version['id']
 
     @needscredentials
@@ -260,7 +257,9 @@ class TestDataProductExchangeApiServiceV1:
         assert all_items is not None
 
         assert len(all_results) == len(all_items)
-        print(f'\nlist_data_product_versions() returned a total of {len(all_results)} items(s) using DataProductVersionsPager.')
+        print(
+            f'\nlist_data_product_versions() returned a total of {len(all_results)} items(s) using DataProductVersionsPager.'
+        )
 
     @needscredentials
     def test_get_data_product_version(self):

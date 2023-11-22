@@ -35,6 +35,7 @@ from ibm_dpx_services.common import get_sdk_headers
 
 class InitialSetupServiceV1(BaseService):
     """The Data Product Hub API Service V1 service."""
+
     DEFAULT_SERVICE_URL = 'https://api.dataplatform.dev.cloud.ibm.com/v2'
     DEFAULT_SERVICE_NAME = 'cams_api_service'
 
@@ -48,9 +49,7 @@ class InitialSetupServiceV1(BaseService):
                specified parameters and external configuration.
         """
         authenticator = get_authenticator_from_environment(service_name)
-        service = cls(
-            authenticator
-            )
+        service = cls(authenticator)
         service.configure_service(service_name)
         return service
 
@@ -71,7 +70,6 @@ class InitialSetupServiceV1(BaseService):
         self,
         **kwargs,
     ) -> DetailedResponse:
-
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name='initial_Setup_service',
@@ -82,7 +80,7 @@ class InitialSetupServiceV1(BaseService):
 
         data = {
             'name': 'Default Data Product Hub',
-            'uid':'ibm-default-hub',
+            'uid': 'ibm-default-hub',
             'subtype': 'ibm_data_product_catalog',
             'generator': 'catalogadmin',
         }
@@ -105,13 +103,12 @@ class InitialSetupServiceV1(BaseService):
 
         response = self.send(request, **kwargs)
         return response
-    
+
     def delete_data_product_catalog(
         self,
         id: str,
         **kwargs,
     ) -> DetailedResponse:
-
         if not id:
             raise ValueError('id must be provided')
         headers = {}

@@ -31,9 +31,7 @@ import urllib
 from ibm_dpx_services.data_product_exchange_api_service_v1 import *
 
 
-_service = DataProductExchangeApiServiceV1(
-    authenticator=NoAuthAuthenticator()
-)
+_service = DataProductExchangeApiServiceV1(authenticator=NoAuthAuthenticator())
 
 _base_url = 'https://fake'
 _service.set_service_url(_base_url)
@@ -61,8 +59,7 @@ def preprocess_url(operation_path: str):
     # Otherwise, return a regular expression that matches one or more trailing /.
     if re.fullmatch('.*/+', request_url) is None:
         return request_url
-    else:
-        return re.compile(request_url.rstrip('/') + '/+')
+    return re.compile(request_url.rstrip('/') + '/+')
 
 
 ##############################################################################
@@ -1451,10 +1448,10 @@ class TestModel_DataProductCollection:
         # Construct dict forms of any model objects needed in order to build this model.
 
         first_page_model = {}  # FirstPage
-        first_page_model['href'] = 'https://api.example.com/collection'
+        first_page_model['href'] = 'http://api.example.com/collection'
 
         next_page_model = {}  # NextPage
-        next_page_model['href'] = 'https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9'
+        next_page_model['href'] = 'http://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9'
         next_page_model['start'] = 'eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9'
 
         container_reference_model = {}  # ContainerReference
@@ -1478,7 +1475,9 @@ class TestModel_DataProductCollection:
         assert data_product_collection_model != False
 
         # Construct a model instance of DataProductCollection by calling from_dict on the json representation
-        data_product_collection_model_dict = DataProductCollection.from_dict(data_product_collection_model_json).__dict__
+        data_product_collection_model_dict = DataProductCollection.from_dict(
+            data_product_collection_model_json
+        ).__dict__
         data_product_collection_model2 = DataProductCollection(**data_product_collection_model_dict)
 
         # Verify the model instances are equivalent
@@ -1622,7 +1621,9 @@ class TestModel_DataProductVersion:
         data_product_version_model_json['data_product'] = data_product_identity_model
         data_product_version_model_json['name'] = 'My Data Product'
         data_product_version_model_json['description'] = 'This is a description of My Data Product.'
-        data_product_version_model_json['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        data_product_version_model_json[
+            'id'
+        ] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
         data_product_version_model_json['asset'] = asset_reference_model
         data_product_version_model_json['tags'] = ['testString']
         data_product_version_model_json['use_cases'] = [use_case_model]
@@ -1663,10 +1664,10 @@ class TestModel_DataProductVersionCollection:
         # Construct dict forms of any model objects needed in order to build this model.
 
         first_page_model = {}  # FirstPage
-        first_page_model['href'] = 'https://api.example.com/collection'
+        first_page_model['href'] = 'http://api.example.com/collection'
 
         next_page_model = {}  # NextPage
-        next_page_model['href'] = 'https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9'
+        next_page_model['href'] = 'http://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9'
         next_page_model['start'] = 'eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9'
 
         data_product_identity_model = {}  # DataProductIdentity
@@ -1686,7 +1687,9 @@ class TestModel_DataProductVersionCollection:
         data_product_version_summary_model['data_product'] = data_product_identity_model
         data_product_version_summary_model['name'] = 'My Data Product'
         data_product_version_summary_model['description'] = 'This is a description of My Data Product.'
-        data_product_version_summary_model['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        data_product_version_summary_model[
+            'id'
+        ] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
         data_product_version_summary_model['asset'] = asset_reference_model
 
         # Construct a json representation of a DataProductVersionCollection model
@@ -1697,12 +1700,18 @@ class TestModel_DataProductVersionCollection:
         data_product_version_collection_model_json['data_product_versions'] = [data_product_version_summary_model]
 
         # Construct a model instance of DataProductVersionCollection by calling from_dict on the json representation
-        data_product_version_collection_model = DataProductVersionCollection.from_dict(data_product_version_collection_model_json)
+        data_product_version_collection_model = DataProductVersionCollection.from_dict(
+            data_product_version_collection_model_json
+        )
         assert data_product_version_collection_model != False
 
         # Construct a model instance of DataProductVersionCollection by calling from_dict on the json representation
-        data_product_version_collection_model_dict = DataProductVersionCollection.from_dict(data_product_version_collection_model_json).__dict__
-        data_product_version_collection_model2 = DataProductVersionCollection(**data_product_version_collection_model_dict)
+        data_product_version_collection_model_dict = DataProductVersionCollection.from_dict(
+            data_product_version_collection_model_json
+        ).__dict__
+        data_product_version_collection_model2 = DataProductVersionCollection(
+            **data_product_version_collection_model_dict
+        )
 
         # Verify the model instances are equivalent
         assert data_product_version_collection_model == data_product_version_collection_model2
@@ -1742,15 +1751,21 @@ class TestModel_DataProductVersionSummary:
         data_product_version_summary_model_json['data_product'] = data_product_identity_model
         data_product_version_summary_model_json['name'] = 'My Data Product'
         data_product_version_summary_model_json['description'] = 'This is a description of My Data Product.'
-        data_product_version_summary_model_json['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        data_product_version_summary_model_json[
+            'id'
+        ] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
         data_product_version_summary_model_json['asset'] = asset_reference_model
 
         # Construct a model instance of DataProductVersionSummary by calling from_dict on the json representation
-        data_product_version_summary_model = DataProductVersionSummary.from_dict(data_product_version_summary_model_json)
+        data_product_version_summary_model = DataProductVersionSummary.from_dict(
+            data_product_version_summary_model_json
+        )
         assert data_product_version_summary_model != False
 
         # Construct a model instance of DataProductVersionSummary by calling from_dict on the json representation
-        data_product_version_summary_model_dict = DataProductVersionSummary.from_dict(data_product_version_summary_model_json).__dict__
+        data_product_version_summary_model_dict = DataProductVersionSummary.from_dict(
+            data_product_version_summary_model_json
+        ).__dict__
         data_product_version_summary_model2 = DataProductVersionSummary(**data_product_version_summary_model_dict)
 
         # Verify the model instances are equivalent
@@ -1949,7 +1964,7 @@ class TestModel_FirstPage:
 
         # Construct a json representation of a FirstPage model
         first_page_model_json = {}
-        first_page_model_json['href'] = 'https://api.example.com/collection'
+        first_page_model_json['href'] = 'http://api.example.com/collection'
 
         # Construct a model instance of FirstPage by calling from_dict on the json representation
         first_page_model = FirstPage.from_dict(first_page_model_json)
@@ -2000,7 +2015,9 @@ class TestModel_InitializeResource:
         # Construct a json representation of a InitializeResource model
         initialize_resource_model_json = {}
         initialize_resource_model_json['container'] = container_reference_model
-        initialize_resource_model_json['href'] = 'https://api.example.com/configuration/initialize/status?catalog_id=d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        initialize_resource_model_json[
+            'href'
+        ] = 'http://api.example.com/configuration/initialize/status?catalog_id=d29c42eb-7100-4b7a-8257-c196dbcca1cd'
         initialize_resource_model_json['status'] = 'not_started'
         initialize_resource_model_json['trace'] = 'testString'
         initialize_resource_model_json['errors'] = [error_model_model]
@@ -2130,7 +2147,7 @@ class TestModel_NextPage:
 
         # Construct a json representation of a NextPage model
         next_page_model_json = {}
-        next_page_model_json['href'] = 'https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9'
+        next_page_model_json['href'] = 'http://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9'
         next_page_model_json['start'] = 'eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9'
 
         # Construct a model instance of NextPage by calling from_dict on the json representation
