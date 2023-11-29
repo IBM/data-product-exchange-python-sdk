@@ -128,16 +128,9 @@ class TestDataProductExchangeApiServiceV1:
 
         response = self.data_product_exchange_api_service_service.create_data_product_version(
             container=container_reference_model,
-            # version='testString',
-            # state='draft',
-            # data_product=data_product_identity_model,
             name='My New Data Product',
             description='testString',
-            # tags=['testString'],
-            # use_cases=[use_case_model],
-            # domain=domain_model,
             type=['data'],
-            # parts_out=[data_product_part_model],
         )
 
         assert response.get_status_code() == 201
@@ -179,7 +172,6 @@ class TestDataProductExchangeApiServiceV1:
     def test_list_data_products(self):
         response = self.data_product_exchange_api_service_service.list_data_products(
             limit=200,
-            # start='testString',
         )
 
         assert response.get_status_code() == 200
@@ -215,11 +207,7 @@ class TestDataProductExchangeApiServiceV1:
     def test_list_data_product_versions(self):
         response = self.data_product_exchange_api_service_service.list_data_product_versions(
             asset_container_id=get_list_of_data_product_by_catalog_id_link,
-            # data_product='testString',
-            # state='draft',
-            # version='testString',
             limit=200,
-            # start='testString',
         )
 
         assert response.get_status_code() == 200
@@ -234,9 +222,6 @@ class TestDataProductExchangeApiServiceV1:
         pager = DataProductVersionsPager(
             client=self.data_product_exchange_api_service_service,
             asset_container_id=get_list_of_data_product_by_catalog_id_link,
-            # data_product='testString',
-            # state='draft',
-            # version='testString',
             limit=10,
         )
         while pager.has_next():
@@ -248,9 +233,6 @@ class TestDataProductExchangeApiServiceV1:
         pager = DataProductVersionsPager(
             client=self.data_product_exchange_api_service_service,
             asset_container_id=get_list_of_data_product_by_catalog_id_link,
-            # data_product='testString',
-            # state='draft',
-            # version='testString',
             limit=10,
         )
         all_items = pager.get_all()
@@ -277,7 +259,6 @@ class TestDataProductExchangeApiServiceV1:
         json_patch_operation_model = {
             'op': 'replace',
             'path': '/description',
-            # 'from': 'testString',
             'value': 'This is the updated description from python SDK',
         }
 

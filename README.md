@@ -1,6 +1,6 @@
-# DPH Python SDK Version 0.0.2
+# Data Product Exchange Python SDK Version 0.0.2
 
-Python client library to interact with various [DPH Service APIs](https://cloud.ibm.com/apidocs?category=<service-category>).
+Python client library to interact with various [Data Product Exchange Service APIs](https://cloud.ibm.com/apidocs?category=<service-category>).
 
 Disclaimer: this SDK is being released initially as a **pre-release** version.
 Changes might occur which impact applications that use this SDK.
@@ -37,7 +37,7 @@ The IBM Cloud ibm_dpx_services Python SDK allows developers to programmatically 
 
 Service Name | Module Name | Imported Class Name
 --- | --- | ---
-[DPX Service]() | data_product_exchange_api_service_v1 | DataProductExchangeApiServiceV1
+[Data Product Exchange Services](https://test.cloud.ibm.com/apidocs/watson-data-api) | data_product_exchange_api_service_v1 | DataProductExchangeApiServiceV1
 
 ## Prerequisites
 
@@ -45,14 +45,14 @@ Service Name | Module Name | Imported Class Name
 
 * An [IBM Cloud][ibm-cloud-onboarding] account.
 * An IAM API key to allow the SDK to access your account. Create one [here](https://cloud.ibm.com/iam/apikeys).
-* Python 3.7 or above.
+* Python 3.8 or above.
 
 ## Installation
 
 To install, use `pip`:
 
 ```bash
-pip install --upgrade ibm_dpx_services
+pip install --upgrade ibm-dpx-services
 ```
 
 Then in your code, you can import the appropriate service like this:
