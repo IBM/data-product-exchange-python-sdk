@@ -37,7 +37,7 @@ The IBM Cloud ibm_dpx_services Python SDK allows developers to programmatically 
 
 Service Name | Module Name | Imported Class Name
 --- | --- | ---
-[Data Product Exchange Services](https://test.cloud.ibm.com/apidocs/watson-data-api) | data_product_exchange_api_service_v1 | DataProductExchangeApiServiceV1
+[Data Product Exchange Services](https://test.cloud.ibm.com/apidocs/dataproducts) | data_product_exchange_api_service_v1 | DataProductExchangeApiServiceV1
 
 ## Prerequisites
 
