@@ -564,18 +564,18 @@ class TestDpxV1:
         data_product = response.get_result()
         assert data_product is not None
 
-    # @needscredentials
-    # def test_complete_draft_contract_terms_document(self):
-    #     response = self.dpx_service.complete_draft_contract_terms_document(
-    #         data_product_id=optional_data_product_id_link,
-    #         draft_id=draft_id_link,
-    #         contract_terms_id=contract_terms_id_link,
-    #         document_id=document_id_link,
-    #     )
+    @needscredentials
+    def test_complete_draft_contract_terms_document(self):
+        response = self.dpx_service.complete_draft_contract_terms_document(
+            data_product_id=optional_data_product_id_link,
+            draft_id=draft_id_link,
+            contract_terms_id=contract_terms_id_link,
+            document_id=document_id_link,
+        )
 
-    #     assert response.get_status_code() == 200
-    #     contract_terms_document = response.get_result()
-    #     assert contract_terms_document is not None
+        assert response.get_status_code() == 200
+        contract_terms_document = response.get_result()
+        assert contract_terms_document is not None
 
     @needscredentials
     def test_list_data_product_drafts(self):
