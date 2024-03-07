@@ -45,8 +45,7 @@ class TestDpxV1:
         if os.path.exists(config_file):
             os.environ['IBM_CREDENTIALS_FILE'] = config_file
 
-            cls.dpx_service = DpxV1.new_instance(
-            )
+            cls.dpx_service = DpxV1.new_instance()
             assert cls.dpx_service is not None
 
             cls.config = read_external_sources(DpxV1.DEFAULT_SERVICE_NAME)
@@ -267,7 +266,6 @@ class TestDpxV1:
 
         assert response.get_status_code() == 204
 
-
     @needscredentials
     def test_create_data_product_draft_again(self):
         global draft_id_link
@@ -444,7 +442,7 @@ class TestDpxV1:
         assert response.get_status_code() == 200
         data_product_version = response.get_result()
         assert data_product_version is not None
-    
+
     @needscredentials
     def test_get_data_product_draft(self):
         response = self.dpx_service.get_data_product_draft(
@@ -499,7 +497,7 @@ class TestDpxV1:
         assert response.get_status_code() == 200
         contract_terms_document = response.get_result()
         assert contract_terms_document is not None
-        
+
     @needscredentials
     def test_publish_data_product_draft(self):
         global release_id_link
@@ -615,7 +613,9 @@ class TestDpxV1:
         assert all_items is not None
 
         assert len(all_results) == len(all_items)
-        print(f'\nlist_data_product_drafts() returned a total of {len(all_results)} items(s) using DataProductDraftsPager.')
+        print(
+            f'\nlist_data_product_drafts() returned a total of {len(all_results)} items(s) using DataProductDraftsPager.'
+        )
 
     @needscredentials
     def test_get_data_product_release(self):
@@ -698,7 +698,9 @@ class TestDpxV1:
         assert all_items is not None
 
         assert len(all_results) == len(all_items)
-        print(f'\nlist_data_product_releases() returned a total of {len(all_results)} items(s) using DataProductReleasesPager.')
+        print(
+            f'\nlist_data_product_releases() returned a total of {len(all_results)} items(s) using DataProductReleasesPager.'
+        )
 
     @needscredentials
     def test_retire_data_product_release(self):
@@ -710,6 +712,3 @@ class TestDpxV1:
         assert response.get_status_code() == 200
         data_product_version = response.get_result()
         assert data_product_version is not None
-
-
-    

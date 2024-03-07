@@ -68,8 +68,7 @@ class TestDpxV1Examples:
 
             # begin-common
 
-            dpx_service = DpxV1.new_instance(
-            )
+            dpx_service = DpxV1.new_instance()
 
             # end-common
             assert dpx_service is not None
@@ -108,7 +107,7 @@ class TestDpxV1Examples:
             container_id_link = initialize_resource['container']['id']
         except ApiException as e:
             pytest.fail(str(e))
-    
+
     @needscredentials
     def test_create_data_product_example(self):
         """
@@ -175,9 +174,9 @@ class TestDpxV1Examples:
             }
 
             domain_model = {
-            'id': '918c0bfd-6943-4468-b74f-bc111018e0d1',
-            'name': 'Customer Service',
-            'container': container_reference_model,
+                'id': '918c0bfd-6943-4468-b74f-bc111018e0d1',
+                'name': 'Customer Service',
+                'container': container_reference_model,
             }
 
             response = dpx_service.create_data_product_draft(
@@ -197,7 +196,7 @@ class TestDpxV1Examples:
             contract_terms_id_link = data_product_version['contract_terms'][0]['id']
         except ApiException as e:
             pytest.fail(str(e))
-    
+
     @needscredentials
     def test_delete_data_product_draft_example(self):
         """
@@ -216,7 +215,7 @@ class TestDpxV1Examples:
 
         except ApiException as e:
             pytest.fail(str(e))
-    
+
     @needscredentials
     def test_create_data_product_draft_example_again(self):
         """
@@ -243,9 +242,9 @@ class TestDpxV1Examples:
             }
 
             domain_model = {
-            'id': '918c0bfd-6943-4468-b74f-bc111018e0d1',
-            'name': 'Customer Service',
-            'container': container_reference_model,
+                'id': '918c0bfd-6943-4468-b74f-bc111018e0d1',
+                'name': 'Customer Service',
+                'container': container_reference_model,
             }
 
             response = dpx_service.create_data_product_draft(
@@ -296,7 +295,7 @@ class TestDpxV1Examples:
             document_id_link = contract_terms_document['id']
         except ApiException as e:
             pytest.fail(str(e))
-    
+
     @needscredentials
     def test_delete_draft_contract_terms_document_example(self):
         """
@@ -317,7 +316,7 @@ class TestDpxV1Examples:
 
         except ApiException as e:
             pytest.fail(str(e))
-    
+
     @needscredentials
     def test_create_draft_contract_terms_document_example_again(self):
         """
@@ -348,7 +347,7 @@ class TestDpxV1Examples:
             document_id_link = contract_terms_document['id']
         except ApiException as e:
             pytest.fail(str(e))
-    
+
     @needscredentials
     def test_get_data_product_draft_example(self):
         """
@@ -371,7 +370,7 @@ class TestDpxV1Examples:
 
         except ApiException as e:
             pytest.fail(str(e))
-    
+
     @needscredentials
     def test_get_initialize_status_example(self):
         """
@@ -391,7 +390,7 @@ class TestDpxV1Examples:
 
         except ApiException as e:
             pytest.fail(str(e))
-    
+
     @needscredentials
     def test_update_data_product_draft_example(self):
         """
@@ -402,7 +401,7 @@ class TestDpxV1Examples:
 
             # begin-update_data_product_draft
 
-             # Construct the asset object
+            # Construct the asset object
             asset_string = '{"id":"669a570b-31f7-4c84-bfd1-851282ab5b86","container":{"id":"b6eb50b4-ace4-4dab-b2c4-318bb4c032a6","type":"catalog"}}'
 
             # Parse the JSON string to a dictionary
@@ -455,7 +454,7 @@ class TestDpxV1Examples:
 
         except ApiException as e:
             pytest.fail(str(e))
-    
+
     @needscredentials
     def test_update_draft_contract_terms_document_example(self):
         """
@@ -762,6 +761,7 @@ class TestDpxV1Examples:
 
         except ApiException as e:
             pytest.fail(str(e))
+
 
 # endregion
 # #############################################################################
