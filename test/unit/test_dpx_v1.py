@@ -3057,9 +3057,9 @@ class TestModel_DataProduct:
         data_product_version_summary_model['data_product'] = data_product_identity_model
         data_product_version_summary_model['name'] = 'My Data Product'
         data_product_version_summary_model['description'] = 'This is a description of My Data Product.'
-        data_product_version_summary_model[
-            'id'
-        ] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        data_product_version_summary_model['id'] = (
+            '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        )
         data_product_version_summary_model['asset'] = asset_reference_model
 
         # Construct a json representation of a DataProduct model
@@ -3176,9 +3176,9 @@ class TestModel_DataProductDraftCollection:
         data_product_version_summary_model['data_product'] = data_product_identity_model
         data_product_version_summary_model['name'] = 'My Data Product'
         data_product_version_summary_model['description'] = 'This is a description of My Data Product.'
-        data_product_version_summary_model[
-            'id'
-        ] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        data_product_version_summary_model['id'] = (
+            '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        )
         data_product_version_summary_model['asset'] = asset_reference_model
 
         # Construct a json representation of a DataProductDraftCollection model
@@ -3322,9 +3322,9 @@ class TestModel_DataProductReleaseCollection:
         data_product_version_summary_model['data_product'] = data_product_identity_model
         data_product_version_summary_model['name'] = 'My Data Product'
         data_product_version_summary_model['description'] = 'This is a description of My Data Product.'
-        data_product_version_summary_model[
-            'id'
-        ] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        data_product_version_summary_model['id'] = (
+            '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        )
         data_product_version_summary_model['asset'] = asset_reference_model
 
         # Construct a json representation of a DataProductReleaseCollection model
@@ -3520,9 +3520,9 @@ class TestModel_DataProductVersion:
         data_product_version_model_json['data_product'] = data_product_identity_model
         data_product_version_model_json['name'] = 'My Data Product'
         data_product_version_model_json['description'] = 'This is a description of My Data Product.'
-        data_product_version_model_json[
-            'id'
-        ] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        data_product_version_model_json['id'] = (
+            '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        )
         data_product_version_model_json['asset'] = asset_reference_model
         data_product_version_model_json['tags'] = ['testString']
         data_product_version_model_json['use_cases'] = [use_case_model]
@@ -3682,9 +3682,9 @@ class TestModel_DataProductVersionSummary:
         data_product_version_summary_model_json['data_product'] = data_product_identity_model
         data_product_version_summary_model_json['name'] = 'My Data Product'
         data_product_version_summary_model_json['description'] = 'This is a description of My Data Product.'
-        data_product_version_summary_model_json[
-            'id'
-        ] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        data_product_version_summary_model_json['id'] = (
+            '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        )
         data_product_version_summary_model_json['asset'] = asset_reference_model
 
         # Construct a model instance of DataProductVersionSummary by calling from_dict on the json representation
@@ -3874,9 +3874,9 @@ class TestModel_InitializeResource:
         # Construct a json representation of a InitializeResource model
         initialize_resource_model_json = {}
         initialize_resource_model_json['container'] = container_reference_model
-        initialize_resource_model_json[
-            'href'
-        ] = 'https://api.example.com/configuration/initialize/status?catalog_id=d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        initialize_resource_model_json['href'] = (
+            'https://api.example.com/configuration/initialize/status?catalog_id=d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        )
         initialize_resource_model_json['status'] = 'not_started'
         initialize_resource_model_json['trace'] = 'testString'
         initialize_resource_model_json['errors'] = [error_model_resource_model]
