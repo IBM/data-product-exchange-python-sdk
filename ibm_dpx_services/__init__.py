@@ -19,4 +19,4 @@ from ibm_cloud_sdk_core import IAMTokenManager, DetailedResponse, BaseService, A
 
 from .common import get_sdk_headers
 from .version import __version__
-from .data_product_exchange_api_service_v1 import DataProductExchangeApiServiceV1
+from .dpx_v1 import DpxV1
