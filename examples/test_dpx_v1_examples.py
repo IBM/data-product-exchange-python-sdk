@@ -35,7 +35,7 @@ from ibm_dpx_services.dpx_v1 import *
 # in a configuration file and then:
 # export IBM_CREDENTIALS_FILE=<name of configuration file>
 #
-config_file = 'data_product_exchange_api_service_v1.env'
+config_file = 'dpx_v1.env'
 
 dpx_service = None
 

@@ -43,7 +43,7 @@ class DpxV1(BaseService):
     """The DPX V1 service."""
 
     DEFAULT_SERVICE_URL = None
-    DEFAULT_SERVICE_NAME = 'data_product_exchange_api_service'
+    DEFAULT_SERVICE_NAME = 'dpx'
 
     @classmethod
     def new_instance(

@@ -23,7 +23,7 @@ import pytest
 from ibm_dpx_services.dpx_v1 import *
 
 # Config file name
-config_file = 'data_product_exchange_api_service_v1.env'
+config_file = 'dpx_v1.env'
 
 # Variables to hold link values
 container_id_link = None
