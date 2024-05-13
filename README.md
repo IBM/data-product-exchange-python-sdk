@@ -1,6 +1,6 @@
-# Data Product Exchange Python SDK Version 0.0.5
+# Data Product Hub Python SDK Version 0.0.5
 
-Python client library to interact with various Data Product Exchange Service APIs.
+Python client library to interact with various Data Product Hub Service APIs.
 
 Disclaimer: this SDK is being released initially as a **pre-release** version.
 Changes might occur which impact applications that use this SDK.
@@ -37,7 +37,7 @@ The IBM Cloud ibm_dpx_services Python SDK allows developers to programmatically 
 
 Service Name | Module Name | Imported Class Name
 --- | --- | ---
-[Data Product Exchange](https://cloud.ibm.com/apidocs/dataproducts) | dpx_v1 | DpxV1
+[Data Product Hub](https://cloud.ibm.com/apidocs/dataproducts) | dpx_v1 | DpxV1
 
 ## Prerequisites
 
