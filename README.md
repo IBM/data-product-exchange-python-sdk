@@ -1,4 +1,4 @@
-# Data Product Hub Python SDK Version 0.0.6
+# Data Product Hub Python SDK Version 0.1.0
 
 Python client library to interact with various Data Product Hub Service APIs.
 
@@ -33,11 +33,11 @@ Changes might occur which impact applications that use this SDK.
 
 ## Overview
 
-The IBM Cloud ibm_dpx_services Python SDK allows developers to programmatically interact with the following service:
+The IBM Cloud dph_services Python SDK allows developers to programmatically interact with the following service:
 
 Service Name | Module Name | Imported Class Name
 --- | --- | ---
-[Data Product Hub](https://cloud.ibm.com/apidocs/dataproducts) | dpx_v1 | DpxV1
+[Data Product Hub](https://cloud.ibm.com/apidocs/dataproducts) | data_product_hub_api_service_v1 | DataProductHubApiServiceV1
 
 ## Prerequisites
 
@@ -52,12 +52,12 @@ Service Name | Module Name | Imported Class Name
 To install, use `pip`:
 
 ```bash
-pip install --upgrade ibm-dpx-services
+pip install --upgrade dph-services
 ```
 
 Then in your code, you can import the appropriate service like this:
 ```
-from ibm_dpx_services.<service-module-name> import *
+from dph_services.<service-module-name> import *
 ```
 where `<service-module-name>` is the service's module name from the table above
 
@@ -72,7 +72,7 @@ please ask a question at
 
 ## Issues
 If you encounter an issue with the project, you are welcome to submit a
-[bug report](<github-repo-url>/issues).
+[bug report](https://github.ibm.com/wdp-gov/data-product-python-sdk/issues).
 Before that, please search for similar issues. It's possible that someone has already reported the problem.
 
 ## Open source @ IBM

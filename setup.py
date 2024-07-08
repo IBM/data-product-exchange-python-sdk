@@ -19,8 +19,8 @@ import os
 import sys
 import pkg_resources
 
-__version__ = '0.0.6'
-PACKAGE_NAME = 'ibm_dpx_services'
+__version__ = '0.1.0'
+PACKAGE_NAME = 'dph_services'
 PACKAGE_DESC = 'Python client library for DPH Services'
 
 with open('requirements.txt') as f:
@@ -49,7 +49,7 @@ setup(
     install_requires=install_requires,
     tests_require=tests_require,
     author='IBM',
-    author_email='greeshma.rajendran@ibm.com',
+    author_email='selva.kumar.jothi.arumugam@ibm.com',
     long_description=readme,
     long_description_content_type='text/markdown',
     url='https://github.com/IBM/data-product-exchange-python-sdk',
@@ -63,6 +63,8 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+		'Programming Language :: Python :: 3.11',
+		'Programming Language :: Python :: 3.12',
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',

@@ -1,6 +1,5 @@
 # coding: utf-8
-
-# (C) Copyright IBM Corp. 2019, 2020.
+# Copyright 2019, 2020 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Version of ibm_dpx_services
-"""
-__version__ = '0.0.6'
+"""Python client library for the DPH Services"""
+
+from ibm_cloud_sdk_core import IAMTokenManager, DetailedResponse, BaseService, ApiException
+
+from .common import get_sdk_headers
+from .version import __version__
+from .data_product_hub_api_service_v1 import DataProductHubApiServiceV1

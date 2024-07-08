@@ -14,12 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# IBM OpenAPI SDK Code Generator Version: 3.86.0-bc6f14b3-20240221-193958
+# IBM OpenAPI SDK Code Generator Version: 3.92.0-af5c89a5-20240617-153232
 
 """
-Data Product Exchange API Service
+Data Product Hub API Service
 
-API Version: 1.0.0
+API Version: 0.1.0
 """
 
 from datetime import datetime
@@ -39,23 +39,25 @@ from .common import get_sdk_headers
 ##############################################################################
 
 
-class DpxV1(BaseService):
-    """The DPX V1 service."""
+class DataProductHubApiServiceV1(BaseService):
+    """The Data Product Hub API Service V1 service."""
 
-    DEFAULT_SERVICE_URL = None
-    DEFAULT_SERVICE_NAME = 'dpx'
+    DEFAULT_SERVICE_URL = 'https://api.dataplatform.dev.cloud.ibm.com/'
+    DEFAULT_SERVICE_NAME = 'data_product_hub_api_service'
 
     @classmethod
     def new_instance(
         cls,
         service_name: str = DEFAULT_SERVICE_NAME,
-    ) -> 'DpxV1':
+    ) -> 'DataProductHubApiServiceV1':
         """
-        Return a new client for the DPX service using the specified parameters and
-               external configuration.
+        Return a new client for the Data Product Hub API Service service using the
+               specified parameters and external configuration.
         """
         authenticator = get_authenticator_from_environment(service_name)
-        service = cls(authenticator)
+        service = cls(
+            authenticator
+            )
         service.configure_service(service_name)
         return service
 
@@ -64,7 +66,7 @@ class DpxV1(BaseService):
         authenticator: Authenticator = None,
     ) -> None:
         """
-        Construct a new client for the DPX service.
+        Construct a new client for the Data Product Hub API Service service.
 
         :param Authenticator authenticator: The authenticator specifies the authentication mechanism.
                Get up to date information from https://github.com/IBM/python-sdk-core/blob/main/README.md
@@ -86,13 +88,13 @@ class DpxV1(BaseService):
         Get resource initialization status.
 
         Use this API to get the status of resource initialization in Data Product
-        Exchange.<br/><br/>If the data product catalog exists but has never been
-        initialized, the status will be "not_started".<br/><br/>If the data product
-        catalog exists and has been or is being initialized, the response will contain the
-        status of the last or current initialization. If the initialization failed, the
-        "errors" and "trace" fields will contain the error(s) encountered during the
-        initialization, including the ID to trace the error(s).<br/><br/>If the data
-        product catalog doesn't exist, an HTTP 404 response is returned.
+        Hub.<br/><br/>If the data product catalog exists but has never been initialized,
+        the status will be "not_started".<br/><br/>If the data product catalog exists and
+        has been or is being initialized, the response will contain the status of the last
+        or current initialization. If the initialization failed, the "errors" and "trace"
+        fields will contain the error(s) encountered during the initialization, including
+        the ID to trace the error(s).<br/><br/>If the data product catalog doesn't exist,
+        an HTTP 404 response is returned.
 
         :param str container_id: (optional) Container ID of the data product
                catalog. If not supplied, the data product catalog is looked up by using
@@ -130,6 +132,43 @@ class DpxV1(BaseService):
         response = self.send(request, **kwargs)
         return response
 
+    def get_service_id_credentials(
+        self,
+        **kwargs,
+    ) -> DetailedResponse:
+        """
+        Get service id credentials.
+
+        Use this API to get the information of service id credentials in Data Product Hub.
+
+        :param dict headers: A `dict` containing the request headers
+        :return: A `DetailedResponse` containing the result, headers and HTTP status code.
+        :rtype: DetailedResponse with `dict` result representing a `ServiceIdCredentials` object
+        """
+
+        headers = {}
+        sdk_headers = get_sdk_headers(
+            service_name=self.DEFAULT_SERVICE_NAME,
+            service_version='V1',
+            operation_id='get_service_id_credentials',
+        )
+        headers.update(sdk_headers)
+
+        if 'headers' in kwargs:
+            headers.update(kwargs.get('headers'))
+            del kwargs['headers']
+        headers['Accept'] = 'application/json'
+
+        url = '/data_product_exchange/v1/configuration/credentials'
+        request = self.prepare_request(
+            method='GET',
+            url=url,
+            headers=headers,
+        )
+
+        response = self.send(request, **kwargs)
+        return response
+
     def initialize(
         self,
         *,
@@ -140,27 +179,27 @@ class DpxV1(BaseService):
         """
         Initialize resources.
 
-        Use this API to initialize default assets for data product exchange. <br/><br/>You
-        can initialize: <br/><ul><li>`delivery_methods` - Methods through which data
-        product parts can be delivered to consumers of the data product
-        exchange</li><li>`domains_multi_industry` - Taxonomy of domains and use cases
+        Use this API to initialize default assets for data product hub. <br/><br/>You can
+        initialize: <br/><ul><li>`delivery_methods` - Methods through which data product
+        parts can be delivered to consumers of the data product
+        hub</li><li>`domains_multi_industry` - Taxonomy of domains and use cases
         applicable to multiple industries</li><li>`data_product_samples` - Sample data
         products used to illustrate capabilities of the data product
-        exchange</li></ul><br/><br/>If a resource depends on resources that are not
-        specified in the request, these dependent resources will be automatically
-        initialized. E.g., initializing `data_product_samples` will also initialize
-        `domains_multi_industry` and `delivery_methods` even if they are not specified in
-        the request because it depends on them.<br/><br/>If initializing the data product
-        exchange for the first time, do not specify a container. The default data product
-        catalog will be created.<br/>For first time initialization, it is recommended that
-        at least `delivery_methods` and `domains_multi_industry` is included in the
-        initialize operation.<br/><br/>If the data product exchange has already been
-        initialized, you may call this API again to initialize new resources, such as new
-        delivery methods.In this case, specify the default data product catalog container
-        information.
+        hub</li><li>`workflows` - Workflows to enable restricted data
+        products</li><li>`project` - A default project for exporting data assets to
+        files</li></ul><br/><br/>If a resource depends on resources that are not specified
+        in the request, these dependent resources will be automatically initialized. E.g.,
+        initializing `data_product_samples` will also initialize `domains_multi_industry`
+        and `delivery_methods` even if they are not specified in the request because it
+        depends on them.<br/><br/>If initializing the data product hub for the first time,
+        do not specify a container. The default data product catalog will be
+        created.<br/>For first time initialization, it is recommended that at least
+        `delivery_methods` and `domains_multi_industry` is included in the initialize
+        operation.<br/><br/>If the data product hub has already been initialized, you may
+        call this API again to initialize new resources, such as new delivery methods.In
+        this case, specify the default data product catalog container information.
 
-        :param ContainerReference container: (optional) Data product exchange
-               container.
+        :param ContainerReference container: (optional) Container reference.
         :param List[str] include: (optional) List of configuration options to
                (re-)initialize.
         :param dict headers: A `dict` containing the request headers
@@ -207,9 +246,9 @@ class DpxV1(BaseService):
         **kwargs,
     ) -> DetailedResponse:
         """
-        Rotate credentials for a Data Product Exchange instance.
+        Rotate credentials for a Data Product Hub instance.
 
-        Use this API to rotate credentials for a Data Product Exchange instance.
+        Use this API to rotate credentials for a Data Product Hub instance.
 
         :param dict headers: A `dict` containing the request headers
         :return: A `DetailedResponse` containing the result, headers and HTTP status code.
@@ -250,8 +289,6 @@ class DpxV1(BaseService):
         **kwargs,
     ) -> DetailedResponse:
         """
-        Retrieve a list of data products.
-
         Retrieve a list of data products.
 
         :param int limit: (optional) Limit the number of data products in the
@@ -353,8 +390,6 @@ class DpxV1(BaseService):
         """
         Retrieve a data product identified by id.
 
-        Retrieve a data product identified by id.
-
         :param str data_product_id: Data product ID.
         :param dict headers: A `dict` containing the request headers
         :return: A `DetailedResponse` containing the result, headers and HTTP status code.
@@ -447,9 +482,7 @@ class DpxV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}/complete'.format(
-            **path_param_dict
-        )
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}/complete'.format(**path_param_dict)
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -470,8 +503,6 @@ class DpxV1(BaseService):
         **kwargs,
     ) -> DetailedResponse:
         """
-        Retrieve a list of data product drafts.
-
         Retrieve a list of data product drafts.
 
         :param str data_product_id: Data product ID. Use '-' to skip specifying the
@@ -527,7 +558,7 @@ class DpxV1(BaseService):
     def create_data_product_draft(
         self,
         data_product_id: str,
-        asset: 'AssetReference',
+        asset: 'AssetPrototype',
         *,
         version: Optional[str] = None,
         state: Optional[str] = None,
@@ -536,21 +567,20 @@ class DpxV1(BaseService):
         description: Optional[str] = None,
         tags: Optional[List[str]] = None,
         use_cases: Optional[List['UseCase']] = None,
-        domain: Optional['Domain'] = None,
         types: Optional[List[str]] = None,
-        parts_out: Optional[List['DataProductPart']] = None,
         contract_terms: Optional[List['DataProductContractTerms']] = None,
         is_restricted: Optional[bool] = None,
+        domain: Optional['Domain'] = None,
+        parts_out: Optional[List['DataProductPart']] = None,
+        workflows: Optional['DataProductWorkflows'] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
         Create a new draft of an existing data product.
 
-        Create a new draft of an existing data product.
 
         :param str data_product_id: Data product ID.
-        :param AssetReference asset: The asset referenced by the data product
-               version.
+        :param AssetPrototype asset: New asset input properties.
         :param str version: (optional) The data product version number.
         :param str state: (optional) The state of the data product version. If not
                specified, the data product version will be created in `draft` state.
@@ -565,35 +595,27 @@ class DpxV1(BaseService):
         :param str description: (optional) Description of the data product version.
                If this is a new version of an existing data product, the description will
                default to the description of the previous version of the data product.
-        :param List[str] tags: (optional) Tags on the new data product version. If
-               this is the first version of a data product, tags defaults to an empty
-               list. If this is a new version of an existing data product, tags will
-               default to the list of tags on the previous version of the data product.
-        :param List[UseCase] use_cases: (optional) Use cases that the data product
-               version serves. If this is the first version of a data product, use cases
-               defaults to an empty list. If this is a new version of an existing data
-               product, use cases will default to the list of use cases on the previous
-               version of the data product.
+        :param List[str] tags: (optional) Tags on the data product.
+        :param List[UseCase] use_cases: (optional) A list of use cases associated
+               with the data product version.
+        :param List[str] types: (optional) Types of parts on the data product.
+        :param List[DataProductContractTerms] contract_terms: (optional) Contract
+               terms binding various aspects of the data product.
+        :param bool is_restricted: (optional) Indicates whether the data product is
+               restricted or not. A restricted data product indicates that orders of the
+               data product requires explicit approval before data is delivered.
         :param Domain domain: (optional) Domain that the data product version
                belongs to. If this is the first version of a data product, this field is
                required. If this is a new version of an existing data product, the domain
                will default to the domain of the previous version of the data product.
-        :param List[str] types: (optional) The types of the parts included in this
-               data product version. If this is the first version of a data product, this
-               field defaults to an empty list. If this is a new version of an existing
-               data product, the types will default to the types of the previous version
-               of the data product.
         :param List[DataProductPart] parts_out: (optional) The outgoing parts of
                this data product version to be delivered to consumers. If this is the
                first version of a data product, this field defaults to an empty list. If
                this is a new version of an existing data product, the data product parts
                will default to the parts list from the previous version of the data
                product.
-        :param List[DataProductContractTerms] contract_terms: (optional) The
-               contract terms that bind interactions with this data product version.
-        :param bool is_restricted: (optional) Indicates whether the data product is
-               restricted or not. A restricted data product indicates that orders of the
-               data product requires explicit approval before data is delivered.
+        :param DataProductWorkflows workflows: (optional) The workflows associated
+               with the data product version.
         :param dict headers: A `dict` containing the request headers
         :return: A `DetailedResponse` containing the result, headers and HTTP status code.
         :rtype: DetailedResponse with `dict` result representing a `DataProductVersion` object
@@ -608,12 +630,14 @@ class DpxV1(BaseService):
             data_product = convert_model(data_product)
         if use_cases is not None:
             use_cases = [convert_model(x) for x in use_cases]
+        if contract_terms is not None:
+            contract_terms = [convert_model(x) for x in contract_terms]
         if domain is not None:
             domain = convert_model(domain)
         if parts_out is not None:
             parts_out = [convert_model(x) for x in parts_out]
-        if contract_terms is not None:
-            contract_terms = [convert_model(x) for x in contract_terms]
+        if workflows is not None:
+            workflows = convert_model(workflows)
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
@@ -631,11 +655,12 @@ class DpxV1(BaseService):
             'description': description,
             'tags': tags,
             'use_cases': use_cases,
-            'domain': domain,
             'types': types,
-            'parts_out': parts_out,
             'contract_terms': contract_terms,
             'is_restricted': is_restricted,
+            'domain': domain,
+            'parts_out': parts_out,
+            'workflows': workflows,
         }
         data = {k: v for (k, v) in data.items() if v is not None}
         data = json.dumps(data)
@@ -750,9 +775,7 @@ class DpxV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents'.format(
-            **path_param_dict
-        )
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents'.format(**path_param_dict)
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -772,7 +795,6 @@ class DpxV1(BaseService):
         """
         Get a draft of an existing data product.
 
-        Get a draft of an existing data product.
 
         :param str data_product_id: Data product ID. Use '-' to skip specifying the
                data product ID explicitly.
@@ -976,9 +998,7 @@ class DpxV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(
-            **path_param_dict
-        )
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(**path_param_dict)
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -1036,9 +1056,7 @@ class DpxV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(
-            **path_param_dict
-        )
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(**path_param_dict)
         request = self.prepare_request(
             method='DELETE',
             url=url,
@@ -1112,9 +1130,7 @@ class DpxV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(
-            **path_param_dict
-        )
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(**path_param_dict)
         request = self.prepare_request(
             method='PATCH',
             url=url,
@@ -1134,7 +1150,6 @@ class DpxV1(BaseService):
         """
         Publish a draft of an existing data product.
 
-        Publish a draft of an existing data product.
 
         :param str data_product_id: Data product ID. Use '-' to skip specifying the
                data product ID explicitly.
@@ -1164,9 +1179,7 @@ class DpxV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/publish'.format(
-            **path_param_dict
-        )
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/publish'.format(**path_param_dict)
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -1219,9 +1232,7 @@ class DpxV1(BaseService):
         path_param_keys = ['data_product_id', 'release_id']
         path_param_values = self.encode_path_vars(data_product_id, release_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}'.format(
-            **path_param_dict
-        )
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}'.format(**path_param_dict)
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -1284,9 +1295,7 @@ class DpxV1(BaseService):
         path_param_keys = ['data_product_id', 'release_id']
         path_param_values = self.encode_path_vars(data_product_id, release_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}'.format(
-            **path_param_dict
-        )
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}'.format(**path_param_dict)
         request = self.prepare_request(
             method='PATCH',
             url=url,
@@ -1349,9 +1358,7 @@ class DpxV1(BaseService):
         path_param_keys = ['data_product_id', 'release_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, release_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(
-            **path_param_dict
-        )
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(**path_param_dict)
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -1375,7 +1382,6 @@ class DpxV1(BaseService):
         """
         Retrieve a list of data product releases.
 
-        Retrieve a list of data product releases.
 
         :param str data_product_id: Data product ID. Use '-' to skip specifying the
                data product ID explicitly.
@@ -1440,7 +1446,6 @@ class DpxV1(BaseService):
         """
         Retire a release of an existing data product.
 
-        Retire a release of an existing data product.
 
         :param str data_product_id: Data product ID. Use '-' to skip specifying the
                data product ID explicitly.
@@ -1470,9 +1475,7 @@ class DpxV1(BaseService):
         path_param_keys = ['data_product_id', 'release_id']
         path_param_values = self.encode_path_vars(data_product_id, release_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/retire'.format(
-            **path_param_dict
-        )
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/retire'.format(**path_param_dict)
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -1508,7 +1511,7 @@ class AssetPartReference:
     The asset represented in this part.
 
     :param str id: (optional) The unique identifier of the asset.
-    :param ContainerReference container: Data product exchange container.
+    :param ContainerReference container: Container reference.
     :param str type: (optional) The type of the asset.
     """
 
@@ -1522,7 +1525,7 @@ class AssetPartReference:
         """
         Initialize a AssetPartReference object.
 
-        :param ContainerReference container: Data product exchange container.
+        :param ContainerReference container: Container reference.
         :param str id: (optional) The unique identifier of the asset.
         :param str type: (optional) The type of the asset.
         """
@@ -1582,12 +1585,83 @@ class AssetPartReference:
         return not self == other
 
 
-class AssetReference:
+class AssetPrototype:
     """
-    The asset referenced by the data product version.
+    New asset input properties.
 
     :param str id: (optional) The unique identifier of the asset.
-    :param ContainerReference container: Data product exchange container.
+    :param ContainerIdentity container:
+    """
+
+    def __init__(
+        self,
+        container: 'ContainerIdentity',
+        *,
+        id: Optional[str] = None,
+    ) -> None:
+        """
+        Initialize a AssetPrototype object.
+
+        :param ContainerIdentity container:
+        :param str id: (optional) The unique identifier of the asset.
+        """
+        self.id = id
+        self.container = container
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'AssetPrototype':
+        """Initialize a AssetPrototype object from a json dictionary."""
+        args = {}
+        if (id := _dict.get('id')) is not None:
+            args['id'] = id
+        if (container := _dict.get('container')) is not None:
+            args['container'] = ContainerIdentity.from_dict(container)
+        else:
+            raise ValueError('Required property \'container\' not present in AssetPrototype JSON')
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a AssetPrototype object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'id') and self.id is not None:
+            _dict['id'] = self.id
+        if hasattr(self, 'container') and self.container is not None:
+            if isinstance(self.container, dict):
+                _dict['container'] = self.container
+            else:
+                _dict['container'] = self.container.to_dict()
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this AssetPrototype object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'AssetPrototype') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'AssetPrototype') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
+class AssetReference:
+    """
+    AssetReference.
+
+    :param str id: (optional) The unique identifier of the asset.
+    :param ContainerReference container: Container reference.
     """
 
     def __init__(
@@ -1599,7 +1673,7 @@ class AssetReference:
         """
         Initialize a AssetReference object.
 
-        :param ContainerReference container: Data product exchange container.
+        :param ContainerReference container: Container reference.
         :param str id: (optional) The unique identifier of the asset.
         """
         self.id = id
@@ -1653,25 +1727,83 @@ class AssetReference:
         return not self == other
 
 
-class ContainerReference:
+class ContainerIdentity:
     """
-    Data product exchange container.
+    ContainerIdentity.
 
     :param str id: Container identifier.
-    :param str type: (optional) Container type.
     """
 
     def __init__(
         self,
         id: str,
-        *,
-        type: Optional[str] = None,
+    ) -> None:
+        """
+        Initialize a ContainerIdentity object.
+
+        :param str id: Container identifier.
+        """
+        self.id = id
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'ContainerIdentity':
+        """Initialize a ContainerIdentity object from a json dictionary."""
+        args = {}
+        if (id := _dict.get('id')) is not None:
+            args['id'] = id
+        else:
+            raise ValueError('Required property \'id\' not present in ContainerIdentity JSON')
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a ContainerIdentity object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'id') and self.id is not None:
+            _dict['id'] = self.id
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this ContainerIdentity object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'ContainerIdentity') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'ContainerIdentity') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
+class ContainerReference:
+    """
+    Container reference.
+
+    :param str id: Container identifier.
+    :param str type: Container type.
+    """
+
+    def __init__(
+        self,
+        id: str,
+        type: str,
     ) -> None:
         """
         Initialize a ContainerReference object.
 
         :param str id: Container identifier.
-        :param str type: (optional) Container type.
+        :param str type: Container type.
         """
         self.id = id
         self.type = type
@@ -1686,6 +1818,8 @@ class ContainerReference:
             raise ValueError('Required property \'id\' not present in ContainerReference JSON')
         if (type := _dict.get('type')) is not None:
             args['type'] = type
+        else:
+            raise ValueError('Required property \'type\' not present in ContainerReference JSON')
         return cls(**args)
 
     @classmethod
@@ -1726,6 +1860,8 @@ class ContainerReference:
         """
 
         CATALOG = 'catalog'
+        PROJECT = 'project'
+
 
 
 class ContractTermsDocument:
@@ -1851,6 +1987,7 @@ class ContractTermsDocument:
         SLA = 'sla'
 
 
+
 class ContractTermsDocumentAttachment:
     """
     Attachment associated witht the document.
@@ -1914,7 +2051,7 @@ class DataProduct:
     Data Product.
 
     :param str id: Data product identifier.
-    :param ContainerReference container: Data product exchange container.
+    :param ContainerReference container: Container reference.
     :param DataProductVersionSummary latest_release: (optional) Summary of Data
           Product Version object.
     :param List[DataProductVersionSummary] drafts: (optional) List of draft
@@ -1933,7 +2070,7 @@ class DataProduct:
         Initialize a DataProduct object.
 
         :param str id: Data product identifier.
-        :param ContainerReference container: Data product exchange container.
+        :param ContainerReference container: Container reference.
         :param DataProductVersionSummary latest_release: (optional) Summary of Data
                Product Version object.
         :param List[DataProductVersionSummary] drafts: (optional) List of draft
@@ -2015,8 +2152,7 @@ class DataProductContractTerms:
     """
     DataProductContractTerms.
 
-    :param AssetReference asset: (optional) The asset referenced by the data product
-          version.
+    :param AssetReference asset: (optional)
     :param str id: (optional) ID of the contract terms.
     :param List[ContractTermsDocument] documents: (optional) Collection of contract
           terms documents.
@@ -2032,8 +2168,7 @@ class DataProductContractTerms:
         """
         Initialize a DataProductContractTerms object.
 
-        :param AssetReference asset: (optional) The asset referenced by the data
-               product version.
+        :param AssetReference asset: (optional)
         :param str id: (optional) ID of the contract terms.
         :param List[ContractTermsDocument] documents: (optional) Collection of
                contract terms documents.
@@ -2259,15 +2394,71 @@ class DataProductIdentity:
         return not self == other
 
 
+class DataProductOrderAccessRequest:
+    """
+    The approval workflows associated with the data product version.
+
+    :param List[str] task_assignee_users: (optional) The workflow approvers
+          associated with the data product version.
+    """
+
+    def __init__(
+        self,
+        *,
+        task_assignee_users: Optional[List[str]] = None,
+    ) -> None:
+        """
+        Initialize a DataProductOrderAccessRequest object.
+
+        :param List[str] task_assignee_users: (optional) The workflow approvers
+               associated with the data product version.
+        """
+        self.task_assignee_users = task_assignee_users
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'DataProductOrderAccessRequest':
+        """Initialize a DataProductOrderAccessRequest object from a json dictionary."""
+        args = {}
+        if (task_assignee_users := _dict.get('task_assignee_users')) is not None:
+            args['task_assignee_users'] = task_assignee_users
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a DataProductOrderAccessRequest object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'task_assignee_users') and self.task_assignee_users is not None:
+            _dict['task_assignee_users'] = self.task_assignee_users
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this DataProductOrderAccessRequest object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'DataProductOrderAccessRequest') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'DataProductOrderAccessRequest') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
 class DataProductPart:
     """
-    DataProductPart.
+    Data Product Part.
 
     :param AssetPartReference asset: The asset represented in this part.
-    :param int revision: (optional) The revision number of the asset represented in
-          this part.
-    :param datetime updated_at: (optional) The time for when the part was last
-          updated.
     :param List[DeliveryMethod] delivery_methods: (optional) Delivery methods
           describing the delivery options available for this part.
     """
@@ -2276,24 +2467,16 @@ class DataProductPart:
         self,
         asset: 'AssetPartReference',
         *,
-        revision: Optional[int] = None,
-        updated_at: Optional[datetime] = None,
         delivery_methods: Optional[List['DeliveryMethod']] = None,
     ) -> None:
         """
         Initialize a DataProductPart object.
 
         :param AssetPartReference asset: The asset represented in this part.
-        :param int revision: (optional) The revision number of the asset
-               represented in this part.
-        :param datetime updated_at: (optional) The time for when the part was last
-               updated.
         :param List[DeliveryMethod] delivery_methods: (optional) Delivery methods
                describing the delivery options available for this part.
         """
         self.asset = asset
-        self.revision = revision
-        self.updated_at = updated_at
         self.delivery_methods = delivery_methods
 
     @classmethod
@@ -2304,10 +2487,6 @@ class DataProductPart:
             args['asset'] = AssetPartReference.from_dict(asset)
         else:
             raise ValueError('Required property \'asset\' not present in DataProductPart JSON')
-        if (revision := _dict.get('revision')) is not None:
-            args['revision'] = revision
-        if (updated_at := _dict.get('updated_at')) is not None:
-            args['updated_at'] = string_to_datetime(updated_at)
         if (delivery_methods := _dict.get('delivery_methods')) is not None:
             args['delivery_methods'] = [DeliveryMethod.from_dict(v) for v in delivery_methods]
         return cls(**args)
@@ -2325,10 +2504,6 @@ class DataProductPart:
                 _dict['asset'] = self.asset
             else:
                 _dict['asset'] = self.asset.to_dict()
-        if hasattr(self, 'revision') and self.revision is not None:
-            _dict['revision'] = self.revision
-        if hasattr(self, 'updated_at') and self.updated_at is not None:
-            _dict['updated_at'] = datetime_to_string(self.updated_at)
         if hasattr(self, 'delivery_methods') and self.delivery_methods is not None:
             delivery_methods_list = []
             for v in self.delivery_methods:
@@ -2465,7 +2640,7 @@ class DataProductSummary:
     Data Product Summary.
 
     :param str id: Data product identifier.
-    :param ContainerReference container: Data product exchange container.
+    :param ContainerReference container: Container reference.
     """
 
     def __init__(
@@ -2477,7 +2652,7 @@ class DataProductSummary:
         Initialize a DataProductSummary object.
 
         :param str id: Data product identifier.
-        :param ContainerReference container: Data product exchange container.
+        :param ContainerReference container: Container reference.
         """
         self.id = id
         self.container = container
@@ -2640,43 +2815,50 @@ class DataProductVersion:
 
     :param str version: The data product version number.
     :param str state: The state of the data product version.
-    :param DataProductIdentity data_product: Data product identifier.
+    :param DataProductVersionDataProduct data_product: Data product reference.
     :param str name: The name of the data product version. A name can contain
           letters, numbers, understores, dashes, spaces or periods. Names are mutable and
           reusable.
     :param str description: The description of the data product version.
+    :param List[str] tags: Tags on the data product.
+    :param List[UseCase] use_cases: A list of use cases associated with the data
+          product version.
+    :param List[str] types: Types of parts on the data product.
+    :param List[DataProductContractTerms] contract_terms: Contract terms binding
+          various aspects of the data product.
+    :param bool is_restricted: Indicates whether the data product is restricted or
+          not. A restricted data product indicates that orders of the data product
+          requires explicit approval before data is delivered.
     :param str id: The identifier of the data product version.
-    :param AssetReference asset: The asset referenced by the data product version.
-    :param List[str] tags: (optional) Tags on the data product.
-    :param List[UseCase] use_cases: (optional) A list of use cases associated with
-          the data product version.
+    :param AssetReference asset:
     :param Domain domain: Domain that the data product version belongs to. If this
           is the first version of a data product, this field is required. If this is a new
           version of an existing data product, the domain will default to the domain of
           the previous version of the data product.
-    :param List[str] types: (optional) Types of parts on the data product.
     :param List[DataProductPart] parts_out: Outgoing parts of a data product used to
           deliver the data product to consumers.
     :param str published_by: (optional) The user who published this data product
           version.
     :param datetime published_at: (optional) The time when this data product version
           was published.
-    :param List[DataProductContractTerms] contract_terms: (optional) Contract terms
-          binding various aspects of the data product.
     :param str created_by: The creator of this data product version.
     :param datetime created_at: The time when this data product version was created.
-    :param bool is_restricted: (optional) Indicates whether the data product is
-          restricted or not. A restricted data product indicates that orders of the data
-          product requires explicit approval before data is delivered.
+    :param DataProductWorkflows workflows: (optional) The workflows associated with
+          the data product version.
     """
 
     def __init__(
         self,
         version: str,
         state: str,
-        data_product: 'DataProductIdentity',
+        data_product: 'DataProductVersionDataProduct',
         name: str,
         description: str,
+        tags: List[str],
+        use_cases: List['UseCase'],
+        types: List[str],
+        contract_terms: List['DataProductContractTerms'],
+        is_restricted: bool,
         id: str,
         asset: 'AssetReference',
         domain: 'Domain',
@@ -2684,27 +2866,31 @@ class DataProductVersion:
         created_by: str,
         created_at: datetime,
         *,
-        tags: Optional[List[str]] = None,
-        use_cases: Optional[List['UseCase']] = None,
-        types: Optional[List[str]] = None,
         published_by: Optional[str] = None,
         published_at: Optional[datetime] = None,
-        contract_terms: Optional[List['DataProductContractTerms']] = None,
-        is_restricted: Optional[bool] = None,
+        workflows: Optional['DataProductWorkflows'] = None,
     ) -> None:
         """
         Initialize a DataProductVersion object.
 
         :param str version: The data product version number.
         :param str state: The state of the data product version.
-        :param DataProductIdentity data_product: Data product identifier.
+        :param DataProductVersionDataProduct data_product: Data product reference.
         :param str name: The name of the data product version. A name can contain
                letters, numbers, understores, dashes, spaces or periods. Names are mutable
                and reusable.
         :param str description: The description of the data product version.
+        :param List[str] tags: Tags on the data product.
+        :param List[UseCase] use_cases: A list of use cases associated with the
+               data product version.
+        :param List[str] types: Types of parts on the data product.
+        :param List[DataProductContractTerms] contract_terms: Contract terms
+               binding various aspects of the data product.
+        :param bool is_restricted: Indicates whether the data product is restricted
+               or not. A restricted data product indicates that orders of the data product
+               requires explicit approval before data is delivered.
         :param str id: The identifier of the data product version.
-        :param AssetReference asset: The asset referenced by the data product
-               version.
+        :param AssetReference asset:
         :param Domain domain: Domain that the data product version belongs to. If
                this is the first version of a data product, this field is required. If
                this is a new version of an existing data product, the domain will default
@@ -2714,38 +2900,32 @@ class DataProductVersion:
         :param str created_by: The creator of this data product version.
         :param datetime created_at: The time when this data product version was
                created.
-        :param List[str] tags: (optional) Tags on the data product.
-        :param List[UseCase] use_cases: (optional) A list of use cases associated
-               with the data product version.
-        :param List[str] types: (optional) Types of parts on the data product.
         :param str published_by: (optional) The user who published this data
                product version.
         :param datetime published_at: (optional) The time when this data product
                version was published.
-        :param List[DataProductContractTerms] contract_terms: (optional) Contract
-               terms binding various aspects of the data product.
-        :param bool is_restricted: (optional) Indicates whether the data product is
-               restricted or not. A restricted data product indicates that orders of the
-               data product requires explicit approval before data is delivered.
+        :param DataProductWorkflows workflows: (optional) The workflows associated
+               with the data product version.
         """
         self.version = version
         self.state = state
         self.data_product = data_product
         self.name = name
         self.description = description
-        self.id = id
-        self.asset = asset
         self.tags = tags
         self.use_cases = use_cases
-        self.domain = domain
         self.types = types
+        self.contract_terms = contract_terms
+        self.is_restricted = is_restricted
+        self.id = id
+        self.asset = asset
+        self.domain = domain
         self.parts_out = parts_out
         self.published_by = published_by
         self.published_at = published_at
-        self.contract_terms = contract_terms
         self.created_by = created_by
         self.created_at = created_at
-        self.is_restricted = is_restricted
+        self.workflows = workflows
 
     @classmethod
     def from_dict(cls, _dict: Dict) -> 'DataProductVersion':
@@ -2760,7 +2940,7 @@ class DataProductVersion:
         else:
             raise ValueError('Required property \'state\' not present in DataProductVersion JSON')
         if (data_product := _dict.get('data_product')) is not None:
-            args['data_product'] = DataProductIdentity.from_dict(data_product)
+            args['data_product'] = DataProductVersionDataProduct.from_dict(data_product)
         else:
             raise ValueError('Required property \'data_product\' not present in DataProductVersion JSON')
         if (name := _dict.get('name')) is not None:
@@ -2771,6 +2951,26 @@ class DataProductVersion:
             args['description'] = description
         else:
             raise ValueError('Required property \'description\' not present in DataProductVersion JSON')
+        if (tags := _dict.get('tags')) is not None:
+            args['tags'] = tags
+        else:
+            raise ValueError('Required property \'tags\' not present in DataProductVersion JSON')
+        if (use_cases := _dict.get('use_cases')) is not None:
+            args['use_cases'] = [UseCase.from_dict(v) for v in use_cases]
+        else:
+            raise ValueError('Required property \'use_cases\' not present in DataProductVersion JSON')
+        if (types := _dict.get('types')) is not None:
+            args['types'] = types
+        else:
+            raise ValueError('Required property \'types\' not present in DataProductVersion JSON')
+        if (contract_terms := _dict.get('contract_terms')) is not None:
+            args['contract_terms'] = [DataProductContractTerms.from_dict(v) for v in contract_terms]
+        else:
+            raise ValueError('Required property \'contract_terms\' not present in DataProductVersion JSON')
+        if (is_restricted := _dict.get('is_restricted')) is not None:
+            args['is_restricted'] = is_restricted
+        else:
+            raise ValueError('Required property \'is_restricted\' not present in DataProductVersion JSON')
         if (id := _dict.get('id')) is not None:
             args['id'] = id
         else:
@@ -2779,16 +2979,10 @@ class DataProductVersion:
             args['asset'] = AssetReference.from_dict(asset)
         else:
             raise ValueError('Required property \'asset\' not present in DataProductVersion JSON')
-        if (tags := _dict.get('tags')) is not None:
-            args['tags'] = tags
-        if (use_cases := _dict.get('use_cases')) is not None:
-            args['use_cases'] = [UseCase.from_dict(v) for v in use_cases]
         if (domain := _dict.get('domain')) is not None:
             args['domain'] = Domain.from_dict(domain)
         else:
             raise ValueError('Required property \'domain\' not present in DataProductVersion JSON')
-        if (types := _dict.get('types')) is not None:
-            args['types'] = types
         if (parts_out := _dict.get('parts_out')) is not None:
             args['parts_out'] = [DataProductPart.from_dict(v) for v in parts_out]
         else:
@@ -2797,8 +2991,6 @@ class DataProductVersion:
             args['published_by'] = published_by
         if (published_at := _dict.get('published_at')) is not None:
             args['published_at'] = string_to_datetime(published_at)
-        if (contract_terms := _dict.get('contract_terms')) is not None:
-            args['contract_terms'] = [DataProductContractTerms.from_dict(v) for v in contract_terms]
         if (created_by := _dict.get('created_by')) is not None:
             args['created_by'] = created_by
         else:
@@ -2807,8 +2999,8 @@ class DataProductVersion:
             args['created_at'] = string_to_datetime(created_at)
         else:
             raise ValueError('Required property \'created_at\' not present in DataProductVersion JSON')
-        if (is_restricted := _dict.get('is_restricted')) is not None:
-            args['is_restricted'] = is_restricted
+        if (workflows := _dict.get('workflows')) is not None:
+            args['workflows'] = DataProductWorkflows.from_dict(workflows)
         return cls(**args)
 
     @classmethod
@@ -2832,13 +3024,6 @@ class DataProductVersion:
             _dict['name'] = self.name
         if hasattr(self, 'description') and self.description is not None:
             _dict['description'] = self.description
-        if hasattr(self, 'id') and self.id is not None:
-            _dict['id'] = self.id
-        if hasattr(self, 'asset') and self.asset is not None:
-            if isinstance(self.asset, dict):
-                _dict['asset'] = self.asset
-            else:
-                _dict['asset'] = self.asset.to_dict()
         if hasattr(self, 'tags') and self.tags is not None:
             _dict['tags'] = self.tags
         if hasattr(self, 'use_cases') and self.use_cases is not None:
@@ -2849,13 +3034,30 @@ class DataProductVersion:
                 else:
                     use_cases_list.append(v.to_dict())
             _dict['use_cases'] = use_cases_list
+        if hasattr(self, 'types') and self.types is not None:
+            _dict['types'] = self.types
+        if hasattr(self, 'contract_terms') and self.contract_terms is not None:
+            contract_terms_list = []
+            for v in self.contract_terms:
+                if isinstance(v, dict):
+                    contract_terms_list.append(v)
+                else:
+                    contract_terms_list.append(v.to_dict())
+            _dict['contract_terms'] = contract_terms_list
+        if hasattr(self, 'is_restricted') and self.is_restricted is not None:
+            _dict['is_restricted'] = self.is_restricted
+        if hasattr(self, 'id') and self.id is not None:
+            _dict['id'] = self.id
+        if hasattr(self, 'asset') and self.asset is not None:
+            if isinstance(self.asset, dict):
+                _dict['asset'] = self.asset
+            else:
+                _dict['asset'] = self.asset.to_dict()
         if hasattr(self, 'domain') and self.domain is not None:
             if isinstance(self.domain, dict):
                 _dict['domain'] = self.domain
             else:
                 _dict['domain'] = self.domain.to_dict()
-        if hasattr(self, 'types') and self.types is not None:
-            _dict['types'] = self.types
         if hasattr(self, 'parts_out') and self.parts_out is not None:
             parts_out_list = []
             for v in self.parts_out:
@@ -2868,20 +3070,15 @@ class DataProductVersion:
             _dict['published_by'] = self.published_by
         if hasattr(self, 'published_at') and self.published_at is not None:
             _dict['published_at'] = datetime_to_string(self.published_at)
-        if hasattr(self, 'contract_terms') and self.contract_terms is not None:
-            contract_terms_list = []
-            for v in self.contract_terms:
-                if isinstance(v, dict):
-                    contract_terms_list.append(v)
-                else:
-                    contract_terms_list.append(v.to_dict())
-            _dict['contract_terms'] = contract_terms_list
         if hasattr(self, 'created_by') and self.created_by is not None:
             _dict['created_by'] = self.created_by
         if hasattr(self, 'created_at') and self.created_at is not None:
             _dict['created_at'] = datetime_to_string(self.created_at)
-        if hasattr(self, 'is_restricted') and self.is_restricted is not None:
-            _dict['is_restricted'] = self.is_restricted
+        if hasattr(self, 'workflows') and self.workflows is not None:
+            if isinstance(self.workflows, dict):
+                _dict['workflows'] = self.workflows
+            else:
+                _dict['workflows'] = self.workflows.to_dict()
         return _dict
 
     def _to_dict(self):
@@ -2911,6 +3108,7 @@ class DataProductVersion:
         AVAILABLE = 'available'
         RETIRED = 'retired'
 
+
     class TypesEnum(str, Enum):
         """
         types.
@@ -2918,6 +3116,79 @@ class DataProductVersion:
 
         DATA = 'data'
         CODE = 'code'
+
+
+
+class DataProductVersionDataProduct:
+    """
+    Data product reference.
+
+    :param str id: Data product identifier.
+    :param ContainerReference container: Container reference.
+    """
+
+    def __init__(
+        self,
+        id: str,
+        container: 'ContainerReference',
+    ) -> None:
+        """
+        Initialize a DataProductVersionDataProduct object.
+
+        :param str id: Data product identifier.
+        :param ContainerReference container: Container reference.
+        """
+        self.id = id
+        self.container = container
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'DataProductVersionDataProduct':
+        """Initialize a DataProductVersionDataProduct object from a json dictionary."""
+        args = {}
+        if (id := _dict.get('id')) is not None:
+            args['id'] = id
+        else:
+            raise ValueError('Required property \'id\' not present in DataProductVersionDataProduct JSON')
+        if (container := _dict.get('container')) is not None:
+            args['container'] = ContainerReference.from_dict(container)
+        else:
+            raise ValueError('Required property \'container\' not present in DataProductVersionDataProduct JSON')
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a DataProductVersionDataProduct object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'id') and self.id is not None:
+            _dict['id'] = self.id
+        if hasattr(self, 'container') and self.container is not None:
+            if isinstance(self.container, dict):
+                _dict['container'] = self.container
+            else:
+                _dict['container'] = self.container.to_dict()
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this DataProductVersionDataProduct object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'DataProductVersionDataProduct') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'DataProductVersionDataProduct') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
 
 
 class DataProductVersionPrototype:
@@ -2937,39 +3208,32 @@ class DataProductVersionPrototype:
     :param str description: (optional) Description of the data product version. If
           this is a new version of an existing data product, the description will default
           to the description of the previous version of the data product.
-    :param AssetReference asset: The asset referenced by the data product version.
-    :param List[str] tags: (optional) Tags on the new data product version. If this
-          is the first version of a data product, tags defaults to an empty list. If this
-          is a new version of an existing data product, tags will default to the list of
-          tags on the previous version of the data product.
-    :param List[UseCase] use_cases: (optional) Use cases that the data product
-          version serves. If this is the first version of a data product, use cases
-          defaults to an empty list. If this is a new version of an existing data product,
-          use cases will default to the list of use cases on the previous version of the
-          data product.
+    :param List[str] tags: (optional) Tags on the data product.
+    :param List[UseCase] use_cases: (optional) A list of use cases associated with
+          the data product version.
+    :param List[str] types: (optional) Types of parts on the data product.
+    :param List[DataProductContractTerms] contract_terms: (optional) Contract terms
+          binding various aspects of the data product.
+    :param bool is_restricted: (optional) Indicates whether the data product is
+          restricted or not. A restricted data product indicates that orders of the data
+          product requires explicit approval before data is delivered.
+    :param AssetPrototype asset: New asset input properties.
     :param Domain domain: (optional) Domain that the data product version belongs
           to. If this is the first version of a data product, this field is required. If
           this is a new version of an existing data product, the domain will default to
           the domain of the previous version of the data product.
-    :param List[str] types: (optional) The types of the parts included in this data
-          product version. If this is the first version of a data product, this field
-          defaults to an empty list. If this is a new version of an existing data product,
-          the types will default to the types of the previous version of the data product.
     :param List[DataProductPart] parts_out: (optional) The outgoing parts of this
           data product version to be delivered to consumers. If this is the first version
           of a data product, this field defaults to an empty list. If this is a new
           version of an existing data product, the data product parts will default to the
           parts list from the previous version of the data product.
-    :param List[DataProductContractTerms] contract_terms: (optional) The contract
-          terms that bind interactions with this data product version.
-    :param bool is_restricted: (optional) Indicates whether the data product is
-          restricted or not. A restricted data product indicates that orders of the data
-          product requires explicit approval before data is delivered.
+    :param DataProductWorkflows workflows: (optional) The workflows associated with
+          the data product version.
     """
 
     def __init__(
         self,
-        asset: 'AssetReference',
+        asset: 'AssetPrototype',
         *,
         version: Optional[str] = None,
         state: Optional[str] = None,
@@ -2978,17 +3242,17 @@ class DataProductVersionPrototype:
         description: Optional[str] = None,
         tags: Optional[List[str]] = None,
         use_cases: Optional[List['UseCase']] = None,
-        domain: Optional['Domain'] = None,
         types: Optional[List[str]] = None,
-        parts_out: Optional[List['DataProductPart']] = None,
         contract_terms: Optional[List['DataProductContractTerms']] = None,
         is_restricted: Optional[bool] = None,
+        domain: Optional['Domain'] = None,
+        parts_out: Optional[List['DataProductPart']] = None,
+        workflows: Optional['DataProductWorkflows'] = None,
     ) -> None:
         """
         Initialize a DataProductVersionPrototype object.
 
-        :param AssetReference asset: The asset referenced by the data product
-               version.
+        :param AssetPrototype asset: New asset input properties.
         :param str version: (optional) The data product version number.
         :param str state: (optional) The state of the data product version. If not
                specified, the data product version will be created in `draft` state.
@@ -3003,49 +3267,42 @@ class DataProductVersionPrototype:
         :param str description: (optional) Description of the data product version.
                If this is a new version of an existing data product, the description will
                default to the description of the previous version of the data product.
-        :param List[str] tags: (optional) Tags on the new data product version. If
-               this is the first version of a data product, tags defaults to an empty
-               list. If this is a new version of an existing data product, tags will
-               default to the list of tags on the previous version of the data product.
-        :param List[UseCase] use_cases: (optional) Use cases that the data product
-               version serves. If this is the first version of a data product, use cases
-               defaults to an empty list. If this is a new version of an existing data
-               product, use cases will default to the list of use cases on the previous
-               version of the data product.
+        :param List[str] tags: (optional) Tags on the data product.
+        :param List[UseCase] use_cases: (optional) A list of use cases associated
+               with the data product version.
+        :param List[str] types: (optional) Types of parts on the data product.
+        :param List[DataProductContractTerms] contract_terms: (optional) Contract
+               terms binding various aspects of the data product.
+        :param bool is_restricted: (optional) Indicates whether the data product is
+               restricted or not. A restricted data product indicates that orders of the
+               data product requires explicit approval before data is delivered.
         :param Domain domain: (optional) Domain that the data product version
                belongs to. If this is the first version of a data product, this field is
                required. If this is a new version of an existing data product, the domain
                will default to the domain of the previous version of the data product.
-        :param List[str] types: (optional) The types of the parts included in this
-               data product version. If this is the first version of a data product, this
-               field defaults to an empty list. If this is a new version of an existing
-               data product, the types will default to the types of the previous version
-               of the data product.
         :param List[DataProductPart] parts_out: (optional) The outgoing parts of
                this data product version to be delivered to consumers. If this is the
                first version of a data product, this field defaults to an empty list. If
                this is a new version of an existing data product, the data product parts
                will default to the parts list from the previous version of the data
                product.
-        :param List[DataProductContractTerms] contract_terms: (optional) The
-               contract terms that bind interactions with this data product version.
-        :param bool is_restricted: (optional) Indicates whether the data product is
-               restricted or not. A restricted data product indicates that orders of the
-               data product requires explicit approval before data is delivered.
+        :param DataProductWorkflows workflows: (optional) The workflows associated
+               with the data product version.
         """
         self.version = version
         self.state = state
         self.data_product = data_product
         self.name = name
         self.description = description
-        self.asset = asset
         self.tags = tags
         self.use_cases = use_cases
-        self.domain = domain
         self.types = types
-        self.parts_out = parts_out
         self.contract_terms = contract_terms
         self.is_restricted = is_restricted
+        self.asset = asset
+        self.domain = domain
+        self.parts_out = parts_out
+        self.workflows = workflows
 
     @classmethod
     def from_dict(cls, _dict: Dict) -> 'DataProductVersionPrototype':
@@ -3061,24 +3318,26 @@ class DataProductVersionPrototype:
             args['name'] = name
         if (description := _dict.get('description')) is not None:
             args['description'] = description
-        if (asset := _dict.get('asset')) is not None:
-            args['asset'] = AssetReference.from_dict(asset)
-        else:
-            raise ValueError('Required property \'asset\' not present in DataProductVersionPrototype JSON')
         if (tags := _dict.get('tags')) is not None:
             args['tags'] = tags
         if (use_cases := _dict.get('use_cases')) is not None:
             args['use_cases'] = [UseCase.from_dict(v) for v in use_cases]
-        if (domain := _dict.get('domain')) is not None:
-            args['domain'] = Domain.from_dict(domain)
         if (types := _dict.get('types')) is not None:
             args['types'] = types
-        if (parts_out := _dict.get('parts_out')) is not None:
-            args['parts_out'] = [DataProductPart.from_dict(v) for v in parts_out]
         if (contract_terms := _dict.get('contract_terms')) is not None:
             args['contract_terms'] = [DataProductContractTerms.from_dict(v) for v in contract_terms]
         if (is_restricted := _dict.get('is_restricted')) is not None:
             args['is_restricted'] = is_restricted
+        if (asset := _dict.get('asset')) is not None:
+            args['asset'] = AssetPrototype.from_dict(asset)
+        else:
+            raise ValueError('Required property \'asset\' not present in DataProductVersionPrototype JSON')
+        if (domain := _dict.get('domain')) is not None:
+            args['domain'] = Domain.from_dict(domain)
+        if (parts_out := _dict.get('parts_out')) is not None:
+            args['parts_out'] = [DataProductPart.from_dict(v) for v in parts_out]
+        if (workflows := _dict.get('workflows')) is not None:
+            args['workflows'] = DataProductWorkflows.from_dict(workflows)
         return cls(**args)
 
     @classmethod
@@ -3102,11 +3361,6 @@ class DataProductVersionPrototype:
             _dict['name'] = self.name
         if hasattr(self, 'description') and self.description is not None:
             _dict['description'] = self.description
-        if hasattr(self, 'asset') and self.asset is not None:
-            if isinstance(self.asset, dict):
-                _dict['asset'] = self.asset
-            else:
-                _dict['asset'] = self.asset.to_dict()
         if hasattr(self, 'tags') and self.tags is not None:
             _dict['tags'] = self.tags
         if hasattr(self, 'use_cases') and self.use_cases is not None:
@@ -3117,21 +3371,8 @@ class DataProductVersionPrototype:
                 else:
                     use_cases_list.append(v.to_dict())
             _dict['use_cases'] = use_cases_list
-        if hasattr(self, 'domain') and self.domain is not None:
-            if isinstance(self.domain, dict):
-                _dict['domain'] = self.domain
-            else:
-                _dict['domain'] = self.domain.to_dict()
         if hasattr(self, 'types') and self.types is not None:
             _dict['types'] = self.types
-        if hasattr(self, 'parts_out') and self.parts_out is not None:
-            parts_out_list = []
-            for v in self.parts_out:
-                if isinstance(v, dict):
-                    parts_out_list.append(v)
-                else:
-                    parts_out_list.append(v.to_dict())
-            _dict['parts_out'] = parts_out_list
         if hasattr(self, 'contract_terms') and self.contract_terms is not None:
             contract_terms_list = []
             for v in self.contract_terms:
@@ -3142,6 +3383,29 @@ class DataProductVersionPrototype:
             _dict['contract_terms'] = contract_terms_list
         if hasattr(self, 'is_restricted') and self.is_restricted is not None:
             _dict['is_restricted'] = self.is_restricted
+        if hasattr(self, 'asset') and self.asset is not None:
+            if isinstance(self.asset, dict):
+                _dict['asset'] = self.asset
+            else:
+                _dict['asset'] = self.asset.to_dict()
+        if hasattr(self, 'domain') and self.domain is not None:
+            if isinstance(self.domain, dict):
+                _dict['domain'] = self.domain
+            else:
+                _dict['domain'] = self.domain.to_dict()
+        if hasattr(self, 'parts_out') and self.parts_out is not None:
+            parts_out_list = []
+            for v in self.parts_out:
+                if isinstance(v, dict):
+                    parts_out_list.append(v)
+                else:
+                    parts_out_list.append(v.to_dict())
+            _dict['parts_out'] = parts_out_list
+        if hasattr(self, 'workflows') and self.workflows is not None:
+            if isinstance(self.workflows, dict):
+                _dict['workflows'] = self.workflows
+            else:
+                _dict['workflows'] = self.workflows.to_dict()
         return _dict
 
     def _to_dict(self):
@@ -3172,6 +3436,7 @@ class DataProductVersionPrototype:
         AVAILABLE = 'available'
         RETIRED = 'retired'
 
+
     class TypesEnum(str, Enum):
         """
         types.
@@ -3181,28 +3446,44 @@ class DataProductVersionPrototype:
         CODE = 'code'
 
 
+
 class DataProductVersionSummary:
     """
     Summary of Data Product Version object.
 
     :param str version: The data product version number.
     :param str state: The state of the data product version.
-    :param DataProductIdentity data_product: Data product identifier.
+    :param DataProductVersionSummaryDataProduct data_product: Data product
+          reference.
     :param str name: The name of the data product version. A name can contain
           letters, numbers, understores, dashes, spaces or periods. Names are mutable and
           reusable.
     :param str description: The description of the data product version.
+    :param List[str] tags: Tags on the data product.
+    :param List[UseCase] use_cases: A list of use cases associated with the data
+          product version.
+    :param List[str] types: Types of parts on the data product.
+    :param List[DataProductContractTerms] contract_terms: Contract terms binding
+          various aspects of the data product.
+    :param bool is_restricted: Indicates whether the data product is restricted or
+          not. A restricted data product indicates that orders of the data product
+          requires explicit approval before data is delivered.
     :param str id: The identifier of the data product version.
-    :param AssetReference asset: The asset referenced by the data product version.
+    :param AssetReference asset:
     """
 
     def __init__(
         self,
         version: str,
         state: str,
-        data_product: 'DataProductIdentity',
+        data_product: 'DataProductVersionSummaryDataProduct',
         name: str,
         description: str,
+        tags: List[str],
+        use_cases: List['UseCase'],
+        types: List[str],
+        contract_terms: List['DataProductContractTerms'],
+        is_restricted: bool,
         id: str,
         asset: 'AssetReference',
     ) -> None:
@@ -3211,20 +3492,34 @@ class DataProductVersionSummary:
 
         :param str version: The data product version number.
         :param str state: The state of the data product version.
-        :param DataProductIdentity data_product: Data product identifier.
+        :param DataProductVersionSummaryDataProduct data_product: Data product
+               reference.
         :param str name: The name of the data product version. A name can contain
                letters, numbers, understores, dashes, spaces or periods. Names are mutable
                and reusable.
         :param str description: The description of the data product version.
+        :param List[str] tags: Tags on the data product.
+        :param List[UseCase] use_cases: A list of use cases associated with the
+               data product version.
+        :param List[str] types: Types of parts on the data product.
+        :param List[DataProductContractTerms] contract_terms: Contract terms
+               binding various aspects of the data product.
+        :param bool is_restricted: Indicates whether the data product is restricted
+               or not. A restricted data product indicates that orders of the data product
+               requires explicit approval before data is delivered.
         :param str id: The identifier of the data product version.
-        :param AssetReference asset: The asset referenced by the data product
-               version.
+        :param AssetReference asset:
         """
         self.version = version
         self.state = state
         self.data_product = data_product
         self.name = name
         self.description = description
+        self.tags = tags
+        self.use_cases = use_cases
+        self.types = types
+        self.contract_terms = contract_terms
+        self.is_restricted = is_restricted
         self.id = id
         self.asset = asset
 
@@ -3241,7 +3536,7 @@ class DataProductVersionSummary:
         else:
             raise ValueError('Required property \'state\' not present in DataProductVersionSummary JSON')
         if (data_product := _dict.get('data_product')) is not None:
-            args['data_product'] = DataProductIdentity.from_dict(data_product)
+            args['data_product'] = DataProductVersionSummaryDataProduct.from_dict(data_product)
         else:
             raise ValueError('Required property \'data_product\' not present in DataProductVersionSummary JSON')
         if (name := _dict.get('name')) is not None:
@@ -3252,6 +3547,26 @@ class DataProductVersionSummary:
             args['description'] = description
         else:
             raise ValueError('Required property \'description\' not present in DataProductVersionSummary JSON')
+        if (tags := _dict.get('tags')) is not None:
+            args['tags'] = tags
+        else:
+            raise ValueError('Required property \'tags\' not present in DataProductVersionSummary JSON')
+        if (use_cases := _dict.get('use_cases')) is not None:
+            args['use_cases'] = [UseCase.from_dict(v) for v in use_cases]
+        else:
+            raise ValueError('Required property \'use_cases\' not present in DataProductVersionSummary JSON')
+        if (types := _dict.get('types')) is not None:
+            args['types'] = types
+        else:
+            raise ValueError('Required property \'types\' not present in DataProductVersionSummary JSON')
+        if (contract_terms := _dict.get('contract_terms')) is not None:
+            args['contract_terms'] = [DataProductContractTerms.from_dict(v) for v in contract_terms]
+        else:
+            raise ValueError('Required property \'contract_terms\' not present in DataProductVersionSummary JSON')
+        if (is_restricted := _dict.get('is_restricted')) is not None:
+            args['is_restricted'] = is_restricted
+        else:
+            raise ValueError('Required property \'is_restricted\' not present in DataProductVersionSummary JSON')
         if (id := _dict.get('id')) is not None:
             args['id'] = id
         else:
@@ -3283,6 +3598,28 @@ class DataProductVersionSummary:
             _dict['name'] = self.name
         if hasattr(self, 'description') and self.description is not None:
             _dict['description'] = self.description
+        if hasattr(self, 'tags') and self.tags is not None:
+            _dict['tags'] = self.tags
+        if hasattr(self, 'use_cases') and self.use_cases is not None:
+            use_cases_list = []
+            for v in self.use_cases:
+                if isinstance(v, dict):
+                    use_cases_list.append(v)
+                else:
+                    use_cases_list.append(v.to_dict())
+            _dict['use_cases'] = use_cases_list
+        if hasattr(self, 'types') and self.types is not None:
+            _dict['types'] = self.types
+        if hasattr(self, 'contract_terms') and self.contract_terms is not None:
+            contract_terms_list = []
+            for v in self.contract_terms:
+                if isinstance(v, dict):
+                    contract_terms_list.append(v)
+                else:
+                    contract_terms_list.append(v.to_dict())
+            _dict['contract_terms'] = contract_terms_list
+        if hasattr(self, 'is_restricted') and self.is_restricted is not None:
+            _dict['is_restricted'] = self.is_restricted
         if hasattr(self, 'id') and self.id is not None:
             _dict['id'] = self.id
         if hasattr(self, 'asset') and self.asset is not None:
@@ -3320,12 +3657,157 @@ class DataProductVersionSummary:
         RETIRED = 'retired'
 
 
+    class TypesEnum(str, Enum):
+        """
+        types.
+        """
+
+        DATA = 'data'
+        CODE = 'code'
+
+
+
+class DataProductVersionSummaryDataProduct:
+    """
+    Data product reference.
+
+    :param str id: Data product identifier.
+    :param ContainerReference container: Container reference.
+    """
+
+    def __init__(
+        self,
+        id: str,
+        container: 'ContainerReference',
+    ) -> None:
+        """
+        Initialize a DataProductVersionSummaryDataProduct object.
+
+        :param str id: Data product identifier.
+        :param ContainerReference container: Container reference.
+        """
+        self.id = id
+        self.container = container
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'DataProductVersionSummaryDataProduct':
+        """Initialize a DataProductVersionSummaryDataProduct object from a json dictionary."""
+        args = {}
+        if (id := _dict.get('id')) is not None:
+            args['id'] = id
+        else:
+            raise ValueError('Required property \'id\' not present in DataProductVersionSummaryDataProduct JSON')
+        if (container := _dict.get('container')) is not None:
+            args['container'] = ContainerReference.from_dict(container)
+        else:
+            raise ValueError('Required property \'container\' not present in DataProductVersionSummaryDataProduct JSON')
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a DataProductVersionSummaryDataProduct object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'id') and self.id is not None:
+            _dict['id'] = self.id
+        if hasattr(self, 'container') and self.container is not None:
+            if isinstance(self.container, dict):
+                _dict['container'] = self.container
+            else:
+                _dict['container'] = self.container.to_dict()
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this DataProductVersionSummaryDataProduct object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'DataProductVersionSummaryDataProduct') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'DataProductVersionSummaryDataProduct') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
+class DataProductWorkflows:
+    """
+    The workflows associated with the data product version.
+
+    :param DataProductOrderAccessRequest order_access_request: (optional) The
+          approval workflows associated with the data product version.
+    """
+
+    def __init__(
+        self,
+        *,
+        order_access_request: Optional['DataProductOrderAccessRequest'] = None,
+    ) -> None:
+        """
+        Initialize a DataProductWorkflows object.
+
+        :param DataProductOrderAccessRequest order_access_request: (optional) The
+               approval workflows associated with the data product version.
+        """
+        self.order_access_request = order_access_request
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'DataProductWorkflows':
+        """Initialize a DataProductWorkflows object from a json dictionary."""
+        args = {}
+        if (order_access_request := _dict.get('order_access_request')) is not None:
+            args['order_access_request'] = DataProductOrderAccessRequest.from_dict(order_access_request)
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a DataProductWorkflows object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'order_access_request') and self.order_access_request is not None:
+            if isinstance(self.order_access_request, dict):
+                _dict['order_access_request'] = self.order_access_request
+            else:
+                _dict['order_access_request'] = self.order_access_request.to_dict()
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this DataProductWorkflows object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'DataProductWorkflows') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'DataProductWorkflows') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
 class DeliveryMethod:
     """
     DeliveryMethod.
 
     :param str id: The ID of the delivery method.
-    :param ContainerReference container: Data product exchange container.
+    :param ContainerReference container: Container reference.
     """
 
     def __init__(
@@ -3337,7 +3819,7 @@ class DeliveryMethod:
         Initialize a DeliveryMethod object.
 
         :param str id: The ID of the delivery method.
-        :param ContainerReference container: Data product exchange container.
+        :param ContainerReference container: Container reference.
         """
         self.id = id
         self.container = container
@@ -3401,7 +3883,7 @@ class Domain:
 
     :param str id: The ID of the domain.
     :param str name: (optional) The display name of the domain.
-    :param ContainerReference container: (optional) Data product exchange container.
+    :param ContainerReference container: (optional) Container reference.
     """
 
     def __init__(
@@ -3416,8 +3898,7 @@ class Domain:
 
         :param str id: The ID of the domain.
         :param str name: (optional) The display name of the domain.
-        :param ContainerReference container: (optional) Data product exchange
-               container.
+        :param ContainerReference container: (optional) Container reference.
         """
         self.id = id
         self.name = name
@@ -3589,6 +4070,8 @@ class ErrorModelResource:
         ENTITLEMENT_ENFORCEMENT = 'entitlement_enforcement'
         DELETED = 'deleted'
         NOT_IMPLEMENTED = 'not_implemented'
+        FEATURE_NOT_ENABLED = 'feature_not_enabled'
+
 
 
 class FirstPage:
@@ -3654,7 +4137,7 @@ class InitializeResource:
     """
     Resource defining initialization parameters.
 
-    :param ContainerReference container: (optional) Data product exchange container.
+    :param ContainerReference container: (optional) Container reference.
     :param str href: (optional) Link to monitor the status of the initialize
           operation.
     :param str status: (optional) Status of the initialize operation.
@@ -3685,8 +4168,7 @@ class InitializeResource:
         """
         Initialize a InitializeResource object.
 
-        :param ContainerReference container: (optional) Data product exchange
-               container.
+        :param ContainerReference container: (optional) Container reference.
         :param str href: (optional) Link to monitor the status of the initialize
                operation.
         :param str status: (optional) Status of the initialize operation.
@@ -3800,6 +4282,7 @@ class InitializeResource:
         IN_PROGRESS = 'in_progress'
         SUCCEEDED = 'succeeded'
         FAILED = 'failed'
+
 
 
 class InitializedOption:
@@ -3971,6 +4454,7 @@ class JsonPatchOperation:
         TEST = 'test'
 
 
+
 class NextPage:
     """
     Next page in the collection.
@@ -4041,6 +4525,73 @@ class NextPage:
         return not self == other
 
 
+class ServiceIdCredentials:
+    """
+    Service id credentials.
+
+    :param str name: (optional) Name of the api key of the service id.
+    :param str created_at: (optional) Created date of the api key of the service id.
+    """
+
+    def __init__(
+        self,
+        *,
+        name: Optional[str] = None,
+        created_at: Optional[str] = None,
+    ) -> None:
+        """
+        Initialize a ServiceIdCredentials object.
+
+        :param str name: (optional) Name of the api key of the service id.
+        :param str created_at: (optional) Created date of the api key of the
+               service id.
+        """
+        self.name = name
+        self.created_at = created_at
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'ServiceIdCredentials':
+        """Initialize a ServiceIdCredentials object from a json dictionary."""
+        args = {}
+        if (name := _dict.get('name')) is not None:
+            args['name'] = name
+        if (created_at := _dict.get('created_at')) is not None:
+            args['created_at'] = created_at
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a ServiceIdCredentials object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'name') and self.name is not None:
+            _dict['name'] = self.name
+        if hasattr(self, 'created_at') and self.created_at is not None:
+            _dict['created_at'] = self.created_at
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this ServiceIdCredentials object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'ServiceIdCredentials') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'ServiceIdCredentials') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
 class UseCase:
     """
     UseCase.
@@ -4048,7 +4599,7 @@ class UseCase:
     :param str id: The id of the use case associated with the data product.
     :param str name: (optional) The display name of the use case associated with the
           data product.
-    :param ContainerReference container: (optional) Data product exchange container.
+    :param ContainerReference container: (optional) Container reference.
     """
 
     def __init__(
@@ -4064,8 +4615,7 @@ class UseCase:
         :param str id: The id of the use case associated with the data product.
         :param str name: (optional) The display name of the use case associated
                with the data product.
-        :param ContainerReference container: (optional) Data product exchange
-               container.
+        :param ContainerReference container: (optional) Container reference.
         """
         self.id = id
         self.name = name
@@ -4122,7 +4672,6 @@ class UseCase:
         """Return `true` when self and other are not equal, false otherwise."""
         return not self == other
 
-
 ##############################################################################
 # Pagers
 ##############################################################################
@@ -4136,7 +4685,7 @@ class DataProductsPager:
     def __init__(
         self,
         *,
-        client: DpxV1,
+        client: DataProductHubApiServiceV1,
         limit: int = None,
     ) -> None:
         """
@@ -4201,7 +4750,7 @@ class DataProductDraftsPager:
     def __init__(
         self,
         *,
-        client: DpxV1,
+        client: DataProductHubApiServiceV1,
         data_product_id: str,
         asset_container_id: str = None,
         version: str = None,
@@ -4281,7 +4830,7 @@ class DataProductReleasesPager:
     def __init__(
         self,
         *,
-        client: DpxV1,
+        client: DataProductHubApiServiceV1,
         data_product_id: str,
         asset_container_id: str = None,
         state: List[str] = None,

@@ -14,7 +14,7 @@
 # limitations under the License.
 
 """
-Integration Tests for DataProductExchangeApiServiceV1
+Integration Tests for DataProductHubApiServiceV1
 """
 
 from enum import Enum
@@ -26,7 +26,7 @@ from ibm_cloud_sdk_core.authenticators.authenticator import Authenticator
 from ibm_cloud_sdk_core.get_authenticator import get_authenticator_from_environment
 from ibm_cloud_sdk_core.utils import convert_model
 
-from ibm_dpx_services.common import get_sdk_headers
+from dph_services.common import get_sdk_headers
 
 ##############################################################################
 # Temporary setup Service
