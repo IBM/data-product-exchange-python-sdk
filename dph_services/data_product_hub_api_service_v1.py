@@ -19,7 +19,7 @@
 """
 Data Product Hub API Service
 
-API Version: 0.0.6
+API Version: 0.1.0
 """
 
 from datetime import datetime
