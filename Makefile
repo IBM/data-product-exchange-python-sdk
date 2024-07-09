@@ -26,7 +26,7 @@ install_project:
 test: test-unit test-int
 
 test-unit:
-	${PYTHON} -m pytest --cov=ibm_platform_services test/unit
+	${PYTHON} -m pytest --cov=dph_services test/unit
 
 test-int:
 	${PYTHON} -m pytest test/integration
