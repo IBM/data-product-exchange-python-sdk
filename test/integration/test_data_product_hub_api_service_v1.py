@@ -126,7 +126,6 @@ class TestDataProductHubApiServiceV1:
     @pytest.mark.dependency(depends=["test_initialize"])
     @needscredentials
     def test_create_data_product(self):
-        global create_data_product_by_catalog_id_link
         global create_new_draft_by_data_product_id_link
         global get_contract_document_by_data_product_id_link
         global retire_a_releases_of_data_product_by_data_product_id_link
