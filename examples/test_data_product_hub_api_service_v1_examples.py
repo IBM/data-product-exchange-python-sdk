@@ -105,8 +105,7 @@ class TestDataProductHubApiServiceV1Examples:
 
             # begin-common
 
-            data_product_hub_api_service = DataProductHubApiServiceV1.new_instance(
-            )
+            data_product_hub_api_service = DataProductHubApiServiceV1.new_instance()
 
             # end-common
             assert data_product_hub_api_service is not None

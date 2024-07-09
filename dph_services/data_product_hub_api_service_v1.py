@@ -55,9 +55,7 @@ class DataProductHubApiServiceV1(BaseService):
                specified parameters and external configuration.
         """
         authenticator = get_authenticator_from_environment(service_name)
-        service = cls(
-            authenticator
-            )
+        service = cls(authenticator)
         service.configure_service(service_name)
         return service
 
@@ -482,7 +480,9 @@ class DataProductHubApiServiceV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}/complete'.format(**path_param_dict)
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}/complete'.format(
+            **path_param_dict
+        )
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -775,7 +775,9 @@ class DataProductHubApiServiceV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents'.format(**path_param_dict)
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents'.format(
+            **path_param_dict
+        )
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -998,7 +1000,9 @@ class DataProductHubApiServiceV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(**path_param_dict)
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(
+            **path_param_dict
+        )
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -1056,7 +1060,9 @@ class DataProductHubApiServiceV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(**path_param_dict)
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(
+            **path_param_dict
+        )
         request = self.prepare_request(
             method='DELETE',
             url=url,
@@ -1130,7 +1136,9 @@ class DataProductHubApiServiceV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(**path_param_dict)
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(
+            **path_param_dict
+        )
         request = self.prepare_request(
             method='PATCH',
             url=url,
@@ -1179,7 +1187,9 @@ class DataProductHubApiServiceV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/publish'.format(**path_param_dict)
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/publish'.format(
+            **path_param_dict
+        )
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -1232,7 +1242,9 @@ class DataProductHubApiServiceV1(BaseService):
         path_param_keys = ['data_product_id', 'release_id']
         path_param_values = self.encode_path_vars(data_product_id, release_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}'.format(**path_param_dict)
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}'.format(
+            **path_param_dict
+        )
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -1295,7 +1307,9 @@ class DataProductHubApiServiceV1(BaseService):
         path_param_keys = ['data_product_id', 'release_id']
         path_param_values = self.encode_path_vars(data_product_id, release_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}'.format(**path_param_dict)
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}'.format(
+            **path_param_dict
+        )
         request = self.prepare_request(
             method='PATCH',
             url=url,
@@ -1358,7 +1372,9 @@ class DataProductHubApiServiceV1(BaseService):
         path_param_keys = ['data_product_id', 'release_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, release_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(**path_param_dict)
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(
+            **path_param_dict
+        )
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -1475,7 +1491,9 @@ class DataProductHubApiServiceV1(BaseService):
         path_param_keys = ['data_product_id', 'release_id']
         path_param_values = self.encode_path_vars(data_product_id, release_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/retire'.format(**path_param_dict)
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/retire'.format(
+            **path_param_dict
+        )
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -1863,7 +1881,6 @@ class ContainerReference:
         PROJECT = 'project'
 
 
-
 class ContractTermsDocument:
     """
     Standard contract terms document, which is used for get and list contract terms
@@ -1985,7 +2002,6 @@ class ContractTermsDocument:
 
         TERMS_AND_CONDITIONS = 'terms_and_conditions'
         SLA = 'sla'
-
 
 
 class ContractTermsDocumentAttachment:
@@ -3108,7 +3124,6 @@ class DataProductVersion:
         AVAILABLE = 'available'
         RETIRED = 'retired'
 
-
     class TypesEnum(str, Enum):
         """
         types.
@@ -3116,7 +3131,6 @@ class DataProductVersion:
 
         DATA = 'data'
         CODE = 'code'
-
 
 
 class DataProductVersionDataProduct:
@@ -3436,7 +3450,6 @@ class DataProductVersionPrototype:
         AVAILABLE = 'available'
         RETIRED = 'retired'
 
-
     class TypesEnum(str, Enum):
         """
         types.
@@ -3444,7 +3457,6 @@ class DataProductVersionPrototype:
 
         DATA = 'data'
         CODE = 'code'
-
 
 
 class DataProductVersionSummary:
@@ -3656,7 +3668,6 @@ class DataProductVersionSummary:
         AVAILABLE = 'available'
         RETIRED = 'retired'
 
-
     class TypesEnum(str, Enum):
         """
         types.
@@ -3664,7 +3675,6 @@ class DataProductVersionSummary:
 
         DATA = 'data'
         CODE = 'code'
-
 
 
 class DataProductVersionSummaryDataProduct:
@@ -4073,7 +4083,6 @@ class ErrorModelResource:
         FEATURE_NOT_ENABLED = 'feature_not_enabled'
 
 
-
 class FirstPage:
     """
     First page in the collection.
@@ -4284,7 +4293,6 @@ class InitializeResource:
         FAILED = 'failed'
 
 
-
 class InitializedOption:
     """
     List of options successfully initialized.
@@ -4452,7 +4460,6 @@ class JsonPatchOperation:
         MOVE = 'move'
         COPY = 'copy'
         TEST = 'test'
-
 
 
 class NextPage:
@@ -4671,6 +4678,7 @@ class UseCase:
     def __ne__(self, other: 'UseCase') -> bool:
         """Return `true` when self and other are not equal, false otherwise."""
         return not self == other
+
 
 ##############################################################################
 # Pagers

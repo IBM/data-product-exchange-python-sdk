@@ -31,9 +31,7 @@ import urllib
 from dph_services.data_product_hub_api_service_v1 import *
 
 
-_service = DataProductHubApiServiceV1(
-    authenticator=NoAuthAuthenticator()
-)
+_service = DataProductHubApiServiceV1(authenticator=NoAuthAuthenticator())
 
 _base_url = 'https://fake'
 _service.set_service_url(_base_url)
@@ -252,7 +250,13 @@ class TestInitialize:
         # Validate body params
         req_body = json.loads(str(responses.calls[0].request.body, 'utf-8'))
         assert req_body['container'] == container_reference_model
-        assert req_body['include'] == ['delivery_methods', 'domains_multi_industry', 'data_product_samples', 'workflows', 'project']
+        assert req_body['include'] == [
+            'delivery_methods',
+            'domains_multi_industry',
+            'data_product_samples',
+            'workflows',
+            'project',
+        ]
 
     def test_initialize_all_params_with_retries(self):
         # Enable retries and run test_initialize_all_params.
@@ -895,7 +899,9 @@ class TestCompleteDraftContractTermsDocument:
         complete_draft_contract_terms_document()
         """
         # Set up mock
-        url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString/complete')
+        url = preprocess_url(
+            '/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString/complete'
+        )
         mock_response = '{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}'
         responses.add(
             responses.POST,
@@ -939,7 +945,9 @@ class TestCompleteDraftContractTermsDocument:
         test_complete_draft_contract_terms_document_value_error()
         """
         # Set up mock
-        url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString/complete')
+        url = preprocess_url(
+            '/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString/complete'
+        )
         mock_response = '{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}'
         responses.add(
             responses.POST,
@@ -1493,7 +1501,9 @@ class TestCreateDraftContractTermsDocument:
         create_draft_contract_terms_document()
         """
         # Set up mock
-        url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents')
+        url = preprocess_url(
+            '/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents'
+        )
         mock_response = '{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}'
         responses.add(
             responses.POST,
@@ -1559,7 +1569,9 @@ class TestCreateDraftContractTermsDocument:
         test_create_draft_contract_terms_document_value_error()
         """
         # Set up mock
-        url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents')
+        url = preprocess_url(
+            '/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents'
+        )
         mock_response = '{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}'
         responses.add(
             responses.POST,
@@ -1889,7 +1901,9 @@ class TestGetDraftContractTermsDocument:
         get_draft_contract_terms_document()
         """
         # Set up mock
-        url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString')
+        url = preprocess_url(
+            '/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString'
+        )
         mock_response = '{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}'
         responses.add(
             responses.GET,
@@ -1933,7 +1947,9 @@ class TestGetDraftContractTermsDocument:
         test_get_draft_contract_terms_document_value_error()
         """
         # Set up mock
-        url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString')
+        url = preprocess_url(
+            '/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString'
+        )
         mock_response = '{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}'
         responses.add(
             responses.GET,
@@ -1982,7 +1998,9 @@ class TestDeleteDraftContractTermsDocument:
         delete_draft_contract_terms_document()
         """
         # Set up mock
-        url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString')
+        url = preprocess_url(
+            '/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString'
+        )
         responses.add(
             responses.DELETE,
             url,
@@ -2023,7 +2041,9 @@ class TestDeleteDraftContractTermsDocument:
         test_delete_draft_contract_terms_document_value_error()
         """
         # Set up mock
-        url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString')
+        url = preprocess_url(
+            '/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString'
+        )
         responses.add(
             responses.DELETE,
             url,
@@ -2069,7 +2089,9 @@ class TestUpdateDraftContractTermsDocument:
         update_draft_contract_terms_document()
         """
         # Set up mock
-        url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString')
+        url = preprocess_url(
+            '/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString'
+        )
         mock_response = '{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}'
         responses.add(
             responses.PATCH,
@@ -2125,7 +2147,9 @@ class TestUpdateDraftContractTermsDocument:
         test_update_draft_contract_terms_document_value_error()
         """
         # Set up mock
-        url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString')
+        url = preprocess_url(
+            '/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/documents/testString'
+        )
         mock_response = '{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}'
         responses.add(
             responses.PATCH,
@@ -2498,7 +2522,9 @@ class TestGetReleaseContractTermsDocument:
         get_release_contract_terms_document()
         """
         # Set up mock
-        url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString/contract_terms/testString/documents/testString')
+        url = preprocess_url(
+            '/data_product_exchange/v1/data_products/testString/releases/testString/contract_terms/testString/documents/testString'
+        )
         mock_response = '{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}'
         responses.add(
             responses.GET,
@@ -2542,7 +2568,9 @@ class TestGetReleaseContractTermsDocument:
         test_get_release_contract_terms_document_value_error()
         """
         # Set up mock
-        url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString/contract_terms/testString/documents/testString')
+        url = preprocess_url(
+            '/data_product_exchange/v1/data_products/testString/releases/testString/contract_terms/testString/documents/testString'
+        )
         mock_response = '{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}'
         responses.add(
             responses.GET,
@@ -3092,7 +3120,9 @@ class TestModel_ContractTermsDocument:
         assert contract_terms_document_model != False
 
         # Construct a model instance of ContractTermsDocument by calling from_dict on the json representation
-        contract_terms_document_model_dict = ContractTermsDocument.from_dict(contract_terms_document_model_json).__dict__
+        contract_terms_document_model_dict = ContractTermsDocument.from_dict(
+            contract_terms_document_model_json
+        ).__dict__
         contract_terms_document_model2 = ContractTermsDocument(**contract_terms_document_model_dict)
 
         # Verify the model instances are equivalent
@@ -3118,12 +3148,18 @@ class TestModel_ContractTermsDocumentAttachment:
         contract_terms_document_attachment_model_json['id'] = 'testString'
 
         # Construct a model instance of ContractTermsDocumentAttachment by calling from_dict on the json representation
-        contract_terms_document_attachment_model = ContractTermsDocumentAttachment.from_dict(contract_terms_document_attachment_model_json)
+        contract_terms_document_attachment_model = ContractTermsDocumentAttachment.from_dict(
+            contract_terms_document_attachment_model_json
+        )
         assert contract_terms_document_attachment_model != False
 
         # Construct a model instance of ContractTermsDocumentAttachment by calling from_dict on the json representation
-        contract_terms_document_attachment_model_dict = ContractTermsDocumentAttachment.from_dict(contract_terms_document_attachment_model_json).__dict__
-        contract_terms_document_attachment_model2 = ContractTermsDocumentAttachment(**contract_terms_document_attachment_model_dict)
+        contract_terms_document_attachment_model_dict = ContractTermsDocumentAttachment.from_dict(
+            contract_terms_document_attachment_model_json
+        ).__dict__
+        contract_terms_document_attachment_model2 = ContractTermsDocumentAttachment(
+            **contract_terms_document_attachment_model_dict
+        )
 
         # Verify the model instances are equivalent
         assert contract_terms_document_attachment_model == contract_terms_document_attachment_model2
@@ -3189,7 +3225,9 @@ class TestModel_DataProduct:
         data_product_version_summary_model['types'] = ['data']
         data_product_version_summary_model['contract_terms'] = [data_product_contract_terms_model]
         data_product_version_summary_model['is_restricted'] = True
-        data_product_version_summary_model['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        data_product_version_summary_model['id'] = (
+            '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        )
         data_product_version_summary_model['asset'] = asset_reference_model
 
         # Construct a json representation of a DataProduct model
@@ -3257,7 +3295,9 @@ class TestModel_DataProductContractTerms:
         assert data_product_contract_terms_model != False
 
         # Construct a model instance of DataProductContractTerms by calling from_dict on the json representation
-        data_product_contract_terms_model_dict = DataProductContractTerms.from_dict(data_product_contract_terms_model_json).__dict__
+        data_product_contract_terms_model_dict = DataProductContractTerms.from_dict(
+            data_product_contract_terms_model_json
+        ).__dict__
         data_product_contract_terms_model2 = DataProductContractTerms(**data_product_contract_terms_model_dict)
 
         # Verify the model instances are equivalent
@@ -3331,7 +3371,9 @@ class TestModel_DataProductDraftCollection:
         data_product_version_summary_model['types'] = ['data']
         data_product_version_summary_model['contract_terms'] = [data_product_contract_terms_model]
         data_product_version_summary_model['is_restricted'] = True
-        data_product_version_summary_model['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        data_product_version_summary_model['id'] = (
+            '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        )
         data_product_version_summary_model['asset'] = asset_reference_model
 
         # Construct a json representation of a DataProductDraftCollection model
@@ -3342,11 +3384,15 @@ class TestModel_DataProductDraftCollection:
         data_product_draft_collection_model_json['drafts'] = [data_product_version_summary_model]
 
         # Construct a model instance of DataProductDraftCollection by calling from_dict on the json representation
-        data_product_draft_collection_model = DataProductDraftCollection.from_dict(data_product_draft_collection_model_json)
+        data_product_draft_collection_model = DataProductDraftCollection.from_dict(
+            data_product_draft_collection_model_json
+        )
         assert data_product_draft_collection_model != False
 
         # Construct a model instance of DataProductDraftCollection by calling from_dict on the json representation
-        data_product_draft_collection_model_dict = DataProductDraftCollection.from_dict(data_product_draft_collection_model_json).__dict__
+        data_product_draft_collection_model_dict = DataProductDraftCollection.from_dict(
+            data_product_draft_collection_model_json
+        ).__dict__
         data_product_draft_collection_model2 = DataProductDraftCollection(**data_product_draft_collection_model_dict)
 
         # Verify the model instances are equivalent
@@ -3402,12 +3448,18 @@ class TestModel_DataProductOrderAccessRequest:
         data_product_order_access_request_model_json['task_assignee_users'] = ['testString']
 
         # Construct a model instance of DataProductOrderAccessRequest by calling from_dict on the json representation
-        data_product_order_access_request_model = DataProductOrderAccessRequest.from_dict(data_product_order_access_request_model_json)
+        data_product_order_access_request_model = DataProductOrderAccessRequest.from_dict(
+            data_product_order_access_request_model_json
+        )
         assert data_product_order_access_request_model != False
 
         # Construct a model instance of DataProductOrderAccessRequest by calling from_dict on the json representation
-        data_product_order_access_request_model_dict = DataProductOrderAccessRequest.from_dict(data_product_order_access_request_model_json).__dict__
-        data_product_order_access_request_model2 = DataProductOrderAccessRequest(**data_product_order_access_request_model_dict)
+        data_product_order_access_request_model_dict = DataProductOrderAccessRequest.from_dict(
+            data_product_order_access_request_model_json
+        ).__dict__
+        data_product_order_access_request_model2 = DataProductOrderAccessRequest(
+            **data_product_order_access_request_model_dict
+        )
 
         # Verify the model instances are equivalent
         assert data_product_order_access_request_model == data_product_order_access_request_model2
@@ -3526,7 +3578,9 @@ class TestModel_DataProductReleaseCollection:
         data_product_version_summary_model['types'] = ['data']
         data_product_version_summary_model['contract_terms'] = [data_product_contract_terms_model]
         data_product_version_summary_model['is_restricted'] = True
-        data_product_version_summary_model['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        data_product_version_summary_model['id'] = (
+            '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        )
         data_product_version_summary_model['asset'] = asset_reference_model
 
         # Construct a json representation of a DataProductReleaseCollection model
@@ -3537,12 +3591,18 @@ class TestModel_DataProductReleaseCollection:
         data_product_release_collection_model_json['releases'] = [data_product_version_summary_model]
 
         # Construct a model instance of DataProductReleaseCollection by calling from_dict on the json representation
-        data_product_release_collection_model = DataProductReleaseCollection.from_dict(data_product_release_collection_model_json)
+        data_product_release_collection_model = DataProductReleaseCollection.from_dict(
+            data_product_release_collection_model_json
+        )
         assert data_product_release_collection_model != False
 
         # Construct a model instance of DataProductReleaseCollection by calling from_dict on the json representation
-        data_product_release_collection_model_dict = DataProductReleaseCollection.from_dict(data_product_release_collection_model_json).__dict__
-        data_product_release_collection_model2 = DataProductReleaseCollection(**data_product_release_collection_model_dict)
+        data_product_release_collection_model_dict = DataProductReleaseCollection.from_dict(
+            data_product_release_collection_model_json
+        ).__dict__
+        data_product_release_collection_model2 = DataProductReleaseCollection(
+            **data_product_release_collection_model_dict
+        )
 
         # Verify the model instances are equivalent
         assert data_product_release_collection_model == data_product_release_collection_model2
@@ -3624,12 +3684,18 @@ class TestModel_DataProductSummaryCollection:
         data_product_summary_collection_model_json['data_products'] = [data_product_summary_model]
 
         # Construct a model instance of DataProductSummaryCollection by calling from_dict on the json representation
-        data_product_summary_collection_model = DataProductSummaryCollection.from_dict(data_product_summary_collection_model_json)
+        data_product_summary_collection_model = DataProductSummaryCollection.from_dict(
+            data_product_summary_collection_model_json
+        )
         assert data_product_summary_collection_model != False
 
         # Construct a model instance of DataProductSummaryCollection by calling from_dict on the json representation
-        data_product_summary_collection_model_dict = DataProductSummaryCollection.from_dict(data_product_summary_collection_model_json).__dict__
-        data_product_summary_collection_model2 = DataProductSummaryCollection(**data_product_summary_collection_model_dict)
+        data_product_summary_collection_model_dict = DataProductSummaryCollection.from_dict(
+            data_product_summary_collection_model_json
+        ).__dict__
+        data_product_summary_collection_model2 = DataProductSummaryCollection(
+            **data_product_summary_collection_model_dict
+        )
 
         # Verify the model instances are equivalent
         assert data_product_summary_collection_model == data_product_summary_collection_model2
@@ -3720,7 +3786,9 @@ class TestModel_DataProductVersion:
         data_product_version_model_json['types'] = ['data']
         data_product_version_model_json['contract_terms'] = [data_product_contract_terms_model]
         data_product_version_model_json['is_restricted'] = True
-        data_product_version_model_json['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        data_product_version_model_json['id'] = (
+            '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        )
         data_product_version_model_json['asset'] = asset_reference_model
         data_product_version_model_json['domain'] = domain_model
         data_product_version_model_json['parts_out'] = [data_product_part_model]
@@ -3768,12 +3836,18 @@ class TestModel_DataProductVersionDataProduct:
         data_product_version_data_product_model_json['container'] = container_reference_model
 
         # Construct a model instance of DataProductVersionDataProduct by calling from_dict on the json representation
-        data_product_version_data_product_model = DataProductVersionDataProduct.from_dict(data_product_version_data_product_model_json)
+        data_product_version_data_product_model = DataProductVersionDataProduct.from_dict(
+            data_product_version_data_product_model_json
+        )
         assert data_product_version_data_product_model != False
 
         # Construct a model instance of DataProductVersionDataProduct by calling from_dict on the json representation
-        data_product_version_data_product_model_dict = DataProductVersionDataProduct.from_dict(data_product_version_data_product_model_json).__dict__
-        data_product_version_data_product_model2 = DataProductVersionDataProduct(**data_product_version_data_product_model_dict)
+        data_product_version_data_product_model_dict = DataProductVersionDataProduct.from_dict(
+            data_product_version_data_product_model_json
+        ).__dict__
+        data_product_version_data_product_model2 = DataProductVersionDataProduct(
+            **data_product_version_data_product_model_dict
+        )
 
         # Verify the model instances are equivalent
         assert data_product_version_data_product_model == data_product_version_data_product_model2
@@ -3876,11 +3950,15 @@ class TestModel_DataProductVersionPrototype:
         data_product_version_prototype_model_json['workflows'] = data_product_workflows_model
 
         # Construct a model instance of DataProductVersionPrototype by calling from_dict on the json representation
-        data_product_version_prototype_model = DataProductVersionPrototype.from_dict(data_product_version_prototype_model_json)
+        data_product_version_prototype_model = DataProductVersionPrototype.from_dict(
+            data_product_version_prototype_model_json
+        )
         assert data_product_version_prototype_model != False
 
         # Construct a model instance of DataProductVersionPrototype by calling from_dict on the json representation
-        data_product_version_prototype_model_dict = DataProductVersionPrototype.from_dict(data_product_version_prototype_model_json).__dict__
+        data_product_version_prototype_model_dict = DataProductVersionPrototype.from_dict(
+            data_product_version_prototype_model_json
+        ).__dict__
         data_product_version_prototype_model2 = DataProductVersionPrototype(**data_product_version_prototype_model_dict)
 
         # Verify the model instances are equivalent
@@ -3948,15 +4026,21 @@ class TestModel_DataProductVersionSummary:
         data_product_version_summary_model_json['types'] = ['data']
         data_product_version_summary_model_json['contract_terms'] = [data_product_contract_terms_model]
         data_product_version_summary_model_json['is_restricted'] = True
-        data_product_version_summary_model_json['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        data_product_version_summary_model_json['id'] = (
+            '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        )
         data_product_version_summary_model_json['asset'] = asset_reference_model
 
         # Construct a model instance of DataProductVersionSummary by calling from_dict on the json representation
-        data_product_version_summary_model = DataProductVersionSummary.from_dict(data_product_version_summary_model_json)
+        data_product_version_summary_model = DataProductVersionSummary.from_dict(
+            data_product_version_summary_model_json
+        )
         assert data_product_version_summary_model != False
 
         # Construct a model instance of DataProductVersionSummary by calling from_dict on the json representation
-        data_product_version_summary_model_dict = DataProductVersionSummary.from_dict(data_product_version_summary_model_json).__dict__
+        data_product_version_summary_model_dict = DataProductVersionSummary.from_dict(
+            data_product_version_summary_model_json
+        ).__dict__
         data_product_version_summary_model2 = DataProductVersionSummary(**data_product_version_summary_model_dict)
 
         # Verify the model instances are equivalent
@@ -3989,19 +4073,30 @@ class TestModel_DataProductVersionSummaryDataProduct:
         data_product_version_summary_data_product_model_json['container'] = container_reference_model
 
         # Construct a model instance of DataProductVersionSummaryDataProduct by calling from_dict on the json representation
-        data_product_version_summary_data_product_model = DataProductVersionSummaryDataProduct.from_dict(data_product_version_summary_data_product_model_json)
+        data_product_version_summary_data_product_model = DataProductVersionSummaryDataProduct.from_dict(
+            data_product_version_summary_data_product_model_json
+        )
         assert data_product_version_summary_data_product_model != False
 
         # Construct a model instance of DataProductVersionSummaryDataProduct by calling from_dict on the json representation
-        data_product_version_summary_data_product_model_dict = DataProductVersionSummaryDataProduct.from_dict(data_product_version_summary_data_product_model_json).__dict__
-        data_product_version_summary_data_product_model2 = DataProductVersionSummaryDataProduct(**data_product_version_summary_data_product_model_dict)
+        data_product_version_summary_data_product_model_dict = DataProductVersionSummaryDataProduct.from_dict(
+            data_product_version_summary_data_product_model_json
+        ).__dict__
+        data_product_version_summary_data_product_model2 = DataProductVersionSummaryDataProduct(
+            **data_product_version_summary_data_product_model_dict
+        )
 
         # Verify the model instances are equivalent
         assert data_product_version_summary_data_product_model == data_product_version_summary_data_product_model2
 
         # Convert model instance back to dict and verify no loss of data
-        data_product_version_summary_data_product_model_json2 = data_product_version_summary_data_product_model.to_dict()
-        assert data_product_version_summary_data_product_model_json2 == data_product_version_summary_data_product_model_json
+        data_product_version_summary_data_product_model_json2 = (
+            data_product_version_summary_data_product_model.to_dict()
+        )
+        assert (
+            data_product_version_summary_data_product_model_json2
+            == data_product_version_summary_data_product_model_json
+        )
 
 
 class TestModel_DataProductWorkflows:
@@ -4206,7 +4301,9 @@ class TestModel_InitializeResource:
         # Construct a json representation of a InitializeResource model
         initialize_resource_model_json = {}
         initialize_resource_model_json['container'] = container_reference_model
-        initialize_resource_model_json['href'] = 'https://api.example.com/configuration/initialize/status?catalog_id=d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        initialize_resource_model_json['href'] = (
+            'https://api.example.com/configuration/initialize/status?catalog_id=d29c42eb-7100-4b7a-8257-c196dbcca1cd'
+        )
         initialize_resource_model_json['status'] = 'not_started'
         initialize_resource_model_json['trace'] = 'testString'
         initialize_resource_model_json['errors'] = [error_model_resource_model]
