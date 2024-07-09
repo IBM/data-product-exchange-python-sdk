@@ -84,8 +84,7 @@ class TestDataProductHubApiServiceV1:
         if os.path.exists(config_file):
             os.environ['IBM_CREDENTIALS_FILE'] = config_file
 
-            cls.data_product_hub_api_service = DataProductHubApiServiceV1.new_instance(
-            )
+            cls.data_product_hub_api_service = DataProductHubApiServiceV1.new_instance()
             assert cls.data_product_hub_api_service is not None
 
             cls.config = read_external_sources(DataProductHubApiServiceV1.DEFAULT_SERVICE_NAME)
@@ -110,7 +109,7 @@ class TestDataProductHubApiServiceV1:
             'id': '78c6e2f0-d6ed-46c0-8dee-2c2bd578d58b',
             'type': 'catalog',
         }
-        
+
         response = self.data_product_hub_api_service.initialize(
             container=container_reference_model,
             include=['delivery_methods', 'domains_multi_industry', 'data_product_samples', 'workflows', 'project'],
@@ -124,7 +123,6 @@ class TestDataProductHubApiServiceV1:
         create_data_product_by_catalog_id_link = initialize_resource['container']['id']
         get_status_by_catalog_id_link = initialize_resource['container']['id']
 
-    
     @pytest.mark.dependency(depends=["test_initialize"])
     @needscredentials
     def test_create_data_product(self):
@@ -152,7 +150,7 @@ class TestDataProductHubApiServiceV1:
             'id': '78c6e2f0-d6ed-46c0-8dee-2c2bd578d58b',
             'type': 'catalog',
         }
-       
+
         # Construct a dict representation of a AssetReference model
         asset_reference_model = {
             'id': 'd6241f2b-cde1-42d7-9912-0348eccd5159',
@@ -208,7 +206,7 @@ class TestDataProductHubApiServiceV1:
             'asset': asset_part_reference_model,
             'delivery_methods': [delivery_method_model],
         }
-       
+
         # Construct a dict representation of a DataProductVersionPrototype model
         data_product_version_prototype_model = {
             'version': '1.0.0',
@@ -248,7 +246,7 @@ class TestDataProductHubApiServiceV1:
         get_list_of_releases_of_data_product_by_data_product_id_link = data_product['id']
         update_release_of_data_product_by_data_product_id_link = data_product['id']
         upload_contract_terms_doc_by_data_product_id_link = data_product['id']
-    
+
     @needscredentials
     @pytest.mark.dependency(depends=["test_create_data_product"])
     def test_get_data_product(self):
@@ -333,7 +331,7 @@ class TestDataProductHubApiServiceV1:
             'id': '78c6e2f0-d6ed-46c0-8dee-2c2bd578d58b',
             'type': 'catalog',
         }
-        
+
         # Construct a dict representation of a AssetReference model
         asset_reference_model = {
             'container': container_reference_model,
@@ -415,7 +413,6 @@ class TestDataProductHubApiServiceV1:
         complete_a_draft_by_draft_id_link = data_product_version['id']
         get_a_draft_by_contract_terms_id_link = data_product_version['contract_terms'][0]['id']
 
-
     @needscredentials
     @pytest.mark.dependency(depends=["test_create_data_product_draft"])
     def test_get_data_product_draft(self):
@@ -427,7 +424,6 @@ class TestDataProductHubApiServiceV1:
         assert response.get_status_code() == 200
         data_product_version = response.get_result()
         assert data_product_version is not None
-
 
     @needscredentials
     @pytest.mark.dependency(depends=["test_get_data_product_draft"])
@@ -448,7 +444,6 @@ class TestDataProductHubApiServiceV1:
         assert response.get_status_code() == 200
         data_product_version = response.get_result()
         assert data_product_version is not None
-
 
     @needscredentials
     @pytest.mark.dependency(depends=["test_update_data_product_draft"])
@@ -486,7 +481,6 @@ class TestDataProductHubApiServiceV1:
         update_contract_terms_document_by_document_id_link = contract_terms_document['id']
         complete_contract_terms_document_by_document_id_link = contract_terms_document['id']
 
-
     @needscredentials
     @pytest.mark.dependency(depends=["test_create_draft_contract_terms_document"])
     def test_get_draft_contract_terms_document(self):
@@ -500,7 +494,6 @@ class TestDataProductHubApiServiceV1:
         assert response.get_status_code() == 200
         contract_terms_document = response.get_result()
         assert contract_terms_document is not None
-
 
     @needscredentials
     @pytest.mark.dependency(depends=["test_get_draft_contract_terms_document"])
@@ -523,8 +516,6 @@ class TestDataProductHubApiServiceV1:
         assert response.get_status_code() == 200
         contract_terms_document = response.get_result()
         assert contract_terms_document is not None
-
-   
 
     @needscredentials
     @pytest.mark.dependency(depends=["test_update_draft_contract_terms_document"])
@@ -561,7 +552,6 @@ class TestDataProductHubApiServiceV1:
         data_product_draft_collection = response.get_result()
         assert data_product_draft_collection is not None
 
-
     @needscredentials
     @pytest.mark.dependency(depends=["test_list_data_product_drafts"])
     def test_list_data_product_drafts_with_pager(self):
@@ -590,8 +580,9 @@ class TestDataProductHubApiServiceV1:
         assert all_items is not None
 
         assert len(all_results) == len(all_items)
-        print(f'\nlist_data_product_drafts() returned a total of {len(all_results)} items(s) using DataProductDraftsPager.')
-
+        print(
+            f'\nlist_data_product_drafts() returned a total of {len(all_results)} items(s) using DataProductDraftsPager.'
+        )
 
     @needscredentials
     @pytest.mark.dependency(depends=["test_list_data_product_drafts_with_pager"])
@@ -604,7 +595,6 @@ class TestDataProductHubApiServiceV1:
         initialize_resource = response.get_result()
         assert initialize_resource is not None
 
-
     @needscredentials
     @pytest.mark.dependency(depends=["test_get_initialize_status"])
     def test_get_service_id_credentials(self):
@@ -614,13 +604,11 @@ class TestDataProductHubApiServiceV1:
         service_id_credentials = response.get_result()
         assert service_id_credentials is not None
 
-
     @needscredentials
     @pytest.mark.dependency(depends=["test_get_service_id_credentials"])
     def test_manage_api_keys(self):
         response = self.data_product_hub_api_service.manage_api_keys()
         assert response.get_status_code() == 204
-
 
     @needscredentials
     @pytest.mark.dependency(depends=["test_manage_api_keys"])
@@ -634,7 +622,6 @@ class TestDataProductHubApiServiceV1:
         data_product_version = response.get_result()
         assert data_product_version is not None
 
-    
     @needscredentials
     @pytest.mark.dependency(depends=["test_get_data_product_release"])
     def test_update_data_product_release(self):
@@ -655,7 +642,6 @@ class TestDataProductHubApiServiceV1:
         data_product_version = response.get_result()
         assert data_product_version is not None
 
-
     @needscredentials
     @pytest.mark.dependency(depends=["test_update_data_product_release"])
     def test_get_release_contract_terms_document(self):
@@ -670,7 +656,6 @@ class TestDataProductHubApiServiceV1:
         contract_terms_document = response.get_result()
         assert contract_terms_document is not None
 
-
     @needscredentials
     @pytest.mark.dependency(depends=["test_get_release_contract_terms_document"])
     def test_list_data_product_releases(self):
@@ -684,7 +669,6 @@ class TestDataProductHubApiServiceV1:
         assert response.get_status_code() == 200
         data_product_release_collection = response.get_result()
         assert data_product_release_collection is not None
-
 
     @needscredentials
     @pytest.mark.dependency(depends=["test_list_data_product_releases"])
@@ -714,9 +698,10 @@ class TestDataProductHubApiServiceV1:
         assert all_items is not None
 
         assert len(all_results) == len(all_items)
-        print(f'\nlist_data_product_releases() returned a total of {len(all_results)} items(s) using DataProductReleasesPager.')
-    
-    
+        print(
+            f'\nlist_data_product_releases() returned a total of {len(all_results)} items(s) using DataProductReleasesPager.'
+        )
+
     @needscredentials
     def test_delete_data_product_draft(self):
         response = self.data_product_hub_api_service.delete_data_product_draft(
@@ -724,9 +709,3 @@ class TestDataProductHubApiServiceV1:
             draft_id=delete_a_draft_by_draft_id_link,
         )
         assert response.get_status_code() == 204
-   
-   
-@classmethod
-def teardown_class(cls):
-    print('TearDown complete.')
-    
