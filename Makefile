@@ -36,6 +36,7 @@ test-examples:
 
 lint:
 	${PYTHON} -m pylint ${LINT_DIRS}
+	${PYTHON} -m black ${LINT_DIRS}
 	${PYTHON} -m black --check ${LINT_DIRS}
 
 lint-fix:
