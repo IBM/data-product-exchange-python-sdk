@@ -105,8 +105,7 @@ class TestDataProductHubApiServiceV1Examples:
 
             # begin-common
 
-            data_product_hub_api_service = DataProductHubApiServiceV1.new_instance(
-            )
+            data_product_hub_api_service = DataProductHubApiServiceV1.new_instance()
 
             # end-common
             assert data_product_hub_api_service is not None
@@ -136,7 +135,14 @@ class TestDataProductHubApiServiceV1Examples:
             # begin-initialize
 
             response = data_product_hub_api_service.initialize(
-                include=['delivery_methods', 'domains_multi_industry', 'data_product_samples', 'workflows', 'project', 'catalog_configurations'],
+                include=[
+                    'delivery_methods',
+                    'domains_multi_industry',
+                    'data_product_samples',
+                    'workflows',
+                    'project',
+                    'catalog_configurations',
+                ]
             )
             initialize_resource = response.get_result()
 
@@ -178,22 +184,13 @@ class TestDataProductHubApiServiceV1Examples:
 
             # begin-create_data_product
 
-            container_identity_model = {
-                'id': 'd29c42eb-7100-4b7a-8257-c196dbcca1cd',
-            }
+            container_identity_model = {'id': 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'}
 
-            asset_prototype_model = {
-                'container': container_identity_model,
-            }
+            asset_prototype_model = {'container': container_identity_model}
 
-            data_product_version_prototype_model = {
-                'name': 'My New Data Product',
-                'asset': asset_prototype_model,
-            }
+            data_product_version_prototype_model = {'name': 'My New Data Product', 'asset': asset_prototype_model}
 
-            response = data_product_hub_api_service.create_data_product(
-                drafts=[data_product_version_prototype_model],
-            )
+            response = data_product_hub_api_service.create_data_product(drafts=[data_product_version_prototype_model])
             data_product = response.get_result()
 
             print(json.dumps(data_product, indent=2))
@@ -246,17 +243,11 @@ class TestDataProductHubApiServiceV1Examples:
 
             # begin-create_data_product_draft
 
-            container_identity_model = {
-                'id': 'd29c42eb-7100-4b7a-8257-c196dbcca1cd',
-            }
+            container_identity_model = {'id': 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'}
 
-            asset_prototype_model = {
-                'container': container_identity_model,
-            }
+            asset_prototype_model = {'container': container_identity_model}
 
-            data_product_draft_version_release_model = {
-                'id': '8bf83660-11fe-4427-a72a-8d8359af24e3',
-            }
+            data_product_draft_version_release_model = {'id': '8bf83660-11fe-4427-a72a-8d8359af24e3'}
 
             data_product_identity_model = {
                 'id': 'b38df608-d34b-4d58-8136-ed25e6c6684e',
@@ -429,10 +420,7 @@ class TestDataProductHubApiServiceV1Examples:
             # begin-list_data_products
 
             all_results = []
-            pager = DataProductsPager(
-                client=data_product_hub_api_service,
-                limit=10,
-            )
+            pager = DataProductsPager(client=data_product_hub_api_service, limit=10)
             while pager.has_next():
                 next_page = pager.get_next()
                 assert next_page is not None
@@ -455,7 +443,7 @@ class TestDataProductHubApiServiceV1Examples:
             # begin-get_data_product
 
             response = data_product_hub_api_service.get_data_product(
-                data_product_id=get_data_product_by_data_product_id_link,
+                data_product_id=get_data_product_by_data_product_id_link
             )
             data_product = response.get_result()
 
@@ -531,8 +519,7 @@ class TestDataProductHubApiServiceV1Examples:
             # begin-get_data_product_draft
 
             response = data_product_hub_api_service.get_data_product_draft(
-                data_product_id=get_a_draft_of_data_product_by_data_product_id_link,
-                draft_id=get_draft_by_draft_id_link,
+                data_product_id=get_a_draft_of_data_product_by_data_product_id_link, draft_id=get_draft_by_draft_id_link
             )
             data_product_version = response.get_result()
 
@@ -553,10 +540,7 @@ class TestDataProductHubApiServiceV1Examples:
 
             # begin-update_data_product_draft
 
-            json_patch_operation_model = {
-                'op': 'add',
-                'path': 'testString',
-            }
+            json_patch_operation_model = {'op': 'add', 'path': 'testString'}
 
             response = data_product_hub_api_service.update_data_product_draft(
                 data_product_id=update_draft_of_data_product_by_data_product_id_link,
@@ -607,10 +591,7 @@ class TestDataProductHubApiServiceV1Examples:
 
             # begin-update_draft_contract_terms_document
 
-            json_patch_operation_model = {
-                'op': 'add',
-                'path': 'testString',
-            }
+            json_patch_operation_model = {'op': 'add', 'path': 'testString'}
 
             response = data_product_hub_api_service.update_draft_contract_terms_document(
                 data_product_id=update_contract_document_by_data_product_id_link,
@@ -661,10 +642,7 @@ class TestDataProductHubApiServiceV1Examples:
 
             # begin-update_data_product_release
 
-            json_patch_operation_model = {
-                'op': 'add',
-                'path': 'testString',
-            }
+            json_patch_operation_model = {'op': 'add', 'path': 'testString'}
 
             response = data_product_hub_api_service.update_data_product_release(
                 data_product_id=update_release_of_data_product_by_data_product_id_link,

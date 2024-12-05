@@ -40,10 +40,7 @@ class InitialSetupServiceV1(BaseService):
     DEFAULT_SERVICE_NAME = 'cams_api_service'
 
     @classmethod
-    def new_instance(
-        cls,
-        service_name: str = DEFAULT_SERVICE_NAME,
-    ) -> 'InitialSetupServiceV1':
+    def new_instance(cls, service_name: str = DEFAULT_SERVICE_NAME) -> 'InitialSetupServiceV1':
         """
         Return a new client for the Initial Data Product Hub API Service setup using the
                specified parameters and external configuration.
@@ -53,10 +50,7 @@ class InitialSetupServiceV1(BaseService):
         service.configure_service(service_name)
         return service
 
-    def __init__(
-        self,
-        authenticator: Authenticator = None,
-    ) -> None:
+    def __init__(self, authenticator: Authenticator = None) -> None:
         """
         Construct a new client for the Data Product Hub API Service service.
 
@@ -66,15 +60,10 @@ class InitialSetupServiceV1(BaseService):
         """
         BaseService.__init__(self, service_url=self.DEFAULT_SERVICE_URL, authenticator=authenticator)
 
-    def create_data_product_catalog(
-        self,
-        **kwargs,
-    ) -> DetailedResponse:
+    def create_data_product_catalog(self, **kwargs) -> DetailedResponse:
         headers = {}
         sdk_headers = get_sdk_headers(
-            service_name='initial_Setup_service',
-            service_version='V1',
-            operation_id='create_data_product_catalog',
+            service_name='initial_Setup_service', service_version='V1', operation_id='create_data_product_catalog'
         )
         headers.update(sdk_headers)
 
@@ -94,28 +83,17 @@ class InitialSetupServiceV1(BaseService):
         headers['Accept'] = 'application/json'
 
         url = '/catalogs'
-        request = self.prepare_request(
-            method='POST',
-            url=url,
-            headers=headers,
-            data=data,
-        )
+        request = self.prepare_request(method='POST', url=url, headers=headers, data=data)
 
         response = self.send(request, **kwargs)
         return response
 
-    def delete_data_product_catalog(
-        self,
-        id: str,
-        **kwargs,
-    ) -> DetailedResponse:
+    def delete_data_product_catalog(self, id: str, **kwargs) -> DetailedResponse:
         if not id:
             raise ValueError('id must be provided')
         headers = {}
         sdk_headers = get_sdk_headers(
-            service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
-            operation_id='delete_data_product_catalog',
+            service_name=self.DEFAULT_SERVICE_NAME, service_version='V1', operation_id='delete_data_product_catalog'
         )
         headers.update(sdk_headers)
 
@@ -127,11 +105,7 @@ class InitialSetupServiceV1(BaseService):
         path_param_values = self.encode_path_vars(id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
         url = '/catalogs/{id}'.format(**path_param_dict)
-        request = self.prepare_request(
-            method='DELETE',
-            url=url,
-            headers=headers,
-        )
+        request = self.prepare_request(method='DELETE', url=url, headers=headers)
 
         response = self.send(request, **kwargs)
         return response

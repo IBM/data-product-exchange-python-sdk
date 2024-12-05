@@ -1,5 +1,4 @@
 # coding: utf-8
-
 # Copyright 2019, 2020 IBM All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,7 +36,9 @@ URL_GET_DATA_PRODUCT_RELEASE = '/data_product_exchange/v1/data_products/{data_pr
 URL_UPDATE_DATA_PRODUCT_RELEASE = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}'
 URL_GET_RELEASE_CONTRACT_TERMS_DOCUMENT = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/contract_terms/{contract_terms_id}/documents/{document_id}'
 URL_LIST_DATA_PRODUCT_RELEASES = '/data_product_exchange/v1/data_products/{data_product_id}/releases'
-URL_RETIRE_DATA_PRODUCT_RELEASE = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/retire'
+URL_RETIRE_DATA_PRODUCT_RELEASE = (
+    '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/retire'
+)
 
 # Dph Api Headers
 CONTENT_TYPE_JSON = 'application/json'
@@ -45,4 +46,3 @@ CONTENT_TYPE_PATCH_JSON = 'application/json-patch+json'
 
 SERVICE_NAME = 'data_product_hub_api_service'
 SERVICE_VERSION = 'V1'
-

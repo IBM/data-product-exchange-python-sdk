@@ -84,8 +84,7 @@ class TestDataProductHubApiServiceV1:
         if os.path.exists(config_file):
             os.environ['IBM_CREDENTIALS_FILE'] = config_file
 
-            cls.data_product_hub_api_service = DataProductHubApiServiceV1.new_instance(
-            )
+            cls.data_product_hub_api_service = DataProductHubApiServiceV1.new_instance()
             assert cls.data_product_hub_api_service is not None
 
             cls.config = read_external_sources(DataProductHubApiServiceV1.DEFAULT_SERVICE_NAME)
@@ -106,14 +105,18 @@ class TestDataProductHubApiServiceV1:
         global get_status_by_catalog_id_link
 
         # Construct a dict representation of a ContainerReference model
-        container_reference_model = {
-            'id': 'a7ca67e8-1fac-4061-ae9b-7604e15c4ab3',
-            'type': 'catalog',
-        }
+        container_reference_model = {'id': 'a7ca67e8-1fac-4061-ae9b-7604e15c4ab3', 'type': 'catalog'}
 
         response = self.data_product_hub_api_service.initialize(
             container=container_reference_model,
-            include=['delivery_methods', 'domains_multi_industry', 'data_product_samples', 'workflows', 'project', 'catalog_configurations'],
+            include=[
+                'delivery_methods',
+                'domains_multi_industry',
+                'data_product_samples',
+                'workflows',
+                'project',
+                'catalog_configurations',
+            ],
         )
 
         assert response.get_status_code() == 202
@@ -124,13 +127,10 @@ class TestDataProductHubApiServiceV1:
         create_data_product_by_catalog_id_link = initialize_resource['container']['id']
         get_status_by_catalog_id_link = initialize_resource['container']['id']
 
-
     @pytest.mark.dependency(depends=["test_initialize"])
     @needscredentials
     def test_get_initialize_status(self):
-        response = self.data_product_hub_api_service.get_initialize_status(
-            container_id=get_status_by_catalog_id_link,
-        )
+        response = self.data_product_hub_api_service.get_initialize_status(container_id=get_status_by_catalog_id_link)
 
         assert response.get_status_code() == 200
         initialize_resource = response.get_result()
@@ -178,20 +178,12 @@ class TestDataProductHubApiServiceV1:
         global create_a_contract_terms_doc_by_draft_id_link
 
         # Construct a dict representation of a ContainerReference model
-        container_reference_model = {
-            'id': create_data_product_by_catalog_id_link,
-            'type': 'catalog',
-        }
+        container_reference_model = {'id': create_data_product_by_catalog_id_link, 'type': 'catalog'}
 
         # Construct a dict representation of a ContainerIdentity model
-        container_identity_model = {
-            'id': create_data_product_by_catalog_id_link,
-        }
+        container_identity_model = {'id': create_data_product_by_catalog_id_link}
         # Construct a dict representation of a AssetPrototype model
-        asset_prototype_model = {
-            'id': '2b0bf220-079c-11ee-be56-0242ac120002',
-            'container': container_identity_model,
-        }
+        asset_prototype_model = {'id': '2b0bf220-079c-11ee-be56-0242ac120002', 'container': container_identity_model}
         # Construct a dict representation of a Domain model
         domain_model = {
             'id': '3f0688f0-69c3-441e-b49b-7c223daa1804',
@@ -205,15 +197,9 @@ class TestDataProductHubApiServiceV1:
             'type': 'data_asset',
         }
         # Construct a dict representation of a DeliveryMethod model
-        delivery_method_model = {
-            'id': '8848fd43-7384-4435-aff3-6a9f113768c4',
-            'container': container_reference_model,
-        }
+        delivery_method_model = {'id': '8848fd43-7384-4435-aff3-6a9f113768c4', 'container': container_reference_model}
         # Construct a dict representation of a DataProductPart model
-        data_product_part_model = {
-            'asset': asset_part_reference_model,
-            'delivery_methods': [delivery_method_model],
-        }
+        data_product_part_model = {'asset': asset_part_reference_model, 'delivery_methods': [delivery_method_model]}
 
         # Construct a dict representation of a DataProductVersionPrototype model
         data_product_version_prototype_model = {
@@ -227,9 +213,7 @@ class TestDataProductHubApiServiceV1:
             'parts_out': [data_product_part_model],
         }
 
-        response = self.data_product_hub_api_service.create_data_product(
-            drafts=[data_product_version_prototype_model],
-        )
+        response = self.data_product_hub_api_service.create_data_product(drafts=[data_product_version_prototype_model])
 
         assert response.get_status_code() == 201
         data_product = response.get_result()
@@ -262,7 +246,7 @@ class TestDataProductHubApiServiceV1:
     @needscredentials
     def test_get_data_product(self):
         response = self.data_product_hub_api_service.get_data_product(
-            data_product_id=get_data_product_by_data_product_id_link,
+            data_product_id=get_data_product_by_data_product_id_link
         )
 
         assert response.get_status_code() == 200
@@ -272,9 +256,7 @@ class TestDataProductHubApiServiceV1:
     @pytest.mark.dependency(depends=["test_get_data_product"])
     @needscredentials
     def test_list_data_products(self):
-        response = self.data_product_hub_api_service.list_data_products(
-            limit=200,
-        )
+        response = self.data_product_hub_api_service.list_data_products(limit=200)
 
         assert response.get_status_code() == 200
         data_product_summary_collection = response.get_result()
@@ -286,20 +268,14 @@ class TestDataProductHubApiServiceV1:
         all_results = []
 
         # Test get_next().
-        pager = DataProductsPager(
-            client=self.data_product_hub_api_service,
-            limit=10,
-        )
+        pager = DataProductsPager(client=self.data_product_hub_api_service, limit=10)
         while pager.has_next():
             next_page = pager.get_next()
             assert next_page is not None
             all_results.extend(next_page)
 
         # Test get_all().
-        pager = DataProductsPager(
-            client=self.data_product_hub_api_service,
-            limit=10,
-        )
+        pager = DataProductsPager(client=self.data_product_hub_api_service, limit=10)
         all_items = pager.get_all()
         assert all_items is not None
 
@@ -310,8 +286,7 @@ class TestDataProductHubApiServiceV1:
     @needscredentials
     def test_get_data_product_draft(self):
         response = self.data_product_hub_api_service.get_data_product_draft(
-            data_product_id='-',
-            draft_id=get_draft_by_draft_id_link,
+            data_product_id='-', draft_id=get_draft_by_draft_id_link
         )
 
         assert response.get_status_code() == 200
@@ -384,11 +359,7 @@ class TestDataProductHubApiServiceV1:
     @needscredentials
     def test_update_draft_contract_terms_document(self):
         # Construct a dict representation of a JsonPatchOperation model
-        json_patch_operation_model = {
-            'op': 'add',
-            'path': '/name',
-            'value': 'updated Terms and Conditionsing',
-        }
+        json_patch_operation_model = {'op': 'add', 'path': '/name', 'value': 'updated Terms and Conditionsing'}
 
         response = self.data_product_hub_api_service.update_draft_contract_terms_document(
             data_product_id=get_contract_document_by_data_product_id_link,
@@ -411,8 +382,7 @@ class TestDataProductHubApiServiceV1:
         global get_a_release_by_release_id_link
 
         response = self.data_product_hub_api_service.publish_data_product_draft(
-            data_product_id=publish_a_draft_of_data_product_by_data_product_id_link,
-            draft_id=get_draft_by_draft_id_link,
+            data_product_id=publish_a_draft_of_data_product_by_data_product_id_link, draft_id=get_draft_by_draft_id_link
         )
 
         assert response.get_status_code() == 200
@@ -515,7 +485,9 @@ class TestDataProductHubApiServiceV1:
         assert all_items is not None
 
         assert len(all_results) == len(all_items)
-        print(f'\nlist_data_product_releases() returned a total of {len(all_results)} items(s) using DataProductReleasesPager.')
+        print(
+            f'\nlist_data_product_releases() returned a total of {len(all_results)} items(s) using DataProductReleasesPager.'
+        )
 
     @pytest.mark.dependency(depends=["test_list_data_product_releases_with_pager"])
     @needscredentials
@@ -539,20 +511,12 @@ class TestDataProductHubApiServiceV1:
         global create_a_contract_terms_doc_by_draft_id_link
 
         # Construct a dict representation of a ContainerReference model
-        container_reference_model = {
-            'id': create_data_product_by_catalog_id_link,
-            'type': 'catalog',
-        }
+        container_reference_model = {'id': create_data_product_by_catalog_id_link, 'type': 'catalog'}
 
         # Construct a dict representation of a ContainerIdentity model
-        container_identity_model = {
-            'id': create_data_product_by_catalog_id_link,
-        }
+        container_identity_model = {'id': create_data_product_by_catalog_id_link}
         # Construct a dict representation of a AssetPrototype model
-        asset_prototype_model = {
-            'id': '2b0bf220-079c-11ee-be56-0242ac120002',
-            'container': container_identity_model,
-        }
+        asset_prototype_model = {'id': '2b0bf220-079c-11ee-be56-0242ac120002', 'container': container_identity_model}
         # Construct a dict representation of a Domain model
         domain_model = {
             'id': '3f0688f0-69c3-441e-b49b-7c223daa1804',
@@ -566,15 +530,9 @@ class TestDataProductHubApiServiceV1:
             'type': 'data_asset',
         }
         # Construct a dict representation of a DeliveryMethod model
-        delivery_method_model = {
-            'id': '8848fd43-7384-4435-aff3-6a9f113768c4',
-            'container': container_reference_model,
-        }
+        delivery_method_model = {'id': '8848fd43-7384-4435-aff3-6a9f113768c4', 'container': container_reference_model}
         # Construct a dict representation of a DataProductPart model
-        data_product_part_model = {
-            'asset': asset_part_reference_model,
-            'delivery_methods': [delivery_method_model],
-        }
+        data_product_part_model = {'asset': asset_part_reference_model, 'delivery_methods': [delivery_method_model]}
 
         # Construct a dict representation of a DataProductVersionPrototype model
         data_product_version_prototype_model = {
@@ -588,9 +546,7 @@ class TestDataProductHubApiServiceV1:
             'parts_out': [data_product_part_model],
         }
 
-        response = self.data_product_hub_api_service.create_data_product(
-            drafts=[data_product_version_prototype_model],
-        )
+        response = self.data_product_hub_api_service.create_data_product(drafts=[data_product_version_prototype_model])
 
         assert response.get_status_code() == 201
         data_product = response.get_result()
@@ -644,8 +600,9 @@ class TestDataProductHubApiServiceV1:
         assert all_items is not None
 
         assert len(all_results) == len(all_items)
-        print(f'\nlist_data_product_drafts() returned a total of {len(all_results)} items(s) using DataProductDraftsPager.')
-
+        print(
+            f'\nlist_data_product_drafts() returned a total of {len(all_results)} items(s) using DataProductDraftsPager.'
+        )
 
     @pytest.mark.dependency(depends=["test_list_data_product_drafts_with_pager"])
     @needscredentials
@@ -675,9 +632,6 @@ class TestDataProductHubApiServiceV1:
         update_contract_terms_document_by_document_id_link = contract_terms_document['id']
         complete_contract_terms_document_by_document_id_link = contract_terms_document['id']
 
-
-
-
     @pytest.mark.dependency(depends=["test_create_draft_contract_terms_document_for_delete_op"])
     @needscredentials
     def test_delete_draft_contract_terms_document(self):
@@ -694,8 +648,7 @@ class TestDataProductHubApiServiceV1:
     @needscredentials
     def test_delete_data_product_draft(self):
         response = self.data_product_hub_api_service.delete_data_product_draft(
-            data_product_id='-',
-            draft_id=delete_a_draft_by_draft_id_link,
+            data_product_id='-', draft_id=delete_a_draft_by_draft_id_link
         )
 
         assert response.get_status_code() == 204

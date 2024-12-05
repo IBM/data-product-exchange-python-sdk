@@ -31,9 +31,7 @@ class TestCommon(unittest.TestCase):
         """
         Test the get_sdk_headers method
         """
-        headers = common.get_sdk_headers(
-            service_name='dph_services', service_version='V1', operation_id='operation1'
-        )
+        headers = common.get_sdk_headers(service_name='dph_services', service_version='V1', operation_id='operation1')
         self.assertIsNotNone(headers)
         self.assertIsNotNone(headers.get('User-Agent'))
         self.assertIn('data-product-python-sdk', headers.get('User-Agent'))
