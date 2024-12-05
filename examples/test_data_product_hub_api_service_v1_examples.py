@@ -35,7 +35,7 @@ from dph_services.data_product_hub_api_service_v1 import *
 # in a configuration file and then:
 # export IBM_CREDENTIALS_FILE=<name of configuration file>
 #
-config_file = 'data_product_hub_api_service_v1.env'
+config_file = 'dph_v1.env'
 
 data_product_hub_api_service = None
 
@@ -105,7 +105,8 @@ class TestDataProductHubApiServiceV1Examples:
 
             # begin-common
 
-            data_product_hub_api_service = DataProductHubApiServiceV1.new_instance()
+            data_product_hub_api_service = DataProductHubApiServiceV1.new_instance(
+            )
 
             # end-common
             assert data_product_hub_api_service is not None
@@ -135,7 +136,7 @@ class TestDataProductHubApiServiceV1Examples:
             # begin-initialize
 
             response = data_product_hub_api_service.initialize(
-                include=['delivery_methods', 'domains_multi_industry', 'data_product_samples', 'workflows', 'project'],
+                include=['delivery_methods', 'domains_multi_industry', 'data_product_samples', 'workflows', 'project', 'catalog_configurations'],
             )
             initialize_resource = response.get_result()
 
@@ -253,8 +254,13 @@ class TestDataProductHubApiServiceV1Examples:
                 'container': container_identity_model,
             }
 
+            data_product_draft_version_release_model = {
+                'id': '8bf83660-11fe-4427-a72a-8d8359af24e3',
+            }
+
             data_product_identity_model = {
                 'id': 'b38df608-d34b-4d58-8136-ed25e6c6684e',
+                'release': data_product_draft_version_release_model,
             }
 
             response = data_product_hub_api_service.create_data_product_draft(
@@ -309,7 +315,6 @@ class TestDataProductHubApiServiceV1Examples:
                 contract_terms_id=create_a_contract_terms_doc_by_contract_terms_id_link,
                 type='terms_and_conditions',
                 name='Terms and conditions document',
-                id='b38df608-d34b-4d58-8136-ed25e6c6684e',
             )
             contract_terms_document = response.get_result()
 
