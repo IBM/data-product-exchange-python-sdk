@@ -14,12 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# IBM OpenAPI SDK Code Generator Version: 3.92.0-af5c89a5-20240617-153232
+# IBM OpenAPI SDK Code Generator Version: 3.96.0-d6dec9d7-20241008-212902
 
 """
 Data Product Hub API Service
 
-API Version: 0.0.6
+API Version: 1.0.0
 """
 
 from datetime import datetime
@@ -33,6 +33,7 @@ from ibm_cloud_sdk_core.get_authenticator import get_authenticator_from_environm
 from ibm_cloud_sdk_core.utils import convert_list, convert_model, datetime_to_string, string_to_datetime
 
 from .common import get_sdk_headers
+from .common_constants import *
 
 ##############################################################################
 # Service
@@ -43,7 +44,7 @@ class DataProductHubApiServiceV1(BaseService):
     """The Data Product Hub API Service V1 service."""
 
     DEFAULT_SERVICE_URL = 'https://api.dataplatform.dev.cloud.ibm.com/'
-    DEFAULT_SERVICE_NAME = 'data_product_hub_api_service'
+    DEFAULT_SERVICE_NAME = SERVICE_NAME
 
     @classmethod
     def new_instance(
@@ -55,7 +56,9 @@ class DataProductHubApiServiceV1(BaseService):
                specified parameters and external configuration.
         """
         authenticator = get_authenticator_from_environment(service_name)
-        service = cls(authenticator)
+        service = cls(
+            authenticator
+            )
         service.configure_service(service_name)
         return service
 
@@ -105,7 +108,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='get_initialize_status',
         )
         headers.update(sdk_headers)
@@ -117,9 +120,9 @@ class DataProductHubApiServiceV1(BaseService):
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
-        url = '/data_product_exchange/v1/configuration/initialize/status'
+        url = URL_GET_INITIALIZE_STATUS
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -147,7 +150,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='get_service_id_credentials',
         )
         headers.update(sdk_headers)
@@ -155,9 +158,9 @@ class DataProductHubApiServiceV1(BaseService):
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
-        url = '/data_product_exchange/v1/configuration/credentials'
+        url = URL_GET_SERVICEID_CREDENTIALS
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -185,17 +188,19 @@ class DataProductHubApiServiceV1(BaseService):
         products used to illustrate capabilities of the data product
         hub</li><li>`workflows` - Workflows to enable restricted data
         products</li><li>`project` - A default project for exporting data assets to
-        files</li></ul><br/><br/>If a resource depends on resources that are not specified
-        in the request, these dependent resources will be automatically initialized. E.g.,
-        initializing `data_product_samples` will also initialize `domains_multi_industry`
-        and `delivery_methods` even if they are not specified in the request because it
-        depends on them.<br/><br/>If initializing the data product hub for the first time,
-        do not specify a container. The default data product catalog will be
-        created.<br/>For first time initialization, it is recommended that at least
-        `delivery_methods` and `domains_multi_industry` is included in the initialize
-        operation.<br/><br/>If the data product hub has already been initialized, you may
-        call this API again to initialize new resources, such as new delivery methods.In
-        this case, specify the default data product catalog container information.
+        files</li><li>`catalog_configurations` - Catalog configurations for the default
+        data product catalog</li></ul><br/><br/>If a resource depends on resources that
+        are not specified in the request, these dependent resources will be automatically
+        initialized. E.g., initializing `data_product_samples` will also initialize
+        `domains_multi_industry` and `delivery_methods` even if they are not specified in
+        the request because it depends on them.<br/><br/>If initializing the data product
+        hub for the first time, do not specify a container. The default data product
+        catalog will be created.<br/>For first time initialization, it is recommended that
+        at least `delivery_methods` and `domains_multi_industry` is included in the
+        initialize operation.<br/><br/>If the data product hub has already been
+        initialized, you may call this API again to initialize new resources, such as new
+        delivery methods. In this case, specify the default data product catalog container
+        information.
 
         :param ContainerReference container: (optional) Container reference.
         :param List[str] include: (optional) List of configuration options to
@@ -210,7 +215,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='initialize',
         )
         headers.update(sdk_headers)
@@ -221,14 +226,14 @@ class DataProductHubApiServiceV1(BaseService):
         }
         data = {k: v for (k, v) in data.items() if v is not None}
         data = json.dumps(data)
-        headers['content-type'] = 'application/json'
+        headers['content-type'] = CONTENT_TYPE_JSON
 
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
-        url = '/data_product_exchange/v1/configuration/initialize'
+        url = URL_INITIALIZE
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -256,7 +261,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='manage_api_keys',
         )
         headers.update(sdk_headers)
@@ -265,7 +270,7 @@ class DataProductHubApiServiceV1(BaseService):
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
 
-        url = '/data_product_exchange/v1/configuration/rotate_credentials'
+        url = URL_MANAGE_APIKEYS
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -300,7 +305,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='list_data_products',
         )
         headers.update(sdk_headers)
@@ -313,9 +318,9 @@ class DataProductHubApiServiceV1(BaseService):
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
-        url = '/data_product_exchange/v1/data_products'
+        url = URL_LIST_DATA_PRODUCTS
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -352,7 +357,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='create_data_product',
         )
         headers.update(sdk_headers)
@@ -362,14 +367,14 @@ class DataProductHubApiServiceV1(BaseService):
         }
         data = {k: v for (k, v) in data.items() if v is not None}
         data = json.dumps(data)
-        headers['content-type'] = 'application/json'
+        headers['content-type'] = CONTENT_TYPE_JSON
 
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
-        url = '/data_product_exchange/v1/data_products'
+        url = URL_CREATE_DATA_PRODUCT
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -399,7 +404,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='get_data_product',
         )
         headers.update(sdk_headers)
@@ -407,12 +412,12 @@ class DataProductHubApiServiceV1(BaseService):
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id']
         path_param_values = self.encode_path_vars(data_product_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}'.format(**path_param_dict)
+        url = URL_GET_DATA_PRODUCT.format(**path_param_dict)
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -467,7 +472,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='complete_draft_contract_terms_document',
         )
         headers.update(sdk_headers)
@@ -475,14 +480,12 @@ class DataProductHubApiServiceV1(BaseService):
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}/complete'.format(
-            **path_param_dict
-        )
+        url = URL_COMPLETE_DRAFT_CONTRACT_TERMS_DOCUMENT.format(**path_param_dict)
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -524,7 +527,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='list_data_product_drafts',
         )
         headers.update(sdk_headers)
@@ -539,12 +542,12 @@ class DataProductHubApiServiceV1(BaseService):
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id']
         path_param_values = self.encode_path_vars(data_product_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts'.format(**path_param_dict)
+        url = URL_LIST_DATA_PRODUCT_DRAFTS.format(**path_param_dict)
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -641,7 +644,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='create_data_product_draft',
         )
         headers.update(sdk_headers)
@@ -664,17 +667,17 @@ class DataProductHubApiServiceV1(BaseService):
         }
         data = {k: v for (k, v) in data.items() if v is not None}
         data = json.dumps(data)
-        headers['content-type'] = 'application/json'
+        headers['content-type'] = CONTENT_TYPE_JSON
 
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id']
         path_param_values = self.encode_path_vars(data_product_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts'.format(**path_param_dict)
+        url = URL_CREATE_DATA_PRODUCT_DRAFT.format(**path_param_dict)
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -692,11 +695,8 @@ class DataProductHubApiServiceV1(BaseService):
         contract_terms_id: str,
         type: str,
         name: str,
-        id: str,
         *,
         url: Optional[str] = None,
-        attachment: Optional['ContractTermsDocumentAttachment'] = None,
-        upload_url: Optional[str] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -720,14 +720,8 @@ class DataProductHubApiServiceV1(BaseService):
         :param str contract_terms_id: Contract terms id.
         :param str type: Type of the contract document.
         :param str name: Name of the contract document.
-        :param str id: Id uniquely identifying this document within the contract
-               terms instance.
         :param str url: (optional) URL that can be used to retrieve the contract
                document.
-        :param ContractTermsDocumentAttachment attachment: (optional) Attachment
-               associated witht the document.
-        :param str upload_url: (optional) URL which can be used to upload document
-               file.
         :param dict headers: A `dict` containing the request headers
         :return: A `DetailedResponse` containing the result, headers and HTTP status code.
         :rtype: DetailedResponse with `dict` result representing a `ContractTermsDocument` object
@@ -743,14 +737,10 @@ class DataProductHubApiServiceV1(BaseService):
             raise ValueError('type must be provided')
         if name is None:
             raise ValueError('name must be provided')
-        if id is None:
-            raise ValueError('id must be provided')
-        if attachment is not None:
-            attachment = convert_model(attachment)
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='create_draft_contract_terms_document',
         )
         headers.update(sdk_headers)
@@ -758,26 +748,21 @@ class DataProductHubApiServiceV1(BaseService):
         data = {
             'type': type,
             'name': name,
-            'id': id,
             'url': url,
-            'attachment': attachment,
-            'upload_url': upload_url,
         }
         data = {k: v for (k, v) in data.items() if v is not None}
         data = json.dumps(data)
-        headers['content-type'] = 'application/json'
+        headers['content-type'] = CONTENT_TYPE_JSON
 
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents'.format(
-            **path_param_dict
-        )
+        url = URL_CREATE_DRAFT_CONTRACT_TERMS_DOCUMENT.format(**path_param_dict)
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -813,7 +798,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='get_data_product_draft',
         )
         headers.update(sdk_headers)
@@ -821,12 +806,12 @@ class DataProductHubApiServiceV1(BaseService):
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id', 'draft_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}'.format(**path_param_dict)
+        url = URL_GET_DATA_PRODUCT_DRAFT.format(**path_param_dict)
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -862,7 +847,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='delete_data_product_draft',
         )
         headers.update(sdk_headers)
@@ -874,7 +859,7 @@ class DataProductHubApiServiceV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}'.format(**path_param_dict)
+        url = URL_GET_DATA_PRODUCT_DRAFT.format(**path_param_dict)
         request = self.prepare_request(
             method='DELETE',
             url=url,
@@ -922,23 +907,23 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='update_data_product_draft',
         )
         headers.update(sdk_headers)
 
         data = json.dumps(json_patch_instructions)
-        headers['content-type'] = 'application/json-patch+json'
+        headers['content-type'] = CONTENT_TYPE_PATCH_JSON
 
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id', 'draft_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}'.format(**path_param_dict)
+        url = URL_GET_DATA_PRODUCT_DRAFT.format(**path_param_dict)
         request = self.prepare_request(
             method='PATCH',
             url=url,
@@ -987,7 +972,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='get_draft_contract_terms_document',
         )
         headers.update(sdk_headers)
@@ -995,14 +980,12 @@ class DataProductHubApiServiceV1(BaseService):
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(
-            **path_param_dict
-        )
+        url = URL_GET_DRAFT_CONTRACT_TERMS_DOCUMENT.format(**path_param_dict)
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -1048,7 +1031,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='delete_draft_contract_terms_document',
         )
         headers.update(sdk_headers)
@@ -1060,9 +1043,7 @@ class DataProductHubApiServiceV1(BaseService):
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(
-            **path_param_dict
-        )
+        url = URL_GET_DRAFT_CONTRACT_TERMS_DOCUMENT.format(**path_param_dict)
         request = self.prepare_request(
             method='DELETE',
             url=url,
@@ -1120,25 +1101,23 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='update_draft_contract_terms_document',
         )
         headers.update(sdk_headers)
 
         data = json.dumps(json_patch_instructions)
-        headers['content-type'] = 'application/json-patch+json'
+        headers['content-type'] = CONTENT_TYPE_PATCH_JSON
 
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(
-            **path_param_dict
-        )
+        url = URL_GET_DRAFT_CONTRACT_TERMS_DOCUMENT.format(**path_param_dict)
         request = self.prepare_request(
             method='PATCH',
             url=url,
@@ -1158,6 +1137,7 @@ class DataProductHubApiServiceV1(BaseService):
         """
         Publish a draft of an existing data product.
 
+        Publish a draft of an existing data product.
 
         :param str data_product_id: Data product ID. Use '-' to skip specifying the
                data product ID explicitly.
@@ -1174,7 +1154,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='publish_data_product_draft',
         )
         headers.update(sdk_headers)
@@ -1182,14 +1162,12 @@ class DataProductHubApiServiceV1(BaseService):
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id', 'draft_id']
         path_param_values = self.encode_path_vars(data_product_id, draft_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/publish'.format(
-            **path_param_dict
-        )
+        url = URL_PUBLISH_DATA_PRODUCT_DRAFT.format(**path_param_dict)
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -1207,6 +1185,8 @@ class DataProductHubApiServiceV1(BaseService):
         self,
         data_product_id: str,
         release_id: str,
+        *,
+        check_caller_approval: Optional[bool] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -1217,6 +1197,9 @@ class DataProductHubApiServiceV1(BaseService):
         :param str data_product_id: Data product ID. Use '-' to skip specifying the
                data product ID explicitly.
         :param str release_id: Data product release id.
+        :param bool check_caller_approval: (optional) If the value is true, then it
+               will be verfied whether the caller is present in the data access request
+               pre-approved user list.
         :param dict headers: A `dict` containing the request headers
         :return: A `DetailedResponse` containing the result, headers and HTTP status code.
         :rtype: DetailedResponse with `dict` result representing a `DataProductVersion` object
@@ -1229,26 +1212,29 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='get_data_product_release',
         )
         headers.update(sdk_headers)
 
+        params = {
+            'check_caller_approval': check_caller_approval,
+        }
+
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id', 'release_id']
         path_param_values = self.encode_path_vars(data_product_id, release_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}'.format(
-            **path_param_dict
-        )
+        url = URL_GET_DATA_PRODUCT_RELEASE.format(**path_param_dict)
         request = self.prepare_request(
             method='GET',
             url=url,
             headers=headers,
+            params=params,
         )
 
         response = self.send(request, **kwargs)
@@ -1291,25 +1277,23 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='update_data_product_release',
         )
         headers.update(sdk_headers)
 
         data = json.dumps(json_patch_instructions)
-        headers['content-type'] = 'application/json-patch+json'
+        headers['content-type'] = CONTENT_TYPE_PATCH_JSON
 
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id', 'release_id']
         path_param_values = self.encode_path_vars(data_product_id, release_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}'.format(
-            **path_param_dict
-        )
+        url = URL_UPDATE_DATA_PRODUCT_RELEASE.format(**path_param_dict)
         request = self.prepare_request(
             method='PATCH',
             url=url,
@@ -1359,7 +1343,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='get_release_contract_terms_document',
         )
         headers.update(sdk_headers)
@@ -1367,14 +1351,12 @@ class DataProductHubApiServiceV1(BaseService):
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id', 'release_id', 'contract_terms_id', 'document_id']
         path_param_values = self.encode_path_vars(data_product_id, release_id, contract_terms_id, document_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/contract_terms/{contract_terms_id}/documents/{document_id}'.format(
-            **path_param_dict
-        )
+        url = URL_GET_RELEASE_CONTRACT_TERMS_DOCUMENT.format(**path_param_dict)
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -1398,6 +1380,7 @@ class DataProductHubApiServiceV1(BaseService):
         """
         Retrieve a list of data product releases.
 
+        Retrieve a list of data product releases.
 
         :param str data_product_id: Data product ID. Use '-' to skip specifying the
                data product ID explicitly.
@@ -1421,7 +1404,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='list_data_product_releases',
         )
         headers.update(sdk_headers)
@@ -1437,12 +1420,12 @@ class DataProductHubApiServiceV1(BaseService):
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id']
         path_param_values = self.encode_path_vars(data_product_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases'.format(**path_param_dict)
+        url = URL_LIST_DATA_PRODUCT_RELEASES.format(**path_param_dict)
         request = self.prepare_request(
             method='GET',
             url=url,
@@ -1478,7 +1461,7 @@ class DataProductHubApiServiceV1(BaseService):
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
+            service_version=SERVICE_VERSION,
             operation_id='retire_data_product_release',
         )
         headers.update(sdk_headers)
@@ -1486,14 +1469,12 @@ class DataProductHubApiServiceV1(BaseService):
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers['Accept'] = CONTENT_TYPE_JSON
 
         path_param_keys = ['data_product_id', 'release_id']
         path_param_values = self.encode_path_vars(data_product_id, release_id)
         path_param_dict = dict(zip(path_param_keys, path_param_values))
-        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/retire'.format(
-            **path_param_dict
-        )
+        url = URL_RETIRE_DATA_PRODUCT_RELEASE.format(**path_param_dict)
         request = self.prepare_request(
             method='POST',
             url=url,
@@ -1881,6 +1862,7 @@ class ContainerReference:
         PROJECT = 'project'
 
 
+
 class ContractTermsDocument:
     """
     Standard contract terms document, which is used for get and list contract terms
@@ -2004,6 +1986,7 @@ class ContractTermsDocument:
         SLA = 'sla'
 
 
+
 class ContractTermsDocumentAttachment:
     """
     Attachment associated witht the document.
@@ -2067,6 +2050,8 @@ class DataProduct:
     Data Product.
 
     :param str id: Data product identifier.
+    :param DataProductDraftVersionRelease release: (optional) A data product draft
+          version object.
     :param ContainerReference container: Container reference.
     :param DataProductVersionSummary latest_release: (optional) Summary of Data
           Product Version object.
@@ -2079,6 +2064,7 @@ class DataProduct:
         id: str,
         container: 'ContainerReference',
         *,
+        release: Optional['DataProductDraftVersionRelease'] = None,
         latest_release: Optional['DataProductVersionSummary'] = None,
         drafts: Optional[List['DataProductVersionSummary']] = None,
     ) -> None:
@@ -2087,12 +2073,15 @@ class DataProduct:
 
         :param str id: Data product identifier.
         :param ContainerReference container: Container reference.
+        :param DataProductDraftVersionRelease release: (optional) A data product
+               draft version object.
         :param DataProductVersionSummary latest_release: (optional) Summary of Data
                Product Version object.
         :param List[DataProductVersionSummary] drafts: (optional) List of draft
                summaries of this data product.
         """
         self.id = id
+        self.release = release
         self.container = container
         self.latest_release = latest_release
         self.drafts = drafts
@@ -2105,6 +2094,8 @@ class DataProduct:
             args['id'] = id
         else:
             raise ValueError('Required property \'id\' not present in DataProduct JSON')
+        if (release := _dict.get('release')) is not None:
+            args['release'] = DataProductDraftVersionRelease.from_dict(release)
         if (container := _dict.get('container')) is not None:
             args['container'] = ContainerReference.from_dict(container)
         else:
@@ -2125,6 +2116,11 @@ class DataProduct:
         _dict = {}
         if hasattr(self, 'id') and self.id is not None:
             _dict['id'] = self.id
+        if hasattr(self, 'release') and self.release is not None:
+            if isinstance(self.release, dict):
+                _dict['release'] = self.release
+            else:
+                _dict['release'] = self.release.to_dict()
         if hasattr(self, 'container') and self.container is not None:
             if isinstance(self.container, dict):
                 _dict['container'] = self.container
@@ -2172,6 +2168,7 @@ class DataProductContractTerms:
     :param str id: (optional) ID of the contract terms.
     :param List[ContractTermsDocument] documents: (optional) Collection of contract
           terms documents.
+    :param str error_msg: (optional)
     """
 
     def __init__(
@@ -2180,6 +2177,7 @@ class DataProductContractTerms:
         asset: Optional['AssetReference'] = None,
         id: Optional[str] = None,
         documents: Optional[List['ContractTermsDocument']] = None,
+        error_msg: Optional[str] = None,
     ) -> None:
         """
         Initialize a DataProductContractTerms object.
@@ -2188,10 +2186,12 @@ class DataProductContractTerms:
         :param str id: (optional) ID of the contract terms.
         :param List[ContractTermsDocument] documents: (optional) Collection of
                contract terms documents.
+        :param str error_msg: (optional)
         """
         self.asset = asset
         self.id = id
         self.documents = documents
+        self.error_msg = error_msg
 
     @classmethod
     def from_dict(cls, _dict: Dict) -> 'DataProductContractTerms':
@@ -2203,6 +2203,8 @@ class DataProductContractTerms:
             args['id'] = id
         if (documents := _dict.get('documents')) is not None:
             args['documents'] = [ContractTermsDocument.from_dict(v) for v in documents]
+        if (error_msg := _dict.get('error_msg')) is not None:
+            args['error_msg'] = error_msg
         return cls(**args)
 
     @classmethod
@@ -2228,6 +2230,8 @@ class DataProductContractTerms:
                 else:
                     documents_list.append(v.to_dict())
             _dict['documents'] = documents_list
+        if hasattr(self, 'error_msg') and self.error_msg is not None:
+            _dict['error_msg'] = self.error_msg
         return _dict
 
     def _to_dict(self):
@@ -2245,6 +2249,65 @@ class DataProductContractTerms:
         return self.__dict__ == other.__dict__
 
     def __ne__(self, other: 'DataProductContractTerms') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
+class DataProductCustomWorkflowDefinition:
+    """
+    A custom workflow definition to be used to create a workflow to approve a data product
+    subscription.
+
+    :param str id: (optional) ID of a workflow definition.
+    """
+
+    def __init__(
+        self,
+        *,
+        id: Optional[str] = None,
+    ) -> None:
+        """
+        Initialize a DataProductCustomWorkflowDefinition object.
+
+        :param str id: (optional) ID of a workflow definition.
+        """
+        self.id = id
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'DataProductCustomWorkflowDefinition':
+        """Initialize a DataProductCustomWorkflowDefinition object from a json dictionary."""
+        args = {}
+        if (id := _dict.get('id')) is not None:
+            args['id'] = id
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a DataProductCustomWorkflowDefinition object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'id') and self.id is not None:
+            _dict['id'] = self.id
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this DataProductCustomWorkflowDefinition object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'DataProductCustomWorkflowDefinition') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'DataProductCustomWorkflowDefinition') -> bool:
         """Return `true` when self and other are not equal, false otherwise."""
         return not self == other
 
@@ -2351,23 +2414,88 @@ class DataProductDraftCollection:
         return not self == other
 
 
+class DataProductDraftVersionRelease:
+    """
+    A data product draft version object.
+
+    :param str id: (optional) ID of a draft version of data product.
+    """
+
+    def __init__(
+        self,
+        *,
+        id: Optional[str] = None,
+    ) -> None:
+        """
+        Initialize a DataProductDraftVersionRelease object.
+
+        :param str id: (optional) ID of a draft version of data product.
+        """
+        self.id = id
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'DataProductDraftVersionRelease':
+        """Initialize a DataProductDraftVersionRelease object from a json dictionary."""
+        args = {}
+        if (id := _dict.get('id')) is not None:
+            args['id'] = id
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a DataProductDraftVersionRelease object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'id') and self.id is not None:
+            _dict['id'] = self.id
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this DataProductDraftVersionRelease object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'DataProductDraftVersionRelease') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'DataProductDraftVersionRelease') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
 class DataProductIdentity:
     """
     Data product identifier.
 
     :param str id: Data product identifier.
+    :param DataProductDraftVersionRelease release: (optional) A data product draft
+          version object.
     """
 
     def __init__(
         self,
         id: str,
+        *,
+        release: Optional['DataProductDraftVersionRelease'] = None,
     ) -> None:
         """
         Initialize a DataProductIdentity object.
 
         :param str id: Data product identifier.
+        :param DataProductDraftVersionRelease release: (optional) A data product
+               draft version object.
         """
         self.id = id
+        self.release = release
 
     @classmethod
     def from_dict(cls, _dict: Dict) -> 'DataProductIdentity':
@@ -2377,6 +2505,8 @@ class DataProductIdentity:
             args['id'] = id
         else:
             raise ValueError('Required property \'id\' not present in DataProductIdentity JSON')
+        if (release := _dict.get('release')) is not None:
+            args['release'] = DataProductDraftVersionRelease.from_dict(release)
         return cls(**args)
 
     @classmethod
@@ -2389,6 +2519,11 @@ class DataProductIdentity:
         _dict = {}
         if hasattr(self, 'id') and self.id is not None:
             _dict['id'] = self.id
+        if hasattr(self, 'release') and self.release is not None:
+            if isinstance(self.release, dict):
+                _dict['release'] = self.release
+            else:
+                _dict['release'] = self.release.to_dict()
         return _dict
 
     def _to_dict(self):
@@ -2416,20 +2551,35 @@ class DataProductOrderAccessRequest:
 
     :param List[str] task_assignee_users: (optional) The workflow approvers
           associated with the data product version.
+    :param List[str] pre_approved_users: (optional) The list of users or groups
+          whose request will get pre-approved associated with the data product version.
+    :param DataProductCustomWorkflowDefinition custom_workflow_definition:
+          (optional) A custom workflow definition to be used to create a workflow to
+          approve a data product subscription.
     """
 
     def __init__(
         self,
         *,
         task_assignee_users: Optional[List[str]] = None,
+        pre_approved_users: Optional[List[str]] = None,
+        custom_workflow_definition: Optional['DataProductCustomWorkflowDefinition'] = None,
     ) -> None:
         """
         Initialize a DataProductOrderAccessRequest object.
 
         :param List[str] task_assignee_users: (optional) The workflow approvers
                associated with the data product version.
+        :param List[str] pre_approved_users: (optional) The list of users or groups
+               whose request will get pre-approved associated with the data product
+               version.
+        :param DataProductCustomWorkflowDefinition custom_workflow_definition:
+               (optional) A custom workflow definition to be used to create a workflow to
+               approve a data product subscription.
         """
         self.task_assignee_users = task_assignee_users
+        self.pre_approved_users = pre_approved_users
+        self.custom_workflow_definition = custom_workflow_definition
 
     @classmethod
     def from_dict(cls, _dict: Dict) -> 'DataProductOrderAccessRequest':
@@ -2437,6 +2587,10 @@ class DataProductOrderAccessRequest:
         args = {}
         if (task_assignee_users := _dict.get('task_assignee_users')) is not None:
             args['task_assignee_users'] = task_assignee_users
+        if (pre_approved_users := _dict.get('pre_approved_users')) is not None:
+            args['pre_approved_users'] = pre_approved_users
+        if (custom_workflow_definition := _dict.get('custom_workflow_definition')) is not None:
+            args['custom_workflow_definition'] = DataProductCustomWorkflowDefinition.from_dict(custom_workflow_definition)
         return cls(**args)
 
     @classmethod
@@ -2449,6 +2603,13 @@ class DataProductOrderAccessRequest:
         _dict = {}
         if hasattr(self, 'task_assignee_users') and self.task_assignee_users is not None:
             _dict['task_assignee_users'] = self.task_assignee_users
+        if hasattr(self, 'pre_approved_users') and self.pre_approved_users is not None:
+            _dict['pre_approved_users'] = self.pre_approved_users
+        if hasattr(self, 'custom_workflow_definition') and self.custom_workflow_definition is not None:
+            if isinstance(self.custom_workflow_definition, dict):
+                _dict['custom_workflow_definition'] = self.custom_workflow_definition
+            else:
+                _dict['custom_workflow_definition'] = self.custom_workflow_definition.to_dict()
         return _dict
 
     def _to_dict(self):
@@ -2656,6 +2817,8 @@ class DataProductSummary:
     Data Product Summary.
 
     :param str id: Data product identifier.
+    :param DataProductDraftVersionRelease release: (optional) A data product draft
+          version object.
     :param ContainerReference container: Container reference.
     """
 
@@ -2663,14 +2826,19 @@ class DataProductSummary:
         self,
         id: str,
         container: 'ContainerReference',
+        *,
+        release: Optional['DataProductDraftVersionRelease'] = None,
     ) -> None:
         """
         Initialize a DataProductSummary object.
 
         :param str id: Data product identifier.
         :param ContainerReference container: Container reference.
+        :param DataProductDraftVersionRelease release: (optional) A data product
+               draft version object.
         """
         self.id = id
+        self.release = release
         self.container = container
 
     @classmethod
@@ -2681,6 +2849,8 @@ class DataProductSummary:
             args['id'] = id
         else:
             raise ValueError('Required property \'id\' not present in DataProductSummary JSON')
+        if (release := _dict.get('release')) is not None:
+            args['release'] = DataProductDraftVersionRelease.from_dict(release)
         if (container := _dict.get('container')) is not None:
             args['container'] = ContainerReference.from_dict(container)
         else:
@@ -2697,6 +2867,11 @@ class DataProductSummary:
         _dict = {}
         if hasattr(self, 'id') and self.id is not None:
             _dict['id'] = self.id
+        if hasattr(self, 'release') and self.release is not None:
+            if isinstance(self.release, dict):
+                _dict['release'] = self.release
+            else:
+                _dict['release'] = self.release.to_dict()
         if hasattr(self, 'container') and self.container is not None:
             if isinstance(self.container, dict):
                 _dict['container'] = self.container
@@ -2861,6 +3036,7 @@ class DataProductVersion:
     :param datetime created_at: The time when this data product version was created.
     :param DataProductWorkflows workflows: (optional) The workflows associated with
           the data product version.
+    :param dict properties: (optional) Metadata properties on data products.
     """
 
     def __init__(
@@ -2885,6 +3061,7 @@ class DataProductVersion:
         published_by: Optional[str] = None,
         published_at: Optional[datetime] = None,
         workflows: Optional['DataProductWorkflows'] = None,
+        properties: Optional[dict] = None,
     ) -> None:
         """
         Initialize a DataProductVersion object.
@@ -2922,6 +3099,7 @@ class DataProductVersion:
                version was published.
         :param DataProductWorkflows workflows: (optional) The workflows associated
                with the data product version.
+        :param dict properties: (optional) Metadata properties on data products.
         """
         self.version = version
         self.state = state
@@ -2942,6 +3120,7 @@ class DataProductVersion:
         self.created_by = created_by
         self.created_at = created_at
         self.workflows = workflows
+        self.properties = properties
 
     @classmethod
     def from_dict(cls, _dict: Dict) -> 'DataProductVersion':
@@ -3017,6 +3196,8 @@ class DataProductVersion:
             raise ValueError('Required property \'created_at\' not present in DataProductVersion JSON')
         if (workflows := _dict.get('workflows')) is not None:
             args['workflows'] = DataProductWorkflows.from_dict(workflows)
+        if (properties := _dict.get('properties')) is not None:
+            args['properties'] = properties
         return cls(**args)
 
     @classmethod
@@ -3095,6 +3276,8 @@ class DataProductVersion:
                 _dict['workflows'] = self.workflows
             else:
                 _dict['workflows'] = self.workflows.to_dict()
+        if hasattr(self, 'properties') and self.properties is not None:
+            _dict['properties'] = self.properties
         return _dict
 
     def _to_dict(self):
@@ -3124,6 +3307,7 @@ class DataProductVersion:
         AVAILABLE = 'available'
         RETIRED = 'retired'
 
+
     class TypesEnum(str, Enum):
         """
         types.
@@ -3133,11 +3317,14 @@ class DataProductVersion:
         CODE = 'code'
 
 
+
 class DataProductVersionDataProduct:
     """
     Data product reference.
 
     :param str id: Data product identifier.
+    :param DataProductDraftVersionRelease release: (optional) A data product draft
+          version object.
     :param ContainerReference container: Container reference.
     """
 
@@ -3145,14 +3332,19 @@ class DataProductVersionDataProduct:
         self,
         id: str,
         container: 'ContainerReference',
+        *,
+        release: Optional['DataProductDraftVersionRelease'] = None,
     ) -> None:
         """
         Initialize a DataProductVersionDataProduct object.
 
         :param str id: Data product identifier.
         :param ContainerReference container: Container reference.
+        :param DataProductDraftVersionRelease release: (optional) A data product
+               draft version object.
         """
         self.id = id
+        self.release = release
         self.container = container
 
     @classmethod
@@ -3163,6 +3355,8 @@ class DataProductVersionDataProduct:
             args['id'] = id
         else:
             raise ValueError('Required property \'id\' not present in DataProductVersionDataProduct JSON')
+        if (release := _dict.get('release')) is not None:
+            args['release'] = DataProductDraftVersionRelease.from_dict(release)
         if (container := _dict.get('container')) is not None:
             args['container'] = ContainerReference.from_dict(container)
         else:
@@ -3179,6 +3373,11 @@ class DataProductVersionDataProduct:
         _dict = {}
         if hasattr(self, 'id') and self.id is not None:
             _dict['id'] = self.id
+        if hasattr(self, 'release') and self.release is not None:
+            if isinstance(self.release, dict):
+                _dict['release'] = self.release
+            else:
+                _dict['release'] = self.release.to_dict()
         if hasattr(self, 'container') and self.container is not None:
             if isinstance(self.container, dict):
                 _dict['container'] = self.container
@@ -3450,6 +3649,7 @@ class DataProductVersionPrototype:
         AVAILABLE = 'available'
         RETIRED = 'retired'
 
+
     class TypesEnum(str, Enum):
         """
         types.
@@ -3457,6 +3657,7 @@ class DataProductVersionPrototype:
 
         DATA = 'data'
         CODE = 'code'
+
 
 
 class DataProductVersionSummary:
@@ -3668,6 +3869,7 @@ class DataProductVersionSummary:
         AVAILABLE = 'available'
         RETIRED = 'retired'
 
+
     class TypesEnum(str, Enum):
         """
         types.
@@ -3677,11 +3879,14 @@ class DataProductVersionSummary:
         CODE = 'code'
 
 
+
 class DataProductVersionSummaryDataProduct:
     """
     Data product reference.
 
     :param str id: Data product identifier.
+    :param DataProductDraftVersionRelease release: (optional) A data product draft
+          version object.
     :param ContainerReference container: Container reference.
     """
 
@@ -3689,14 +3894,19 @@ class DataProductVersionSummaryDataProduct:
         self,
         id: str,
         container: 'ContainerReference',
+        *,
+        release: Optional['DataProductDraftVersionRelease'] = None,
     ) -> None:
         """
         Initialize a DataProductVersionSummaryDataProduct object.
 
         :param str id: Data product identifier.
         :param ContainerReference container: Container reference.
+        :param DataProductDraftVersionRelease release: (optional) A data product
+               draft version object.
         """
         self.id = id
+        self.release = release
         self.container = container
 
     @classmethod
@@ -3707,6 +3917,8 @@ class DataProductVersionSummaryDataProduct:
             args['id'] = id
         else:
             raise ValueError('Required property \'id\' not present in DataProductVersionSummaryDataProduct JSON')
+        if (release := _dict.get('release')) is not None:
+            args['release'] = DataProductDraftVersionRelease.from_dict(release)
         if (container := _dict.get('container')) is not None:
             args['container'] = ContainerReference.from_dict(container)
         else:
@@ -3723,6 +3935,11 @@ class DataProductVersionSummaryDataProduct:
         _dict = {}
         if hasattr(self, 'id') and self.id is not None:
             _dict['id'] = self.id
+        if hasattr(self, 'release') and self.release is not None:
+            if isinstance(self.release, dict):
+                _dict['release'] = self.release
+            else:
+                _dict['release'] = self.release.to_dict()
         if hasattr(self, 'container') and self.container is not None:
             if isinstance(self.container, dict):
                 _dict['container'] = self.container
@@ -4065,6 +4282,7 @@ class ErrorModelResource:
         FETCH_ERROR = 'fetch_error'
         UPDATE_ERROR = 'update_error'
         DELETE_ERROR = 'delete_error'
+        PATCH_ERROR = 'patch_error'
         DATA_ERROR = 'data_error'
         DATABASE_ERROR = 'database_error'
         DATABASE_QUERY_ERROR = 'database_query_error'
@@ -4081,6 +4299,7 @@ class ErrorModelResource:
         DELETED = 'deleted'
         NOT_IMPLEMENTED = 'not_implemented'
         FEATURE_NOT_ENABLED = 'feature_not_enabled'
+
 
 
 class FirstPage:
@@ -4160,6 +4379,8 @@ class InitializeResource:
           initialization.
     :param List[InitializedOption] initialized_options: (optional) Initialized
           options.
+    :param ProvidedCatalogWorkflows workflows: (optional) Resource defining provided
+          workflow definitions.
     """
 
     def __init__(
@@ -4173,6 +4394,7 @@ class InitializeResource:
         last_started_at: Optional[datetime] = None,
         last_finished_at: Optional[datetime] = None,
         initialized_options: Optional[List['InitializedOption']] = None,
+        workflows: Optional['ProvidedCatalogWorkflows'] = None,
     ) -> None:
         """
         Initialize a InitializeResource object.
@@ -4191,6 +4413,8 @@ class InitializeResource:
                initialization.
         :param List[InitializedOption] initialized_options: (optional) Initialized
                options.
+        :param ProvidedCatalogWorkflows workflows: (optional) Resource defining
+               provided workflow definitions.
         """
         self.container = container
         self.href = href
@@ -4200,6 +4424,7 @@ class InitializeResource:
         self.last_started_at = last_started_at
         self.last_finished_at = last_finished_at
         self.initialized_options = initialized_options
+        self.workflows = workflows
 
     @classmethod
     def from_dict(cls, _dict: Dict) -> 'InitializeResource':
@@ -4221,6 +4446,8 @@ class InitializeResource:
             args['last_finished_at'] = string_to_datetime(last_finished_at)
         if (initialized_options := _dict.get('initialized_options')) is not None:
             args['initialized_options'] = [InitializedOption.from_dict(v) for v in initialized_options]
+        if (workflows := _dict.get('workflows')) is not None:
+            args['workflows'] = ProvidedCatalogWorkflows.from_dict(workflows)
         return cls(**args)
 
     @classmethod
@@ -4262,6 +4489,11 @@ class InitializeResource:
                 else:
                     initialized_options_list.append(v.to_dict())
             _dict['initialized_options'] = initialized_options_list
+        if hasattr(self, 'workflows') and self.workflows is not None:
+            if isinstance(self.workflows, dict):
+                _dict['workflows'] = self.workflows
+            else:
+                _dict['workflows'] = self.workflows.to_dict()
         return _dict
 
     def _to_dict(self):
@@ -4291,6 +4523,7 @@ class InitializeResource:
         IN_PROGRESS = 'in_progress'
         SUCCEEDED = 'succeeded'
         FAILED = 'failed'
+
 
 
 class InitializedOption:
@@ -4462,6 +4695,7 @@ class JsonPatchOperation:
         TEST = 'test'
 
 
+
 class NextPage:
     """
     Next page in the collection.
@@ -4528,6 +4762,145 @@ class NextPage:
         return self.__dict__ == other.__dict__
 
     def __ne__(self, other: 'NextPage') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
+class ProvidedCatalogWorkflows:
+    """
+    Resource defining provided workflow definitions.
+
+    :param ProvidedWorkflowResource data_access: (optional) A reference to a
+          workflow definition.
+    :param ProvidedWorkflowResource request_new_product: (optional) A reference to a
+          workflow definition.
+    """
+
+    def __init__(
+        self,
+        *,
+        data_access: Optional['ProvidedWorkflowResource'] = None,
+        request_new_product: Optional['ProvidedWorkflowResource'] = None,
+    ) -> None:
+        """
+        Initialize a ProvidedCatalogWorkflows object.
+
+        :param ProvidedWorkflowResource data_access: (optional) A reference to a
+               workflow definition.
+        :param ProvidedWorkflowResource request_new_product: (optional) A reference
+               to a workflow definition.
+        """
+        self.data_access = data_access
+        self.request_new_product = request_new_product
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'ProvidedCatalogWorkflows':
+        """Initialize a ProvidedCatalogWorkflows object from a json dictionary."""
+        args = {}
+        if (data_access := _dict.get('data_access')) is not None:
+            args['data_access'] = ProvidedWorkflowResource.from_dict(data_access)
+        if (request_new_product := _dict.get('request_new_product')) is not None:
+            args['request_new_product'] = ProvidedWorkflowResource.from_dict(request_new_product)
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a ProvidedCatalogWorkflows object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'data_access') and self.data_access is not None:
+            if isinstance(self.data_access, dict):
+                _dict['data_access'] = self.data_access
+            else:
+                _dict['data_access'] = self.data_access.to_dict()
+        if hasattr(self, 'request_new_product') and self.request_new_product is not None:
+            if isinstance(self.request_new_product, dict):
+                _dict['request_new_product'] = self.request_new_product
+            else:
+                _dict['request_new_product'] = self.request_new_product.to_dict()
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this ProvidedCatalogWorkflows object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'ProvidedCatalogWorkflows') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'ProvidedCatalogWorkflows') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
+class ProvidedWorkflowResource:
+    """
+    A reference to a workflow definition.
+
+    :param WorkflowDefinitionReference definition: (optional) Reference to a
+          workflow definition.
+    """
+
+    def __init__(
+        self,
+        *,
+        definition: Optional['WorkflowDefinitionReference'] = None,
+    ) -> None:
+        """
+        Initialize a ProvidedWorkflowResource object.
+
+        :param WorkflowDefinitionReference definition: (optional) Reference to a
+               workflow definition.
+        """
+        self.definition = definition
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'ProvidedWorkflowResource':
+        """Initialize a ProvidedWorkflowResource object from a json dictionary."""
+        args = {}
+        if (definition := _dict.get('definition')) is not None:
+            args['definition'] = WorkflowDefinitionReference.from_dict(definition)
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a ProvidedWorkflowResource object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'definition') and self.definition is not None:
+            if isinstance(self.definition, dict):
+                _dict['definition'] = self.definition
+            else:
+                _dict['definition'] = self.definition.to_dict()
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this ProvidedWorkflowResource object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'ProvidedWorkflowResource') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'ProvidedWorkflowResource') -> bool:
         """Return `true` when self and other are not equal, false otherwise."""
         return not self == other
 
@@ -4679,6 +5052,63 @@ class UseCase:
         """Return `true` when self and other are not equal, false otherwise."""
         return not self == other
 
+
+class WorkflowDefinitionReference:
+    """
+    Reference to a workflow definition.
+
+    :param str id: (optional) ID of a workflow definition.
+    """
+
+    def __init__(
+        self,
+        *,
+        id: Optional[str] = None,
+    ) -> None:
+        """
+        Initialize a WorkflowDefinitionReference object.
+
+        :param str id: (optional) ID of a workflow definition.
+        """
+        self.id = id
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'WorkflowDefinitionReference':
+        """Initialize a WorkflowDefinitionReference object from a json dictionary."""
+        args = {}
+        if (id := _dict.get('id')) is not None:
+            args['id'] = id
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a WorkflowDefinitionReference object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'id') and self.id is not None:
+            _dict['id'] = self.id
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this WorkflowDefinitionReference object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'WorkflowDefinitionReference') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'WorkflowDefinitionReference') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
 
 ##############################################################################
 # Pagers

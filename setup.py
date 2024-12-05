@@ -19,7 +19,7 @@ import os
 import sys
 import pkg_resources
 
-__version__ = '0.1.0'
+__version__ = '1.0.0'
 PACKAGE_NAME = 'dph_services'
 PACKAGE_DESC = 'Python client library for DPH Services'
 
@@ -63,8 +63,6 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
-		'Programming Language :: Python :: 3.11',
-		'Programming Language :: Python :: 3.12',
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
