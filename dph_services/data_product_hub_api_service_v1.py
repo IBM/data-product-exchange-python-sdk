@@ -56,9 +56,7 @@ class DataProductHubApiServiceV1(BaseService):
                specified parameters and external configuration.
         """
         authenticator = get_authenticator_from_environment(service_name)
-        service = cls(
-            authenticator
-            )
+        service = cls(authenticator)
         service.configure_service(service_name)
         return service
 
@@ -1862,7 +1860,6 @@ class ContainerReference:
         PROJECT = 'project'
 
 
-
 class ContractTermsDocument:
     """
     Standard contract terms document, which is used for get and list contract terms
@@ -1984,7 +1981,6 @@ class ContractTermsDocument:
 
         TERMS_AND_CONDITIONS = 'terms_and_conditions'
         SLA = 'sla'
-
 
 
 class ContractTermsDocumentAttachment:
@@ -2590,7 +2586,9 @@ class DataProductOrderAccessRequest:
         if (pre_approved_users := _dict.get('pre_approved_users')) is not None:
             args['pre_approved_users'] = pre_approved_users
         if (custom_workflow_definition := _dict.get('custom_workflow_definition')) is not None:
-            args['custom_workflow_definition'] = DataProductCustomWorkflowDefinition.from_dict(custom_workflow_definition)
+            args['custom_workflow_definition'] = DataProductCustomWorkflowDefinition.from_dict(
+                custom_workflow_definition
+            )
         return cls(**args)
 
     @classmethod
@@ -3307,7 +3305,6 @@ class DataProductVersion:
         AVAILABLE = 'available'
         RETIRED = 'retired'
 
-
     class TypesEnum(str, Enum):
         """
         types.
@@ -3315,7 +3312,6 @@ class DataProductVersion:
 
         DATA = 'data'
         CODE = 'code'
-
 
 
 class DataProductVersionDataProduct:
@@ -3649,7 +3645,6 @@ class DataProductVersionPrototype:
         AVAILABLE = 'available'
         RETIRED = 'retired'
 
-
     class TypesEnum(str, Enum):
         """
         types.
@@ -3657,7 +3652,6 @@ class DataProductVersionPrototype:
 
         DATA = 'data'
         CODE = 'code'
-
 
 
 class DataProductVersionSummary:
@@ -3869,7 +3863,6 @@ class DataProductVersionSummary:
         AVAILABLE = 'available'
         RETIRED = 'retired'
 
-
     class TypesEnum(str, Enum):
         """
         types.
@@ -3877,7 +3870,6 @@ class DataProductVersionSummary:
 
         DATA = 'data'
         CODE = 'code'
-
 
 
 class DataProductVersionSummaryDataProduct:
@@ -4301,7 +4293,6 @@ class ErrorModelResource:
         FEATURE_NOT_ENABLED = 'feature_not_enabled'
 
 
-
 class FirstPage:
     """
     First page in the collection.
@@ -4525,7 +4516,6 @@ class InitializeResource:
         FAILED = 'failed'
 
 
-
 class InitializedOption:
     """
     List of options successfully initialized.
@@ -4693,7 +4683,6 @@ class JsonPatchOperation:
         MOVE = 'move'
         COPY = 'copy'
         TEST = 'test'
-
 
 
 class NextPage:
@@ -5109,6 +5098,7 @@ class WorkflowDefinitionReference:
     def __ne__(self, other: 'WorkflowDefinitionReference') -> bool:
         """Return `true` when self and other are not equal, false otherwise."""
         return not self == other
+
 
 ##############################################################################
 # Pagers
