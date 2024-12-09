@@ -17,4 +17,6 @@
 """
 Version of dph_services
 """
-__version__ = '0.1.0'
+
+__version__ = '0.3.0'
+
