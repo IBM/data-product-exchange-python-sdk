@@ -1,3 +1,14 @@
+# [1.0.0](https://github.com/IBM/data-product-exchange-python-sdk/compare/v0.4.0...v1.0.0) (2025-06-26)
+
+
+* BREAKING CHANGE:Update dependency versions to patch sec vuln \n\n fea… (#21) ([4e76ec2](https://github.com/IBM/data-product-exchange-python-sdk/commit/4e76ec20d18b40cd1f4f7fc1185c8b030861fccb)), closes [#21](https://github.com/IBM/data-product-exchange-python-sdk/issues/21)
+
+
+### BREAKING CHANGES
+
+* Update dependency versions to patch sec vuln \n\n feat: requests urllib3 version bump
+* Update dependency versions to patch sec vuln \n\n feat: requests urllib3 version bump
+
 # [0.4.0](https://github.com/IBM/data-product-exchange-python-sdk/compare/v0.3.0...v0.4.0) (2024-12-09)
 
 
