@@ -304,7 +304,7 @@ class TestDphV1:
 
         assert len(all_results) == len(all_items)
         print(f'\nlist_data_products() returned a total of {len(all_results)} items(s) using DataProductsPager.')
-  
+
     @pytest.mark.dependency(depends=["test_list_data_products_with_pager"])
     @needscredentials
     def test_get_data_product_draft(self):
@@ -593,13 +593,13 @@ class TestDphV1:
     @pytest.mark.dependency(depends=["test_replace_data_product_draft_contract_terms"])
     @needscredentials
     def test_update_data_product_draft_contract_terms(self):
-        
+
         # Construct a dict representation of a Domain model
         domain_model = {
             'id': 'b38df608-d34b-4d58-8136-ed25e6c6684e',
             'name': 'domain_name',
         }
-        
+
         # Construct a dict representation of a Overview model
         overview_model = {
             'api_version': 'v3.0.1',
@@ -914,7 +914,7 @@ class TestDphV1:
         assert response.get_status_code() == 201
         data_product_contract_template = response.get_result()
         create_contract_template_id = data_product_contract_template['id']
-        
+
         assert data_product_contract_template is not None
 
     @pytest.mark.dependency(depends=["test_create_contract_template"])
