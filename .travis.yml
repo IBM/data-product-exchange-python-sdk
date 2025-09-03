@@ -15,31 +15,32 @@ matrix:
     - python: 3.11
 
 install:
-  - sudo apt-get install pandoc
+  - sudo apt-get update
+  - sudo apt-get install -y pandoc
+  - pip install --upgrade pip setuptools wheel
   - pip install pypandoc
-  - pip install setuptools=="70.0.0"
 
 script:
   - make ci
 
 before_deploy:
-- nvm install 18
-- node --version
-- npm --version
-- npm install
-- pip install bump2version
+  - nvm install 18
+  - node --version
+  - npm --version
+  - npm install
+  - pip install bump2version
 
 deploy:
-- provider: script
-  script: npm run semantic-release
-  skip_cleanup: true
-  on:
-    python: '3.8'
-    branch: main
-- provider: pypi
-  user: __token__
-  password: $PYPI_TOKEN
-  skip_cleanup: true
-  on:
-    python: '3.8'
-    tags: true
+  - provider: script
+    script: npm run semantic-release
+    skip_cleanup: true
+    on:
+      python: '3.8'
+      branch: main
+  - provider: pypi
+    user: __token__
+    password: $PYPI_TOKEN
+    skip_cleanup: true
+    on:
+      python: '3.8'
+      tags: true
