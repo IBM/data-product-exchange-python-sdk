@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/IBM/data-product-exchange-python-sdk/compare/v1.3.0...v1.4.0) (2025-09-10)
+
+
+### Features
+
+* drop dpx 1.2.0 support \n\n BREAKING CHANGE: DPH Service updated ([#26](https://github.com/IBM/data-product-exchange-python-sdk/issues/26)) ([fc7b697](https://github.com/IBM/data-product-exchange-python-sdk/commit/fc7b697559cddefa746b63bab292fb6b8b325758))
+
 # [1.3.0](https://github.com/IBM/data-product-exchange-python-sdk/compare/v1.2.0...v1.3.0) (2025-09-10)
 
 
