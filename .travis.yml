@@ -42,6 +42,6 @@ deploy:
     password: $PYPI_TOKEN
     skip_cleanup: true
     on:
-      python: '3.8'
+      python: '3.9'
       branch: main
       tags: true
