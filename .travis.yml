@@ -2,7 +2,7 @@ language: python
 
 dist: focal
 
-cache: pip
+cache: false
 
 notifications:
   email: true
@@ -29,6 +29,7 @@ before_deploy:
   - npm --version
   - npm install
   - pip install bump2version
+  - pip install --upgrade pip setuptools wheel twine
 
 deploy:
   - provider: script
@@ -42,5 +43,6 @@ deploy:
     password: $PYPI_TOKEN
     skip_cleanup: true
     on:
-      python: '3.8'
+      python: '3.9'
+      branch: main
       tags: true
