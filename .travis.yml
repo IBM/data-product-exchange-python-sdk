@@ -37,3 +37,10 @@ deploy:
     on:
       python: '3.8'
       branch: main
+  - provider: pypi
+    user: __token__
+    password: $PYPI_TOKEN
+    skip_cleanup: true
+    on:
+      python: '3.8'
+      tags: true
