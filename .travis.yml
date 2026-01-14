@@ -9,7 +9,6 @@ notifications:
 
 matrix:
   include:
-    - python: 3.8
     - python: 3.9
     - python: 3.10
     - python: 3.11
@@ -36,7 +35,7 @@ deploy:
     script: npm run semantic-release
     skip_cleanup: true
     on:
-      python: '3.8'
+      python: '3.9'
       branch: main
   - provider: pypi
     user: __token__
