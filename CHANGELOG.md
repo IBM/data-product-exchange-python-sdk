@@ -1,3 +1,15 @@
+# [1.6.0](https://github.com/IBM/data-product-exchange-python-sdk/compare/v1.5.0...v1.6.0) (2026-01-14)
+
+
+### Bug Fixes
+
+* updated python library ([#31](https://github.com/IBM/data-product-exchange-python-sdk/issues/31)) ([d19f0c0](https://github.com/IBM/data-product-exchange-python-sdk/commit/d19f0c008ab8efb1a17b45461047e5fea456de76))
+
+
+### Features
+
+* update urllib3 to 2.6.3 \n\n BREAKING CHANGE: Patch CVE-2026-21441 ([#30](https://github.com/IBM/data-product-exchange-python-sdk/issues/30)) ([5f6f950](https://github.com/IBM/data-product-exchange-python-sdk/commit/5f6f9504698a257a7183844614ba3008c51473a1))
+
 # [1.5.0](https://github.com/IBM/data-product-exchange-python-sdk/compare/v1.4.0...v1.5.0) (2025-09-10)
 
 
