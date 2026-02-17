@@ -19,6 +19,7 @@ Examples for DphV1
 
 from ibm_cloud_sdk_core import ApiException, read_external_sources
 from ibm_cloud_sdk_core.utils import datetime_to_string, string_to_datetime
+import io
 import os
 import pytest
 from dph_services.dph_v1 import *
@@ -718,10 +719,9 @@ class TestDphV1Examples:
                 draft_id='testString',
                 contract_terms_id='testString',
             )
-            result = response.get_result()
+            contract_terms = response.get_result()
 
-            with open('/tmp/result.out', 'wb') as fp:
-                fp.write(result)
+            print(json.dumps(contract_terms, indent=2))
 
             # end-get_data_product_draft_contract_terms
 
@@ -751,6 +751,8 @@ class TestDphV1Examples:
             }
 
             overview_model = {
+                'api_version': 'v3.0.1',
+                'kind': 'DataContract',
                 'name': 'Sample Data Contract',
                 'version': 'v0.0',
                 'domain': domain_model,
@@ -779,6 +781,12 @@ class TestDphV1Examples:
                 'role': 'IAM Role',
             }
 
+            pricing_model = {
+                'amount': 'Amount',
+                'currency': 'Currency',
+                'unit': 'Unit',
+            }
+
             contract_template_sla_property_model = {
                 'property': 'slaproperty',
                 'value': 'slavalue',
@@ -799,6 +807,62 @@ class TestDphV1Examples:
                 'value': 'The value of the key.',
             }
 
+            contract_asset_model = {
+                'id': '684d6aa0-9f93-4564-8a20-e354bc469857',
+                'name': 'PAYMENT_TRANSACTIONS1',
+            }
+
+            contract_server_model = {
+                'server': 'snowflake-server-01',
+                'asset': contract_asset_model,
+                'connection_id': '8d7701be-709a-49c0-ae4e-a7daeaae6def',
+                'type': 'snowflake',
+                'description': 'Snowflake analytics server',
+                'environment': 'dev',
+                'account': 'acc-456',
+                'catalog': 'analytics_cat',
+                'database': 'analytics_db',
+                'dataset': 'customer_data',
+                'delimiter': ',',
+                'endpoint_url': 'https://xy12345.snowflakecomputing.com',
+                'format': 'parquet',
+                'host': 'xy12345.snowflakecomputing.com',
+                'location': 'Mumbai',
+                'path': '/analytics/data',
+                'port': '443',
+                'project': 'projectY',
+                'region': 'ap-south-1',
+                'region_name': 'Asia South 1',
+                'schema': 'PAYMENT_TRANSACTIONS1',
+                'service_name': 'snowflake',
+                'staging_dir': '/snowflake/staging',
+                'stream': 'stream_analytics',
+                'warehouse': 'wh_xlarge',
+                'custom_properties': [contract_template_custom_property_model],
+            }
+
+            contract_schema_property_type_model = {
+                'type': 'varchar',
+                'length': '1024',
+                'scale': '0',
+                'nullable': 'true',
+                'signed': 'false',
+            }
+
+            contract_schema_property_model = {
+                'name': 'product_brand_code',
+                'type': contract_schema_property_type_model,
+            }
+
+            contract_schema_model = {
+                'asset_id': '09ca6b40-7c89-412a-8951-ad820da709d1',
+                'connection_id': '6cc57d4d-2229-438f-91a0-2c455556422b',
+                'name': '000000_0-2025-06-20-20-28-52.csv',
+                'connection_path': '/dpx-test-bucket/000000_0-2025-06-20-20-28-52.csv',
+                'physical_type': 'text/csv',
+                'properties': [contract_schema_property_model],
+            }
+
             response = dph_service.replace_data_product_draft_contract_terms(
                 data_product_id='testString',
                 draft_id='testString',
@@ -808,9 +872,12 @@ class TestDphV1Examples:
                 description=description_model,
                 organization=[contract_template_organization_model],
                 roles=[roles_model],
+                price=pricing_model,
                 sla=[contract_template_sla_model],
                 support_and_communication=[contract_template_support_and_communication_model],
                 custom_properties=[contract_template_custom_property_model],
+                servers=[contract_server_model],
+                schema=[contract_schema_model],
             )
             contract_terms = response.get_result()
 
@@ -847,6 +914,33 @@ class TestDphV1Examples:
             print(json.dumps(contract_terms, indent=2))
 
             # end-update_data_product_draft_contract_terms
+
+        except ApiException as e:
+            pytest.fail(str(e))
+
+    @needscredentials
+    def test_get_contract_terms_in_specified_format_example(self):
+        """
+        get_contract_terms_in_specified_format request example
+        """
+        try:
+            print('\nget_contract_terms_in_specified_format() result:')
+
+            # begin-get_contract_terms_in_specified_format
+
+            response = dph_service.get_contract_terms_in_specified_format(
+                data_product_id='testString',
+                draft_id='testString',
+                contract_terms_id='testString',
+                format='testString',
+                format_version='testString',
+            )
+            result = response.get_result()
+
+            with open('/tmp/result.out', 'wb') as fp:
+                fp.write(result)
+
+            # end-get_contract_terms_in_specified_format
 
         except ApiException as e:
             pytest.fail(str(e))
@@ -929,6 +1023,31 @@ class TestDphV1Examples:
             pytest.fail(str(e))
 
     @needscredentials
+    def test_get_published_data_product_draft_contract_terms_example(self):
+        """
+        get_published_data_product_draft_contract_terms request example
+        """
+        try:
+            print('\nget_published_data_product_draft_contract_terms() result:')
+
+            # begin-get_published_data_product_draft_contract_terms
+
+            response = dph_service.get_published_data_product_draft_contract_terms(
+                data_product_id='testString',
+                release_id='testString',
+                contract_terms_id='testString',
+            )
+            result = response.get_result()
+
+            with open('/tmp/result.out', 'wb') as fp:
+                fp.write(result)
+
+            # end-get_published_data_product_draft_contract_terms
+
+        except ApiException as e:
+            pytest.fail(str(e))
+
+    @needscredentials
     def test_list_data_product_releases_example(self):
         """
         list_data_product_releases request example
@@ -982,6 +1101,30 @@ class TestDphV1Examples:
             pytest.fail(str(e))
 
     @needscredentials
+    def test_create_revoke_access_process_example(self):
+        """
+        create_revoke_access_process request example
+        """
+        try:
+            print('\ncreate_revoke_access_process() result:')
+
+            # begin-create_revoke_access_process
+
+            response = dph_service.create_revoke_access_process(
+                data_product_id='testString',
+                release_id='testString',
+                body=io.BytesIO(b'This is a mock file.').getvalue(),
+            )
+            revoke_access_response = response.get_result()
+
+            print(json.dumps(revoke_access_response, indent=2))
+
+            # end-create_revoke_access_process
+
+        except ApiException as e:
+            pytest.fail(str(e))
+
+    @needscredentials
     def test_list_data_product_contract_template_example(self):
         """
         list_data_product_contract_template request example
@@ -1012,13 +1155,13 @@ class TestDphV1Examples:
             # begin-create_contract_template
 
             container_reference_model = {
-                'id': 'f531f74a-01c8-4e91-8e29-b018db683c86',
+                'id': '531f74a-01c8-4e91-8e29-b018db683c86',
                 'type': 'catalog',
             }
 
             domain_model = {
-                'id': 'b38df608-d34b-4d58-8136-ed25e6c6684e',
-                'name': 'domain_name',
+                'id': '0094ebe9-abc3-473b-80ea-c777ede095ea',
+                'name': 'Test Domain New',
             }
 
             overview_model = {
@@ -1347,6 +1490,28 @@ class TestDphV1Examples:
             print(json.dumps(bucket_validation_response, indent=2))
 
             # end-get_s3_bucket_validation
+
+        except ApiException as e:
+            pytest.fail(str(e))
+
+    @needscredentials
+    def test_get_revoke_access_process_state_example(self):
+        """
+        get_revoke_access_process_state request example
+        """
+        try:
+            print('\nget_revoke_access_process_state() result:')
+
+            # begin-get_revoke_access_process_state
+
+            response = dph_service.get_revoke_access_process_state(
+                release_id='testString',
+            )
+            revoke_access_state_response = response.get_result()
+
+            print(json.dumps(revoke_access_state_response, indent=2))
+
+            # end-get_revoke_access_process_state
 
         except ApiException as e:
             pytest.fail(str(e))

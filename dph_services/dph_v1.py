@@ -24,7 +24,7 @@ API Version: 1
 
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import BinaryIO, Dict, List, Optional
 import json
 
 from ibm_cloud_sdk_core import BaseService, DetailedResponse
@@ -76,6 +76,52 @@ class DphV1(BaseService):
         BaseService.__init__(self, service_url=self.DEFAULT_SERVICE_URL, authenticator=authenticator)
 
     #########################
+    # Helper Methods
+    #########################
+
+    def _prepare_headers(self, operation_id: str, **kwargs) -> Dict:
+        """
+        Prepare request headers with SDK headers and custom headers from kwargs.
+        
+        :param operation_id: The operation ID for SDK headers
+        :param kwargs: Additional keyword arguments that may contain 'headers'
+        :return: Dictionary of prepared headers
+        """
+        headers = {}
+        sdk_headers = get_sdk_headers(
+            service_name=self.DEFAULT_SERVICE_NAME,
+            service_version='V1',
+            operation_id=operation_id,
+        )
+        headers.update(sdk_headers)
+        
+        if 'headers' in kwargs:
+            headers.update(kwargs.get('headers'))
+            del kwargs['headers']
+        
+        return headers
+
+    def _set_accept_header(self, headers: Dict, accept_type: Optional[str] = 'application/json') -> None:
+        """
+        Set the Accept header if not already present.
+        
+        :param headers: Headers dictionary to update
+        :param accept_type: The accept type to set (default: 'application/json')
+        """
+        if accept_type and 'Accept' not in headers:
+            headers['Accept'] = accept_type
+
+    def _prepare_json_data(self, data: Dict) -> str:
+        """
+        Prepare JSON data by removing None values and converting to JSON string.
+        
+        :param data: Dictionary of data to prepare
+        :return: JSON string
+        """
+        data = {k: v for (k, v) in data.items() if v is not None}
+        return json.dumps(data)
+
+    #########################
     # Configuration
     #########################
 
@@ -105,22 +151,12 @@ class DphV1(BaseService):
         :rtype: DetailedResponse with `dict` result representing a `InitializeResource` object
         """
 
-        headers = {}
-        sdk_headers = get_sdk_headers(
-            service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
-            operation_id='get_initialize_status',
-        )
-        headers.update(sdk_headers)
+        headers = self._prepare_headers('get_initialize_status', **kwargs)
+        self._set_accept_header(headers)
 
         params = {
             'container.id': container_id,
         }
-
-        if 'headers' in kwargs:
-            headers.update(kwargs.get('headers'))
-            del kwargs['headers']
-        headers['Accept'] = 'application/json'
 
         url = '/data_product_exchange/v1/configuration/initialize/status'
         request = self.prepare_request(
@@ -147,18 +183,8 @@ class DphV1(BaseService):
         :rtype: DetailedResponse with `dict` result representing a `ServiceIdCredentials` object
         """
 
-        headers = {}
-        sdk_headers = get_sdk_headers(
-            service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
-            operation_id='get_service_id_credentials',
-        )
-        headers.update(sdk_headers)
-
-        if 'headers' in kwargs:
-            headers.update(kwargs.get('headers'))
-            del kwargs['headers']
-        headers['Accept'] = 'application/json'
+        headers = self._prepare_headers('get_service_id_credentials', **kwargs)
+        self._set_accept_header(headers)
 
         url = '/data_product_exchange/v1/configuration/credentials'
         request = self.prepare_request(
@@ -212,26 +238,15 @@ class DphV1(BaseService):
 
         if container is not None:
             container = convert_model(container)
-        headers = {}
-        sdk_headers = get_sdk_headers(
-            service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
-            operation_id='initialize',
-        )
-        headers.update(sdk_headers)
+        
+        headers = self._prepare_headers('initialize', **kwargs)
+        self._set_accept_header(headers)
 
-        data = {
+        data = self._prepare_json_data({
             'container': container,
             'include': include,
-        }
-        data = {k: v for (k, v) in data.items() if v is not None}
-        data = json.dumps(data)
+        })
         headers['content-type'] = 'application/json'
-
-        if 'headers' in kwargs:
-            headers.update(kwargs.get('headers'))
-            del kwargs['headers']
-        headers['Accept'] = 'application/json'
 
         url = '/data_product_exchange/v1/configuration/initialize'
         request = self.prepare_request(
@@ -258,17 +273,7 @@ class DphV1(BaseService):
         :rtype: DetailedResponse
         """
 
-        headers = {}
-        sdk_headers = get_sdk_headers(
-            service_name=self.DEFAULT_SERVICE_NAME,
-            service_version='V1',
-            operation_id='manage_api_keys',
-        )
-        headers.update(sdk_headers)
-
-        if 'headers' in kwargs:
-            headers.update(kwargs.get('headers'))
-            del kwargs['headers']
+        headers = self._prepare_headers('manage_api_keys', **kwargs)
 
         url = '/data_product_exchange/v1/configuration/rotate_credentials'
         request = self.prepare_request(
@@ -711,6 +716,7 @@ class DphV1(BaseService):
         comments: Optional[str] = None,
         access_control: Optional['AssetListAccessControl'] = None,
         last_updated_at: Optional[datetime] = None,
+        sub_container: Optional['ContainerIdentity'] = None,
         is_restricted: Optional[bool] = None,
         **kwargs,
     ) -> DetailedResponse:
@@ -760,6 +766,8 @@ class DphV1(BaseService):
         :param AssetListAccessControl access_control: (optional) Access control
                object.
         :param datetime last_updated_at: (optional) Timestamp of last asset update.
+        :param ContainerIdentity sub_container: (optional) The identity schema for
+               a IBM knowledge catalog container (catalog/project/space).
         :param bool is_restricted: (optional) Indicates whether the data product is
                restricted or not. A restricted data product indicates that orders of the
                data product requires explicit approval before data is delivered.
@@ -789,6 +797,8 @@ class DphV1(BaseService):
             access_control = convert_model(access_control)
         if last_updated_at is not None:
             last_updated_at = datetime_to_string(last_updated_at)
+        if sub_container is not None:
+            sub_container = convert_model(sub_container)
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
@@ -815,6 +825,7 @@ class DphV1(BaseService):
             'comments': comments,
             'access_control': access_control,
             'last_updated_at': last_updated_at,
+            'sub_container': sub_container,
             'is_restricted': is_restricted,
         }
         data = {k: v for (k, v) in data.items() if v is not None}
@@ -1296,6 +1307,8 @@ class DphV1(BaseService):
         *,
         accept: Optional[str] = None,
         include_contract_documents: Optional[bool] = None,
+        autopopulate_server_information: Optional[bool] = None,
+        server_asset_id: Optional[str] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -1307,14 +1320,18 @@ class DphV1(BaseService):
                data product ID explicitly.
         :param str draft_id: Data product draft id.
         :param str contract_terms_id: Contract terms id.
-        :param str accept: (optional) The type of the response:
-               application/odcs+yaml or application/json.
+        :param str accept: (optional) The type of the response: application/json or
+               application/odcs+yaml.
         :param bool include_contract_documents: (optional) Set to false to exclude
                external contract documents (e.g., Terms and Conditions URLs) from the
                response. By default, these are included.
+        :param bool autopopulate_server_information: (optional) Set to true to
+               autopopulate server information from connection details. Default is false.
+        :param str server_asset_id: (optional) Asset ID of the server used for
+               autopopulating connection details.
         :param dict headers: A `dict` containing the request headers
         :return: A `DetailedResponse` containing the result, headers and HTTP status code.
-        :rtype: DetailedResponse with `BinaryIO` result
+        :rtype: DetailedResponse with `dict` result representing a `ContractTerms` object
         """
 
         if not data_product_id:
@@ -1335,6 +1352,8 @@ class DphV1(BaseService):
 
         params = {
             'include_contract_documents': include_contract_documents,
+            'autopopulate_server_information': autopopulate_server_information,
+            'server_asset_id': server_asset_id,
         }
 
         if 'headers' in kwargs:
@@ -1374,6 +1393,7 @@ class DphV1(BaseService):
         support_and_communication: Optional[List['ContractTemplateSupportAndCommunication']] = None,
         custom_properties: Optional[List['ContractTemplateCustomProperty']] = None,
         contract_test: Optional['ContractTest'] = None,
+        servers: Optional[List['ContractServer']] = None,
         schema: Optional[List['ContractSchema']] = None,
         **kwargs,
     ) -> DetailedResponse:
@@ -1411,6 +1431,7 @@ class DphV1(BaseService):
                Custom properties that are not part of the standard contract.
         :param ContractTest contract_test: (optional) Contains the contract test
                status and related metadata.
+        :param List[ContractServer] servers: (optional) List of server definitions.
         :param List[ContractSchema] schema: (optional) Schema details of the data
                asset.
         :param dict headers: A `dict` containing the request headers
@@ -1446,6 +1467,8 @@ class DphV1(BaseService):
             custom_properties = [convert_model(x) for x in custom_properties]
         if contract_test is not None:
             contract_test = convert_model(contract_test)
+        if servers is not None:
+            servers = [convert_model(x) for x in servers]
         if schema is not None:
             schema = [convert_model(x) for x in schema]
         headers = {}
@@ -1470,6 +1493,7 @@ class DphV1(BaseService):
             'support_and_communication': support_and_communication,
             'custom_properties': custom_properties,
             'contract_test': contract_test,
+            'servers': servers,
             'schema': schema,
         }
         data = {k: v for (k, v) in data.items() if v is not None}
@@ -1560,6 +1584,80 @@ class DphV1(BaseService):
             url=url,
             headers=headers,
             data=data,
+        )
+
+        response = self.send(request, **kwargs)
+        return response
+
+    def get_contract_terms_in_specified_format(
+        self,
+        data_product_id: str,
+        draft_id: str,
+        contract_terms_id: str,
+        format: str,
+        format_version: str,
+        *,
+        accept: Optional[str] = None,
+        **kwargs,
+    ) -> DetailedResponse:
+        """
+        Retrieve a data product contract terms identified by id in specified format.
+
+        Retrieve a data product contract terms identified by id in specified format.
+
+        :param str data_product_id: Data product ID. Use '-' to skip specifying the
+               data product ID explicitly.
+        :param str draft_id: Data product draft id.
+        :param str contract_terms_id: Contract terms id.
+        :param str format: The format for returning contract terms. For example:
+               odcs.
+        :param str format_version: The version of the format for returning contract
+               terms. For example: 3.
+        :param str accept: (optional) The type of the response:
+               application/odcs+yaml or application/json.
+        :param dict headers: A `dict` containing the request headers
+        :return: A `DetailedResponse` containing the result, headers and HTTP status code.
+        :rtype: DetailedResponse with `BinaryIO` result
+        """
+
+        if not data_product_id:
+            raise ValueError('data_product_id must be provided')
+        if not draft_id:
+            raise ValueError('draft_id must be provided')
+        if not contract_terms_id:
+            raise ValueError('contract_terms_id must be provided')
+        if not format:
+            raise ValueError('format must be provided')
+        if not format_version:
+            raise ValueError('format_version must be provided')
+        headers = {
+            'Accept': accept,
+        }
+        sdk_headers = get_sdk_headers(
+            service_name=self.DEFAULT_SERVICE_NAME,
+            service_version='V1',
+            operation_id='get_contract_terms_in_specified_format',
+        )
+        headers.update(sdk_headers)
+
+        params = {
+            'format': format,
+            'format_version': format_version,
+        }
+
+        if 'headers' in kwargs:
+            headers.update(kwargs.get('headers'))
+            del kwargs['headers']
+
+        path_param_keys = ['data_product_id', 'draft_id', 'contract_terms_id']
+        path_param_values = self.encode_path_vars(data_product_id, draft_id, contract_terms_id)
+        path_param_dict = dict(zip(path_param_keys, path_param_values))
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/drafts/{draft_id}/contract_terms/{contract_terms_id}/format'.format(**path_param_dict)
+        request = self.prepare_request(
+            method='GET',
+            url=url,
+            headers=headers,
+            params=params,
         )
 
         response = self.send(request, **kwargs)
@@ -1807,6 +1905,73 @@ class DphV1(BaseService):
         response = self.send(request, **kwargs)
         return response
 
+    def get_published_data_product_draft_contract_terms(
+        self,
+        data_product_id: str,
+        release_id: str,
+        contract_terms_id: str,
+        *,
+        accept: Optional[str] = None,
+        include_contract_documents: Optional[bool] = None,
+        **kwargs,
+    ) -> DetailedResponse:
+        """
+        Retrieve a published data product contract terms identified by id.
+
+        Retrieve a published data product contract terms identified by id.
+
+        :param str data_product_id: Data product ID. Use '-' to skip specifying the
+               data product ID explicitly.
+        :param str release_id: Data product release id.
+        :param str contract_terms_id: Contract terms id.
+        :param str accept: (optional) The type of the response:
+               application/odcs+yaml or application/json.
+        :param bool include_contract_documents: (optional) Set to false to exclude
+               external contract documents (e.g., Terms and Conditions URLs) from the
+               response. By default, these are included.
+        :param dict headers: A `dict` containing the request headers
+        :return: A `DetailedResponse` containing the result, headers and HTTP status code.
+        :rtype: DetailedResponse with `BinaryIO` result
+        """
+
+        if not data_product_id:
+            raise ValueError('data_product_id must be provided')
+        if not release_id:
+            raise ValueError('release_id must be provided')
+        if not contract_terms_id:
+            raise ValueError('contract_terms_id must be provided')
+        headers = {
+            'Accept': accept,
+        }
+        sdk_headers = get_sdk_headers(
+            service_name=self.DEFAULT_SERVICE_NAME,
+            service_version='V1',
+            operation_id='get_published_data_product_draft_contract_terms',
+        )
+        headers.update(sdk_headers)
+
+        params = {
+            'include_contract_documents': include_contract_documents,
+        }
+
+        if 'headers' in kwargs:
+            headers.update(kwargs.get('headers'))
+            del kwargs['headers']
+
+        path_param_keys = ['data_product_id', 'release_id', 'contract_terms_id']
+        path_param_values = self.encode_path_vars(data_product_id, release_id, contract_terms_id)
+        path_param_dict = dict(zip(path_param_keys, path_param_values))
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/contract_terms/{contract_terms_id}'.format(**path_param_dict)
+        request = self.prepare_request(
+            method='GET',
+            url=url,
+            headers=headers,
+            params=params,
+        )
+
+        response = self.send(request, **kwargs)
+        return response
+
     def list_data_product_releases(
         self,
         data_product_id: str,
@@ -1884,6 +2049,7 @@ class DphV1(BaseService):
         release_id: str,
         *,
         revoke_access: Optional[bool] = None,
+        start_at: Optional[str] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -1898,6 +2064,9 @@ class DphV1(BaseService):
         :param bool revoke_access: (optional) Revoke's Access from all the
                Subscriptions of the Data Product. No user's can able to see the subscribed
                assets anymore.
+        :param str start_at: (optional) The date and time when the revoke access
+               operation should start (ISO 8601 format, e.g., 2025-09-24T06:55:29Z). If
+               not provided, the operation starts immediately.
         :param dict headers: A `dict` containing the request headers
         :return: A `DetailedResponse` containing the result, headers and HTTP status code.
         :rtype: DetailedResponse with `dict` result representing a `DataProductRelease` object
@@ -1917,6 +2086,7 @@ class DphV1(BaseService):
 
         params = {
             'revoke_access': revoke_access,
+            'start_at': start_at,
         }
 
         if 'headers' in kwargs:
@@ -1938,6 +2108,71 @@ class DphV1(BaseService):
         response = self.send(request, **kwargs)
         return response
 
+    def create_revoke_access_process(
+        self,
+        data_product_id: str,
+        release_id: str,
+        *,
+        body: Optional[BinaryIO] = None,
+        content_type: Optional[str] = None,
+        **kwargs,
+    ) -> DetailedResponse:
+        """
+        Revoke access from Data Product subscriptions.
+
+        Revoke's access from Subscriptions of the data product id passed in the path
+        parameter. Optionally specify a future date-time when the revoke access operation
+        should start using the start_at field in ISO 8601 format (e.g.,
+        2025-09-24T06:55:29Z). If start_at is not provided, the revoke access operation
+        starts immediately.
+
+        :param str data_product_id: Data product ID. Use '-' to skip specifying the
+               data product ID explicitly.
+        :param str release_id: The unique identifier of the data product release.
+        :param BinaryIO body: (optional) Request parameters to handle revoke access
+               from subscriptions. The start_at field can be used to schedule the revoke
+               access operation for a future date-time.
+        :param str content_type: (optional) The type of the input.
+        :param dict headers: A `dict` containing the request headers
+        :return: A `DetailedResponse` containing the result, headers and HTTP status code.
+        :rtype: DetailedResponse with `dict` result representing a `RevokeAccessResponse` object
+        """
+
+        if not data_product_id:
+            raise ValueError('data_product_id must be provided')
+        if not release_id:
+            raise ValueError('release_id must be provided')
+        headers = {
+            'Content-Type': content_type,
+        }
+        sdk_headers = get_sdk_headers(
+            service_name=self.DEFAULT_SERVICE_NAME,
+            service_version='V1',
+            operation_id='create_revoke_access_process',
+        )
+        headers.update(sdk_headers)
+
+        data = body
+
+        if 'headers' in kwargs:
+            headers.update(kwargs.get('headers'))
+            del kwargs['headers']
+        headers['Accept'] = 'application/json'
+
+        path_param_keys = ['data_product_id', 'release_id']
+        path_param_values = self.encode_path_vars(data_product_id, release_id)
+        path_param_dict = dict(zip(path_param_keys, path_param_values))
+        url = '/data_product_exchange/v1/data_products/{data_product_id}/releases/{release_id}/revoke_access'.format(**path_param_dict)
+        request = self.prepare_request(
+            method='POST',
+            url=url,
+            headers=headers,
+            data=data,
+        )
+
+        response = self.send(request, **kwargs)
+        return response
+
     #########################
     # Data Product Contract Templates
     #########################
@@ -1947,6 +2182,7 @@ class DphV1(BaseService):
         *,
         container_id: Optional[str] = None,
         contract_template_name: Optional[str] = None,
+        domain_ids: Optional[str] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -1960,6 +2196,9 @@ class DphV1(BaseService):
         :param str contract_template_name: (optional) Name of the data product
                contract template. If not supplied, the data product templates within the
                catalog will returned.
+        :param str domain_ids: (optional) Comma-separated domain IDs to filter data
+               product contract templates. If not supplied, the data product templates
+               within the catalog will returned.
         :param dict headers: A `dict` containing the request headers
         :return: A `DetailedResponse` containing the result, headers and HTTP status code.
         :rtype: DetailedResponse with `dict` result representing a `DataProductContractTemplateCollection` object
@@ -1976,6 +2215,7 @@ class DphV1(BaseService):
         params = {
             'container.id': container_id,
             'contract_template.name': contract_template_name,
+            'domain.ids': domain_ids,
         }
 
         if 'headers' in kwargs:
@@ -1999,11 +2239,14 @@ class DphV1(BaseService):
         container: 'ContainerReference',
         *,
         id: Optional[str] = None,
+        creator_id: Optional[str] = None,
+        created_at: Optional[str] = None,
         name: Optional[str] = None,
         error: Optional['ErrorMessage'] = None,
         contract_terms: Optional['ContractTerms'] = None,
         container_id: Optional[str] = None,
         contract_template_name: Optional[str] = None,
+        domain_ids: Optional[str] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -2014,6 +2257,10 @@ class DphV1(BaseService):
         :param ContainerReference container: Container reference.
         :param str id: (optional) The identifier of the data product contract
                template.
+        :param str creator_id: (optional) The identifier of the user who created
+               the data product contract template.
+        :param str created_at: (optional) The timestamp when the data product
+               contract template was created.
         :param str name: (optional) The name of the contract template.
         :param ErrorMessage error: (optional) Contains the code and details.
         :param ContractTerms contract_terms: (optional) Defines the complete
@@ -2024,6 +2271,9 @@ class DphV1(BaseService):
         :param str contract_template_name: (optional) Name of the data product
                contract template. If not supplied, the data product templates within the
                catalog will returned.
+        :param str domain_ids: (optional) Comma-separated domain IDs to filter data
+               product contract templates. If not supplied, the data product templates
+               within the catalog will returned.
         :param dict headers: A `dict` containing the request headers
         :return: A `DetailedResponse` containing the result, headers and HTTP status code.
         :rtype: DetailedResponse with `dict` result representing a `DataProductContractTemplate` object
@@ -2047,11 +2297,14 @@ class DphV1(BaseService):
         params = {
             'container.id': container_id,
             'contract_template.name': contract_template_name,
+            'domain.ids': domain_ids,
         }
 
         data = {
             'container': container,
             'id': id,
+            'creator_id': creator_id,
+            'created_at': created_at,
             'name': name,
             'error': error,
             'contract_terms': contract_terms,
@@ -2258,6 +2511,7 @@ class DphV1(BaseService):
         self,
         *,
         container_id: Optional[str] = None,
+        include_subdomains: Optional[bool] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -2268,6 +2522,8 @@ class DphV1(BaseService):
         :param str container_id: (optional) Container ID of the data product
                catalog. If not supplied, the data product catalog is looked up by using
                the uid of the default data product catalog.
+        :param bool include_subdomains: (optional) Include subdomains in the
+               response.
         :param dict headers: A `dict` containing the request headers
         :return: A `DetailedResponse` containing the result, headers and HTTP status code.
         :rtype: DetailedResponse with `dict` result representing a `DataProductDomainCollection` object
@@ -2283,6 +2539,7 @@ class DphV1(BaseService):
 
         params = {
             'container.id': container_id,
+            'include_subdomains': include_subdomains,
         }
 
         if 'headers' in kwargs:
@@ -2310,10 +2567,12 @@ class DphV1(BaseService):
         name: Optional[str] = None,
         description: Optional[str] = None,
         id: Optional[str] = None,
+        created_by: Optional[str] = None,
         member_roles: Optional['MemberRolesSchema'] = None,
         properties: Optional['PropertiesSchema'] = None,
         sub_domains: Optional[List['InitializeSubDomain']] = None,
-        container_id: Optional[str] = None,
+        sub_container: Optional['ContainerIdentity'] = None,
+        link_to_subcontainers: Optional[bool] = None,
         **kwargs,
     ) -> DetailedResponse:
         """
@@ -2329,15 +2588,18 @@ class DphV1(BaseService):
         :param str description: (optional) The description of the data product
                domain.
         :param str id: (optional) The identifier of the data product domain.
+        :param str created_by: (optional) The identifier of the creator of the data
+               product domain.
         :param MemberRolesSchema member_roles: (optional) Member roles of a
                corresponding asset.
         :param PropertiesSchema properties: (optional) Properties of the
                corresponding asset.
         :param List[InitializeSubDomain] sub_domains: (optional) List of sub
                domains to be added within a domain.
-        :param str container_id: (optional) Container ID of the data product
-               catalog. If not supplied, the data product catalog is looked up by using
-               the uid of the default data product catalog.
+        :param ContainerIdentity sub_container: (optional) The identity schema for
+               a IBM knowledge catalog container (catalog/project/space).
+        :param bool link_to_subcontainers: (optional) Link domains to
+               subcontainers.
         :param dict headers: A `dict` containing the request headers
         :return: A `DetailedResponse` containing the result, headers and HTTP status code.
         :rtype: DetailedResponse with `dict` result representing a `DataProductDomain` object
@@ -2354,6 +2616,8 @@ class DphV1(BaseService):
             properties = convert_model(properties)
         if sub_domains is not None:
             sub_domains = [convert_model(x) for x in sub_domains]
+        if sub_container is not None:
+            sub_container = convert_model(sub_container)
         headers = {}
         sdk_headers = get_sdk_headers(
             service_name=self.DEFAULT_SERVICE_NAME,
@@ -2363,7 +2627,7 @@ class DphV1(BaseService):
         headers.update(sdk_headers)
 
         params = {
-            'container.id': container_id,
+            'link_to_subcontainers': link_to_subcontainers,
         }
 
         data = {
@@ -2373,9 +2637,11 @@ class DphV1(BaseService):
             'name': name,
             'description': description,
             'id': id,
+            'created_by': created_by,
             'member_roles': member_roles,
             'properties': properties,
             'sub_domains': sub_domains,
+            'sub_container': sub_container,
         }
         data = {k: v for (k, v) in data.items() if v is not None}
         data = json.dumps(data)
@@ -2773,10 +3039,97 @@ class DphV1(BaseService):
         response = self.send(request, **kwargs)
         return response
 
+    #########################
+    # Data Product Revoke Access Job Runs
+    #########################
+
+    def get_revoke_access_process_state(
+        self,
+        release_id: str,
+        *,
+        limit: Optional[int] = None,
+        start: Optional[str] = None,
+        **kwargs,
+    ) -> DetailedResponse:
+        """
+        Access revoke status of the subscriptions against the data product release id.
+
+        Retrieves the status of revoke access requests.
+
+        :param str release_id: Pass the data product release version id to retrieve
+               job runs state for that specific DPV ID.
+        :param int limit: (optional) Limit the number of tracking assets in the
+               results. The maximum is 200.
+        :param str start: (optional) Start token for pagination.
+        :param dict headers: A `dict` containing the request headers
+        :return: A `DetailedResponse` containing the result, headers and HTTP status code.
+        :rtype: DetailedResponse with `dict` result representing a `RevokeAccessStateResponse` object
+        """
+
+        if not release_id:
+            raise ValueError('release_id must be provided')
+        headers = {}
+        sdk_headers = get_sdk_headers(
+            service_name=self.DEFAULT_SERVICE_NAME,
+            service_version='V1',
+            operation_id='get_revoke_access_process_state',
+        )
+        headers.update(sdk_headers)
+
+        params = {
+            'release_id': release_id,
+            'limit': limit,
+            'start': start,
+        }
+
+        if 'headers' in kwargs:
+            headers.update(kwargs.get('headers'))
+            del kwargs['headers']
+        headers['Accept'] = 'application/json'
+
+        url = '/data_product_exchange/v1/data_product_revoke_access/job_runs'
+        request = self.prepare_request(
+            method='GET',
+            url=url,
+            headers=headers,
+            params=params,
+        )
+
+        response = self.send(request, **kwargs)
+        return response
+
 
 class GetDataProductDraftContractTermsEnums:
     """
     Enums for get_data_product_draft_contract_terms parameters.
+    """
+
+    class Accept(str, Enum):
+        """
+        The type of the response: application/json or application/odcs+yaml.
+        """
+
+        APPLICATION_JSON = 'application/json'
+        APPLICATION_ODCS_YAML = 'application/odcs+yaml'
+
+
+class GetContractTermsInSpecifiedFormatEnums:
+    """
+    Enums for get_contract_terms_in_specified_format parameters.
+    """
+
+    class Accept(str, Enum):
+        """
+        The type of the response: application/odcs+yaml or application/json.
+        """
+
+        APPLICATION_ODCS_YAML = 'application/odcs+yaml'
+        APPLICATION_JSON = 'application/json'
+
+
+class GetPublishedDataProductDraftContractTermsEnums:
+    """
+    Enums for get_published_data_product_draft_contract_terms parameters.
     """
 
     class Accept(str, Enum):
@@ -2806,6 +3159,72 @@ class ListDataProductReleasesEnums:
 ##############################################################################
 # Models
 ##############################################################################
+
+
+class Asset:
+    """
+    Asset.
+
+    :param dict metadata: (optional)
+    :param dict entity: (optional)
+    """
+
+    def __init__(
+        self,
+        *,
+        metadata: Optional[dict] = None,
+        entity: Optional[dict] = None,
+    ) -> None:
+        """
+        Initialize a Asset object.
+
+        :param dict metadata: (optional)
+        :param dict entity: (optional)
+        """
+        self.metadata = metadata
+        self.entity = entity
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'Asset':
+        """Initialize a Asset object from a json dictionary."""
+        args = {}
+        if (metadata := _dict.get('metadata')) is not None:
+            args['metadata'] = metadata
+        if (entity := _dict.get('entity')) is not None:
+            args['entity'] = entity
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a Asset object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'metadata') and self.metadata is not None:
+            _dict['metadata'] = self.metadata
+        if hasattr(self, 'entity') and self.entity is not None:
+            _dict['entity'] = self.entity
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this Asset object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'Asset') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'Asset') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
 
 
 class AssetListAccessControl:
@@ -3390,50 +3809,359 @@ class ContainerReference:
 
 
 
-class ContractSchema:
+class ContractAsset:
     """
-    Schema definition of the data asset.
+    Defines a data asset name and id.
 
-    :param str name: (optional) Name of the schema or data asset part.
-    :param str description: (optional) Description of the schema.
-    :param str physical_type: (optional) MIME type or physical type.
-    :param List[ContractSchemaProperty] properties: (optional) List of properties.
+    :param str id: (optional) ID of the data asset.
+    :param str name: (optional) Name of the data asset.
     """
 
     def __init__(
         self,
         *,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
+    ) -> None:
+        """
+        Initialize a ContractAsset object.
+
+        :param str id: (optional) ID of the data asset.
+        :param str name: (optional) Name of the data asset.
+        """
+        self.id = id
+        self.name = name
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'ContractAsset':
+        """Initialize a ContractAsset object from a json dictionary."""
+        args = {}
+        if (id := _dict.get('id')) is not None:
+            args['id'] = id
+        if (name := _dict.get('name')) is not None:
+            args['name'] = name
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a ContractAsset object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'id') and self.id is not None:
+            _dict['id'] = self.id
+        if hasattr(self, 'name') and self.name is not None:
+            _dict['name'] = self.name
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this ContractAsset object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'ContractAsset') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'ContractAsset') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
+class ContractQualityRule:
+    """
+    Defines a quality rule for validating data assets.
+
+    :param str type: The type of the quality rule: 'text', 'library', or 'sql'.
+    :param str description: (optional) A descriptive explanation of the quality
+          rule.
+    :param str rule: (optional) The name or identifier of the library-based quality
+          rule to be applied.
+    :param str implementation: (optional) A text (non-parsed) block of code required
+          for the third-party DQ engine to run.
+    :param str engine: (optional) Required for custom DQ rule: name of the
+          third-party engine being used. Common values include soda, greatExpectations,
+          montecarlo, etc.
+    :param str must_be_less_than: (optional) The threshold value that the quality
+          check result must be less than.
+    :param str must_be_less_or_equal_to: (optional) The threshold value that the
+          quality check result must be less than or equal to.
+    :param str must_be_greater_than: (optional) The threshold value that the quality
+          check result must be greater than.
+    :param str must_be_greater_or_equal_to: (optional) The threshold value that the
+          quality check result must be greater than or equal to.
+    :param List[str] must_be_between: (optional) Inclusive range (min and max) for
+          the quality check result.
+    :param List[str] must_not_be_between: (optional) Inclusive range (min and max)
+          the quality check must not fall within.
+    :param str must_be: (optional) The exact value(s) the quality check result must
+          match.
+    :param str must_not_be: (optional) The exact value(s) the quality check result
+          must not match.
+    :param str name: (optional) User-friendly name for the quality rule.
+    :param str unit: (optional) Unit used for evaluating the quality rule (e.g.,
+          rows, records).
+    :param str query: (optional) The SQL query to execute for validating quality in
+          case of a 'sql' rule type.
+    """
+
+    def __init__(
+        self,
+        type: str,
+        *,
+        description: Optional[str] = None,
+        rule: Optional[str] = None,
+        implementation: Optional[str] = None,
+        engine: Optional[str] = None,
+        must_be_less_than: Optional[str] = None,
+        must_be_less_or_equal_to: Optional[str] = None,
+        must_be_greater_than: Optional[str] = None,
+        must_be_greater_or_equal_to: Optional[str] = None,
+        must_be_between: Optional[List[str]] = None,
+        must_not_be_between: Optional[List[str]] = None,
+        must_be: Optional[str] = None,
+        must_not_be: Optional[str] = None,
+        name: Optional[str] = None,
+        unit: Optional[str] = None,
+        query: Optional[str] = None,
+    ) -> None:
+        """
+        Initialize a ContractQualityRule object.
+
+        :param str type: The type of the quality rule: 'text', 'library', or 'sql'.
+        :param str description: (optional) A descriptive explanation of the quality
+               rule.
+        :param str rule: (optional) The name or identifier of the library-based
+               quality rule to be applied.
+        :param str implementation: (optional) A text (non-parsed) block of code
+               required for the third-party DQ engine to run.
+        :param str engine: (optional) Required for custom DQ rule: name of the
+               third-party engine being used. Common values include soda,
+               greatExpectations, montecarlo, etc.
+        :param str must_be_less_than: (optional) The threshold value that the
+               quality check result must be less than.
+        :param str must_be_less_or_equal_to: (optional) The threshold value that
+               the quality check result must be less than or equal to.
+        :param str must_be_greater_than: (optional) The threshold value that the
+               quality check result must be greater than.
+        :param str must_be_greater_or_equal_to: (optional) The threshold value that
+               the quality check result must be greater than or equal to.
+        :param List[str] must_be_between: (optional) Inclusive range (min and max)
+               for the quality check result.
+        :param List[str] must_not_be_between: (optional) Inclusive range (min and
+               max) the quality check must not fall within.
+        :param str must_be: (optional) The exact value(s) the quality check result
+               must match.
+        :param str must_not_be: (optional) The exact value(s) the quality check
+               result must not match.
+        :param str name: (optional) User-friendly name for the quality rule.
+        :param str unit: (optional) Unit used for evaluating the quality rule
+               (e.g., rows, records).
+        :param str query: (optional) The SQL query to execute for validating
+               quality in case of a 'sql' rule type.
+        """
+        self.type = type
+        self.description = description
+        self.rule = rule
+        self.implementation = implementation
+        self.engine = engine
+        self.must_be_less_than = must_be_less_than
+        self.must_be_less_or_equal_to = must_be_less_or_equal_to
+        self.must_be_greater_than = must_be_greater_than
+        self.must_be_greater_or_equal_to = must_be_greater_or_equal_to
+        self.must_be_between = must_be_between
+        self.must_not_be_between = must_not_be_between
+        self.must_be = must_be
+        self.must_not_be = must_not_be
+        self.name = name
+        self.unit = unit
+        self.query = query
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'ContractQualityRule':
+        """Initialize a ContractQualityRule object from a json dictionary."""
+        args = {}
+        if (type := _dict.get('type')) is not None:
+            args['type'] = type
+        else:
+            raise ValueError('Required property \'type\' not present in ContractQualityRule JSON')
+        if (description := _dict.get('description')) is not None:
+            args['description'] = description
+        if (rule := _dict.get('rule')) is not None:
+            args['rule'] = rule
+        if (implementation := _dict.get('implementation')) is not None:
+            args['implementation'] = implementation
+        if (engine := _dict.get('engine')) is not None:
+            args['engine'] = engine
+        if (must_be_less_than := _dict.get('must_be_less_than')) is not None:
+            args['must_be_less_than'] = must_be_less_than
+        if (must_be_less_or_equal_to := _dict.get('must_be_less_or_equal_to')) is not None:
+            args['must_be_less_or_equal_to'] = must_be_less_or_equal_to
+        if (must_be_greater_than := _dict.get('must_be_greater_than')) is not None:
+            args['must_be_greater_than'] = must_be_greater_than
+        if (must_be_greater_or_equal_to := _dict.get('must_be_greater_or_equal_to')) is not None:
+            args['must_be_greater_or_equal_to'] = must_be_greater_or_equal_to
+        if (must_be_between := _dict.get('must_be_between')) is not None:
+            args['must_be_between'] = must_be_between
+        if (must_not_be_between := _dict.get('must_not_be_between')) is not None:
+            args['must_not_be_between'] = must_not_be_between
+        if (must_be := _dict.get('must_be')) is not None:
+            args['must_be'] = must_be
+        if (must_not_be := _dict.get('must_not_be')) is not None:
+            args['must_not_be'] = must_not_be
+        if (name := _dict.get('name')) is not None:
+            args['name'] = name
+        if (unit := _dict.get('unit')) is not None:
+            args['unit'] = unit
+        if (query := _dict.get('query')) is not None:
+            args['query'] = query
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a ContractQualityRule object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'type') and self.type is not None:
+            _dict['type'] = self.type
+        if hasattr(self, 'description') and self.description is not None:
+            _dict['description'] = self.description
+        if hasattr(self, 'rule') and self.rule is not None:
+            _dict['rule'] = self.rule
+        if hasattr(self, 'implementation') and self.implementation is not None:
+            _dict['implementation'] = self.implementation
+        if hasattr(self, 'engine') and self.engine is not None:
+            _dict['engine'] = self.engine
+        if hasattr(self, 'must_be_less_than') and self.must_be_less_than is not None:
+            _dict['must_be_less_than'] = self.must_be_less_than
+        if hasattr(self, 'must_be_less_or_equal_to') and self.must_be_less_or_equal_to is not None:
+            _dict['must_be_less_or_equal_to'] = self.must_be_less_or_equal_to
+        if hasattr(self, 'must_be_greater_than') and self.must_be_greater_than is not None:
+            _dict['must_be_greater_than'] = self.must_be_greater_than
+        if hasattr(self, 'must_be_greater_or_equal_to') and self.must_be_greater_or_equal_to is not None:
+            _dict['must_be_greater_or_equal_to'] = self.must_be_greater_or_equal_to
+        if hasattr(self, 'must_be_between') and self.must_be_between is not None:
+            _dict['must_be_between'] = self.must_be_between
+        if hasattr(self, 'must_not_be_between') and self.must_not_be_between is not None:
+            _dict['must_not_be_between'] = self.must_not_be_between
+        if hasattr(self, 'must_be') and self.must_be is not None:
+            _dict['must_be'] = self.must_be
+        if hasattr(self, 'must_not_be') and self.must_not_be is not None:
+            _dict['must_not_be'] = self.must_not_be
+        if hasattr(self, 'name') and self.name is not None:
+            _dict['name'] = self.name
+        if hasattr(self, 'unit') and self.unit is not None:
+            _dict['unit'] = self.unit
+        if hasattr(self, 'query') and self.query is not None:
+            _dict['query'] = self.query
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this ContractQualityRule object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'ContractQualityRule') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'ContractQualityRule') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
+class ContractSchema:
+    """
+    Schema definition of the data asset.
+
+    :param str asset_id: Id of the data asset whose schema information is stored.
+    :param str connection_id: Connection Id of the data asset whose schema
+          information is stored.
+    :param str name: (optional) Name of the schema or data asset part.
+    :param str description: (optional) Description of the schema.
+    :param str connection_path: (optional) Connection path of the asset.
+    :param str physical_type: (optional) MIME type or physical type.
+    :param List[ContractSchemaProperty] properties: (optional) List of properties.
+    :param List[ContractQualityRule] quality: (optional) List of quality rules
+          defined for the asset.
+    """
+
+    def __init__(
+        self,
+        asset_id: str,
+        connection_id: str,
+        *,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        connection_path: Optional[str] = None,
         physical_type: Optional[str] = None,
         properties: Optional[List['ContractSchemaProperty']] = None,
+        quality: Optional[List['ContractQualityRule']] = None,
     ) -> None:
         """
         Initialize a ContractSchema object.
 
+        :param str asset_id: Id of the data asset whose schema information is
+               stored.
+        :param str connection_id: Connection Id of the data asset whose schema
+               information is stored.
         :param str name: (optional) Name of the schema or data asset part.
         :param str description: (optional) Description of the schema.
+        :param str connection_path: (optional) Connection path of the asset.
         :param str physical_type: (optional) MIME type or physical type.
         :param List[ContractSchemaProperty] properties: (optional) List of
                properties.
+        :param List[ContractQualityRule] quality: (optional) List of quality rules
+               defined for the asset.
         """
+        self.asset_id = asset_id
+        self.connection_id = connection_id
         self.name = name
         self.description = description
+        self.connection_path = connection_path
         self.physical_type = physical_type
         self.properties = properties
+        self.quality = quality
 
     @classmethod
     def from_dict(cls, _dict: Dict) -> 'ContractSchema':
         """Initialize a ContractSchema object from a json dictionary."""
         args = {}
+        if (asset_id := _dict.get('asset_id')) is not None:
+            args['asset_id'] = asset_id
+        else:
+            raise ValueError('Required property \'asset_id\' not present in ContractSchema JSON')
+        if (connection_id := _dict.get('connection_id')) is not None:
+            args['connection_id'] = connection_id
+        else:
+            raise ValueError('Required property \'connection_id\' not present in ContractSchema JSON')
         if (name := _dict.get('name')) is not None:
             args['name'] = name
         if (description := _dict.get('description')) is not None:
             args['description'] = description
+        if (connection_path := _dict.get('connection_path')) is not None:
+            args['connection_path'] = connection_path
         if (physical_type := _dict.get('physical_type')) is not None:
             args['physical_type'] = physical_type
         if (properties := _dict.get('properties')) is not None:
             args['properties'] = [ContractSchemaProperty.from_dict(v) for v in properties]
+        if (quality := _dict.get('quality')) is not None:
+            args['quality'] = [ContractQualityRule.from_dict(v) for v in quality]
         return cls(**args)
 
     @classmethod
@@ -3444,10 +4172,16 @@ class ContractSchema:
     def to_dict(self) -> Dict:
         """Return a json dictionary representing this model."""
         _dict = {}
+        if hasattr(self, 'asset_id') and self.asset_id is not None:
+            _dict['asset_id'] = self.asset_id
+        if hasattr(self, 'connection_id') and self.connection_id is not None:
+            _dict['connection_id'] = self.connection_id
         if hasattr(self, 'name') and self.name is not None:
             _dict['name'] = self.name
         if hasattr(self, 'description') and self.description is not None:
             _dict['description'] = self.description
+        if hasattr(self, 'connection_path') and self.connection_path is not None:
+            _dict['connection_path'] = self.connection_path
         if hasattr(self, 'physical_type') and self.physical_type is not None:
             _dict['physical_type'] = self.physical_type
         if hasattr(self, 'properties') and self.properties is not None:
@@ -3458,6 +4192,14 @@ class ContractSchema:
                 else:
                     properties_list.append(v.to_dict())
             _dict['properties'] = properties_list
+        if hasattr(self, 'quality') and self.quality is not None:
+            quality_list = []
+            for v in self.quality:
+                if isinstance(v, dict):
+                    quality_list.append(v)
+                else:
+                    quality_list.append(v.to_dict())
+            _dict['quality'] = quality_list
         return _dict
 
     def _to_dict(self):
@@ -3486,6 +4228,8 @@ class ContractSchemaProperty:
     :param str name: Property name.
     :param ContractSchemaPropertyType type: (optional) Detailed type definition of a
           schema property.
+    :param List[ContractQualityRule] quality: (optional) List of quality rules
+          defined for the column.
     """
 
     def __init__(
@@ -3493,6 +4237,7 @@ class ContractSchemaProperty:
         name: str,
         *,
         type: Optional['ContractSchemaPropertyType'] = None,
+        quality: Optional[List['ContractQualityRule']] = None,
     ) -> None:
         """
         Initialize a ContractSchemaProperty object.
@@ -3500,9 +4245,12 @@ class ContractSchemaProperty:
         :param str name: Property name.
         :param ContractSchemaPropertyType type: (optional) Detailed type definition
                of a schema property.
+        :param List[ContractQualityRule] quality: (optional) List of quality rules
+               defined for the column.
         """
         self.name = name
         self.type = type
+        self.quality = quality
 
     @classmethod
     def from_dict(cls, _dict: Dict) -> 'ContractSchemaProperty':
@@ -3514,6 +4262,8 @@ class ContractSchemaProperty:
             raise ValueError('Required property \'name\' not present in ContractSchemaProperty JSON')
         if (type := _dict.get('type')) is not None:
             args['type'] = ContractSchemaPropertyType.from_dict(type)
+        if (quality := _dict.get('quality')) is not None:
+            args['quality'] = [ContractQualityRule.from_dict(v) for v in quality]
         return cls(**args)
 
     @classmethod
@@ -3531,6 +4281,14 @@ class ContractSchemaProperty:
                 _dict['type'] = self.type
             else:
                 _dict['type'] = self.type.to_dict()
+        if hasattr(self, 'quality') and self.quality is not None:
+            quality_list = []
+            for v in self.quality:
+                if isinstance(v, dict):
+                    quality_list.append(v)
+                else:
+                    quality_list.append(v.to_dict())
+            _dict['quality'] = quality_list
         return _dict
 
     def _to_dict(self):
@@ -3646,6 +4404,288 @@ class ContractSchemaPropertyType:
         return self.__dict__ == other.__dict__
 
     def __ne__(self, other: 'ContractSchemaPropertyType') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
+class ContractServer:
+    """
+    Schema definition of a server configuration for the asset.
+
+    :param str server: Name of the server.
+    :param ContractAsset asset: (optional) Defines a data asset name and id.
+    :param str connection_id: (optional) ID of the data source associated with data
+          asset.
+    :param str type: (optional) Type of the server.
+    :param str description: (optional) Description of the server.
+    :param str environment: (optional) Environment in which the server operates.
+    :param str account: (optional) Account used by the server.
+    :param str catalog: (optional) Catalog name.
+    :param str database: (optional) Database name.
+    :param str dataset: (optional) Dataset name.
+    :param str delimiter: (optional) Delimiter.
+    :param str endpoint_url: (optional) Server endpoint URL.
+    :param str format: (optional) File format.
+    :param str host: (optional) Host name or IP address.
+    :param str location: (optional) Location URL.
+    :param str path: (optional) Relative or absolute path to the data.
+    :param str port: (optional) Port to the server.
+    :param str project: (optional) Project name.
+    :param str region: (optional) Cloud region.
+    :param str region_name: (optional) Region name.
+    :param str schema: (optional) Schema name.
+    :param str service_name: (optional) Service name.
+    :param str staging_dir: (optional) Staging directory.
+    :param str stream: (optional) Data stream name.
+    :param str warehouse: (optional) Warehouse or cluster name.
+    :param List[str] roles: (optional) List of roles for the server.
+    :param List[ContractTemplateCustomProperty] custom_properties: (optional) List
+          of custom properties for the server.
+    """
+
+    def __init__(
+        self,
+        server: str,
+        *,
+        asset: Optional['ContractAsset'] = None,
+        connection_id: Optional[str] = None,
+        type: Optional[str] = None,
+        description: Optional[str] = None,
+        environment: Optional[str] = None,
+        account: Optional[str] = None,
+        catalog: Optional[str] = None,
+        database: Optional[str] = None,
+        dataset: Optional[str] = None,
+        delimiter: Optional[str] = None,
+        endpoint_url: Optional[str] = None,
+        format: Optional[str] = None,
+        host: Optional[str] = None,
+        location: Optional[str] = None,
+        path: Optional[str] = None,
+        port: Optional[str] = None,
+        project: Optional[str] = None,
+        region: Optional[str] = None,
+        region_name: Optional[str] = None,
+        schema: Optional[str] = None,
+        service_name: Optional[str] = None,
+        staging_dir: Optional[str] = None,
+        stream: Optional[str] = None,
+        warehouse: Optional[str] = None,
+        roles: Optional[List[str]] = None,
+        custom_properties: Optional[List['ContractTemplateCustomProperty']] = None,
+    ) -> None:
+        """
+        Initialize a ContractServer object.
+
+        :param str server: Name of the server.
+        :param ContractAsset asset: (optional) Defines a data asset name and id.
+        :param str connection_id: (optional) ID of the data source associated with
+               data asset.
+        :param str type: (optional) Type of the server.
+        :param str description: (optional) Description of the server.
+        :param str environment: (optional) Environment in which the server
+               operates.
+        :param str account: (optional) Account used by the server.
+        :param str catalog: (optional) Catalog name.
+        :param str database: (optional) Database name.
+        :param str dataset: (optional) Dataset name.
+        :param str delimiter: (optional) Delimiter.
+        :param str endpoint_url: (optional) Server endpoint URL.
+        :param str format: (optional) File format.
+        :param str host: (optional) Host name or IP address.
+        :param str location: (optional) Location URL.
+        :param str path: (optional) Relative or absolute path to the data.
+        :param str port: (optional) Port to the server.
+        :param str project: (optional) Project name.
+        :param str region: (optional) Cloud region.
+        :param str region_name: (optional) Region name.
+        :param str schema: (optional) Schema name.
+        :param str service_name: (optional) Service name.
+        :param str staging_dir: (optional) Staging directory.
+        :param str stream: (optional) Data stream name.
+        :param str warehouse: (optional) Warehouse or cluster name.
+        :param List[str] roles: (optional) List of roles for the server.
+        :param List[ContractTemplateCustomProperty] custom_properties: (optional)
+               List of custom properties for the server.
+        """
+        self.server = server
+        self.asset = asset
+        self.connection_id = connection_id
+        self.type = type
+        self.description = description
+        self.environment = environment
+        self.account = account
+        self.catalog = catalog
+        self.database = database
+        self.dataset = dataset
+        self.delimiter = delimiter
+        self.endpoint_url = endpoint_url
+        self.format = format
+        self.host = host
+        self.location = location
+        self.path = path
+        self.port = port
+        self.project = project
+        self.region = region
+        self.region_name = region_name
+        self.schema = schema
+        self.service_name = service_name
+        self.staging_dir = staging_dir
+        self.stream = stream
+        self.warehouse = warehouse
+        self.roles = roles
+        self.custom_properties = custom_properties
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'ContractServer':
+        """Initialize a ContractServer object from a json dictionary."""
+        args = {}
+        if (server := _dict.get('server')) is not None:
+            args['server'] = server
+        else:
+            raise ValueError('Required property \'server\' not present in ContractServer JSON')
+        if (asset := _dict.get('asset')) is not None:
+            args['asset'] = ContractAsset.from_dict(asset)
+        if (connection_id := _dict.get('connection_id')) is not None:
+            args['connection_id'] = connection_id
+        if (type := _dict.get('type')) is not None:
+            args['type'] = type
+        if (description := _dict.get('description')) is not None:
+            args['description'] = description
+        if (environment := _dict.get('environment')) is not None:
+            args['environment'] = environment
+        if (account := _dict.get('account')) is not None:
+            args['account'] = account
+        if (catalog := _dict.get('catalog')) is not None:
+            args['catalog'] = catalog
+        if (database := _dict.get('database')) is not None:
+            args['database'] = database
+        if (dataset := _dict.get('dataset')) is not None:
+            args['dataset'] = dataset
+        if (delimiter := _dict.get('delimiter')) is not None:
+            args['delimiter'] = delimiter
+        if (endpoint_url := _dict.get('endpoint_url')) is not None:
+            args['endpoint_url'] = endpoint_url
+        if (format := _dict.get('format')) is not None:
+            args['format'] = format
+        if (host := _dict.get('host')) is not None:
+            args['host'] = host
+        if (location := _dict.get('location')) is not None:
+            args['location'] = location
+        if (path := _dict.get('path')) is not None:
+            args['path'] = path
+        if (port := _dict.get('port')) is not None:
+            args['port'] = port
+        if (project := _dict.get('project')) is not None:
+            args['project'] = project
+        if (region := _dict.get('region')) is not None:
+            args['region'] = region
+        if (region_name := _dict.get('region_name')) is not None:
+            args['region_name'] = region_name
+        if (schema := _dict.get('schema')) is not None:
+            args['schema'] = schema
+        if (service_name := _dict.get('service_name')) is not None:
+            args['service_name'] = service_name
+        if (staging_dir := _dict.get('staging_dir')) is not None:
+            args['staging_dir'] = staging_dir
+        if (stream := _dict.get('stream')) is not None:
+            args['stream'] = stream
+        if (warehouse := _dict.get('warehouse')) is not None:
+            args['warehouse'] = warehouse
+        if (roles := _dict.get('roles')) is not None:
+            args['roles'] = roles
+        if (custom_properties := _dict.get('custom_properties')) is not None:
+            args['custom_properties'] = [ContractTemplateCustomProperty.from_dict(v) for v in custom_properties]
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a ContractServer object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'server') and self.server is not None:
+            _dict['server'] = self.server
+        if hasattr(self, 'asset') and self.asset is not None:
+            if isinstance(self.asset, dict):
+                _dict['asset'] = self.asset
+            else:
+                _dict['asset'] = self.asset.to_dict()
+        if hasattr(self, 'connection_id') and self.connection_id is not None:
+            _dict['connection_id'] = self.connection_id
+        if hasattr(self, 'type') and self.type is not None:
+            _dict['type'] = self.type
+        if hasattr(self, 'description') and self.description is not None:
+            _dict['description'] = self.description
+        if hasattr(self, 'environment') and self.environment is not None:
+            _dict['environment'] = self.environment
+        if hasattr(self, 'account') and self.account is not None:
+            _dict['account'] = self.account
+        if hasattr(self, 'catalog') and self.catalog is not None:
+            _dict['catalog'] = self.catalog
+        if hasattr(self, 'database') and self.database is not None:
+            _dict['database'] = self.database
+        if hasattr(self, 'dataset') and self.dataset is not None:
+            _dict['dataset'] = self.dataset
+        if hasattr(self, 'delimiter') and self.delimiter is not None:
+            _dict['delimiter'] = self.delimiter
+        if hasattr(self, 'endpoint_url') and self.endpoint_url is not None:
+            _dict['endpoint_url'] = self.endpoint_url
+        if hasattr(self, 'format') and self.format is not None:
+            _dict['format'] = self.format
+        if hasattr(self, 'host') and self.host is not None:
+            _dict['host'] = self.host
+        if hasattr(self, 'location') and self.location is not None:
+            _dict['location'] = self.location
+        if hasattr(self, 'path') and self.path is not None:
+            _dict['path'] = self.path
+        if hasattr(self, 'port') and self.port is not None:
+            _dict['port'] = self.port
+        if hasattr(self, 'project') and self.project is not None:
+            _dict['project'] = self.project
+        if hasattr(self, 'region') and self.region is not None:
+            _dict['region'] = self.region
+        if hasattr(self, 'region_name') and self.region_name is not None:
+            _dict['region_name'] = self.region_name
+        if hasattr(self, 'schema') and self.schema is not None:
+            _dict['schema'] = self.schema
+        if hasattr(self, 'service_name') and self.service_name is not None:
+            _dict['service_name'] = self.service_name
+        if hasattr(self, 'staging_dir') and self.staging_dir is not None:
+            _dict['staging_dir'] = self.staging_dir
+        if hasattr(self, 'stream') and self.stream is not None:
+            _dict['stream'] = self.stream
+        if hasattr(self, 'warehouse') and self.warehouse is not None:
+            _dict['warehouse'] = self.warehouse
+        if hasattr(self, 'roles') and self.roles is not None:
+            _dict['roles'] = self.roles
+        if hasattr(self, 'custom_properties') and self.custom_properties is not None:
+            custom_properties_list = []
+            for v in self.custom_properties:
+                if isinstance(v, dict):
+                    custom_properties_list.append(v)
+                else:
+                    custom_properties_list.append(v.to_dict())
+            _dict['custom_properties'] = custom_properties_list
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this ContractServer object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'ContractServer') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'ContractServer') -> bool:
         """Return `true` when self and other are not equal, false otherwise."""
         return not self == other
 
@@ -4028,6 +5068,7 @@ class ContractTerms:
           properties that are not part of the standard contract.
     :param ContractTest contract_test: (optional) Contains the contract test status
           and related metadata.
+    :param List[ContractServer] servers: (optional) List of server definitions.
     :param List[ContractSchema] schema: (optional) Schema details of the data asset.
     """
 
@@ -4047,6 +5088,7 @@ class ContractTerms:
         support_and_communication: Optional[List['ContractTemplateSupportAndCommunication']] = None,
         custom_properties: Optional[List['ContractTemplateCustomProperty']] = None,
         contract_test: Optional['ContractTest'] = None,
+        servers: Optional[List['ContractServer']] = None,
         schema: Optional[List['ContractSchema']] = None,
     ) -> None:
         """
@@ -4077,6 +5119,7 @@ class ContractTerms:
                Custom properties that are not part of the standard contract.
         :param ContractTest contract_test: (optional) Contains the contract test
                status and related metadata.
+        :param List[ContractServer] servers: (optional) List of server definitions.
         :param List[ContractSchema] schema: (optional) Schema details of the data
                asset.
         """
@@ -4093,6 +5136,7 @@ class ContractTerms:
         self.support_and_communication = support_and_communication
         self.custom_properties = custom_properties
         self.contract_test = contract_test
+        self.servers = servers
         self.schema = schema
 
     @classmethod
@@ -4125,6 +5169,8 @@ class ContractTerms:
             args['custom_properties'] = [ContractTemplateCustomProperty.from_dict(v) for v in custom_properties]
         if (contract_test := _dict.get('contract_test')) is not None:
             args['contract_test'] = ContractTest.from_dict(contract_test)
+        if (servers := _dict.get('servers')) is not None:
+            args['servers'] = [ContractServer.from_dict(v) for v in servers]
         if (schema := _dict.get('schema')) is not None:
             args['schema'] = [ContractSchema.from_dict(v) for v in schema]
         return cls(**args)
@@ -4214,6 +5260,14 @@ class ContractTerms:
                 _dict['contract_test'] = self.contract_test
             else:
                 _dict['contract_test'] = self.contract_test.to_dict()
+        if hasattr(self, 'servers') and self.servers is not None:
+            servers_list = []
+            for v in self.servers:
+                if isinstance(v, dict):
+                    servers_list.append(v)
+                else:
+                    servers_list.append(v.to_dict())
+            _dict['servers'] = servers_list
         if hasattr(self, 'schema') and self.schema is not None:
             schema_list = []
             for v in self.schema:
@@ -4993,6 +6047,10 @@ class DataProductContractTemplate:
 
     :param ContainerReference container: Container reference.
     :param str id: (optional) The identifier of the data product contract template.
+    :param str creator_id: (optional) The identifier of the user who created the
+          data product contract template.
+    :param str created_at: (optional) The timestamp when the data product contract
+          template was created.
     :param str name: (optional) The name of the contract template.
     :param ErrorMessage error: (optional) Contains the code and details.
     :param ContractTerms contract_terms: (optional) Defines the complete structure
@@ -5004,6 +6062,8 @@ class DataProductContractTemplate:
         container: 'ContainerReference',
         *,
         id: Optional[str] = None,
+        creator_id: Optional[str] = None,
+        created_at: Optional[str] = None,
         name: Optional[str] = None,
         error: Optional['ErrorMessage'] = None,
         contract_terms: Optional['ContractTerms'] = None,
@@ -5014,6 +6074,10 @@ class DataProductContractTemplate:
         :param ContainerReference container: Container reference.
         :param str id: (optional) The identifier of the data product contract
                template.
+        :param str creator_id: (optional) The identifier of the user who created
+               the data product contract template.
+        :param str created_at: (optional) The timestamp when the data product
+               contract template was created.
         :param str name: (optional) The name of the contract template.
         :param ErrorMessage error: (optional) Contains the code and details.
         :param ContractTerms contract_terms: (optional) Defines the complete
@@ -5021,6 +6085,8 @@ class DataProductContractTemplate:
         """
         self.container = container
         self.id = id
+        self.creator_id = creator_id
+        self.created_at = created_at
         self.name = name
         self.error = error
         self.contract_terms = contract_terms
@@ -5035,6 +6101,10 @@ class DataProductContractTemplate:
             raise ValueError('Required property \'container\' not present in DataProductContractTemplate JSON')
         if (id := _dict.get('id')) is not None:
             args['id'] = id
+        if (creator_id := _dict.get('creator_id')) is not None:
+            args['creator_id'] = creator_id
+        if (created_at := _dict.get('created_at')) is not None:
+            args['created_at'] = created_at
         if (name := _dict.get('name')) is not None:
             args['name'] = name
         if (error := _dict.get('error')) is not None:
@@ -5058,6 +6128,10 @@ class DataProductContractTemplate:
                 _dict['container'] = self.container.to_dict()
         if hasattr(self, 'id') and self.id is not None:
             _dict['id'] = self.id
+        if hasattr(self, 'creator_id') and self.creator_id is not None:
+            _dict['creator_id'] = self.creator_id
+        if hasattr(self, 'created_at') and self.created_at is not None:
+            _dict['created_at'] = self.created_at
         if hasattr(self, 'name') and self.name is not None:
             _dict['name'] = self.name
         if hasattr(self, 'error') and self.error is not None:
@@ -5228,12 +6302,16 @@ class DataProductDomain:
     :param str name: (optional) The name of the data product domain.
     :param str description: (optional) The description of the data product domain.
     :param str id: (optional) The identifier of the data product domain.
+    :param str created_by: (optional) The identifier of the creator of the data
+          product domain.
     :param MemberRolesSchema member_roles: (optional) Member roles of a
           corresponding asset.
     :param PropertiesSchema properties: (optional) Properties of the corresponding
           asset.
     :param List[InitializeSubDomain] sub_domains: (optional) List of sub domains to
           be added within a domain.
+    :param ContainerIdentity sub_container: (optional) The identity schema for a IBM
+          knowledge catalog container (catalog/project/space).
     """
 
     def __init__(
@@ -5245,9 +6323,11 @@ class DataProductDomain:
         name: Optional[str] = None,
         description: Optional[str] = None,
         id: Optional[str] = None,
+        created_by: Optional[str] = None,
         member_roles: Optional['MemberRolesSchema'] = None,
         properties: Optional['PropertiesSchema'] = None,
         sub_domains: Optional[List['InitializeSubDomain']] = None,
+        sub_container: Optional['ContainerIdentity'] = None,
     ) -> None:
         """
         Initialize a DataProductDomain object.
@@ -5260,12 +6340,16 @@ class DataProductDomain:
         :param str description: (optional) The description of the data product
                domain.
         :param str id: (optional) The identifier of the data product domain.
+        :param str created_by: (optional) The identifier of the creator of the data
+               product domain.
         :param MemberRolesSchema member_roles: (optional) Member roles of a
                corresponding asset.
         :param PropertiesSchema properties: (optional) Properties of the
                corresponding asset.
         :param List[InitializeSubDomain] sub_domains: (optional) List of sub
                domains to be added within a domain.
+        :param ContainerIdentity sub_container: (optional) The identity schema for
+               a IBM knowledge catalog container (catalog/project/space).
         """
         self.container = container
         self.trace = trace
@@ -5273,9 +6357,11 @@ class DataProductDomain:
         self.name = name
         self.description = description
         self.id = id
+        self.created_by = created_by
         self.member_roles = member_roles
         self.properties = properties
         self.sub_domains = sub_domains
+        self.sub_container = sub_container
 
     @classmethod
     def from_dict(cls, _dict: Dict) -> 'DataProductDomain':
@@ -5295,12 +6381,16 @@ class DataProductDomain:
             args['description'] = description
         if (id := _dict.get('id')) is not None:
             args['id'] = id
+        if (created_by := _dict.get('created_by')) is not None:
+            args['created_by'] = created_by
         if (member_roles := _dict.get('member_roles')) is not None:
             args['member_roles'] = MemberRolesSchema.from_dict(member_roles)
         if (properties := _dict.get('properties')) is not None:
             args['properties'] = PropertiesSchema.from_dict(properties)
         if (sub_domains := _dict.get('sub_domains')) is not None:
             args['sub_domains'] = [InitializeSubDomain.from_dict(v) for v in sub_domains]
+        if (sub_container := _dict.get('sub_container')) is not None:
+            args['sub_container'] = ContainerIdentity.from_dict(sub_container)
         return cls(**args)
 
     @classmethod
@@ -5332,6 +6422,8 @@ class DataProductDomain:
             _dict['description'] = self.description
         if hasattr(self, 'id') and self.id is not None:
             _dict['id'] = self.id
+        if hasattr(self, 'created_by') and self.created_by is not None:
+            _dict['created_by'] = self.created_by
         if hasattr(self, 'member_roles') and self.member_roles is not None:
             if isinstance(self.member_roles, dict):
                 _dict['member_roles'] = self.member_roles
@@ -5350,6 +6442,11 @@ class DataProductDomain:
                 else:
                     sub_domains_list.append(v.to_dict())
             _dict['sub_domains'] = sub_domains_list
+        if hasattr(self, 'sub_container') and self.sub_container is not None:
+            if isinstance(self.sub_container, dict):
+                _dict['sub_container'] = self.sub_container
+            else:
+                _dict['sub_container'] = self.sub_container.to_dict()
         return _dict
 
     def _to_dict(self):
@@ -5470,6 +6567,8 @@ class DataProductDraft:
           at the time of data product version creation or retiring.
     :param AssetListAccessControl access_control: (optional) Access control object.
     :param datetime last_updated_at: (optional) Timestamp of last asset update.
+    :param ContainerIdentity sub_container: (optional) The identity schema for a IBM
+          knowledge catalog container (catalog/project/space).
     :param bool is_restricted: Indicates whether the data product is restricted or
           not. A restricted data product indicates that orders of the data product
           requires explicit approval before data is delivered.
@@ -5510,6 +6609,7 @@ class DataProductDraft:
         comments: Optional[str] = None,
         access_control: Optional['AssetListAccessControl'] = None,
         last_updated_at: Optional[datetime] = None,
+        sub_container: Optional['ContainerIdentity'] = None,
         published_by: Optional[str] = None,
         published_at: Optional[datetime] = None,
         properties: Optional[dict] = None,
@@ -5558,6 +6658,8 @@ class DataProductDraft:
         :param AssetListAccessControl access_control: (optional) Access control
                object.
         :param datetime last_updated_at: (optional) Timestamp of last asset update.
+        :param ContainerIdentity sub_container: (optional) The identity schema for
+               a IBM knowledge catalog container (catalog/project/space).
         :param str published_by: (optional) The user who published this data
                product version.
         :param datetime published_at: (optional) The time when this data product
@@ -5582,6 +6684,7 @@ class DataProductDraft:
         self.comments = comments
         self.access_control = access_control
         self.last_updated_at = last_updated_at
+        self.sub_container = sub_container
         self.is_restricted = is_restricted
         self.id = id
         self.asset = asset
@@ -5648,6 +6751,8 @@ class DataProductDraft:
             args['access_control'] = AssetListAccessControl.from_dict(access_control)
         if (last_updated_at := _dict.get('last_updated_at')) is not None:
             args['last_updated_at'] = string_to_datetime(last_updated_at)
+        if (sub_container := _dict.get('sub_container')) is not None:
+            args['sub_container'] = ContainerIdentity.from_dict(sub_container)
         if (is_restricted := _dict.get('is_restricted')) is not None:
             args['is_restricted'] = is_restricted
         else:
@@ -5748,6 +6853,11 @@ class DataProductDraft:
                 _dict['access_control'] = self.access_control.to_dict()
         if hasattr(self, 'last_updated_at') and self.last_updated_at is not None:
             _dict['last_updated_at'] = datetime_to_string(self.last_updated_at)
+        if hasattr(self, 'sub_container') and self.sub_container is not None:
+            if isinstance(self.sub_container, dict):
+                _dict['sub_container'] = self.sub_container
+            else:
+                _dict['sub_container'] = self.sub_container.to_dict()
         if hasattr(self, 'is_restricted') and self.is_restricted is not None:
             _dict['is_restricted'] = self.is_restricted
         if hasattr(self, 'id') and self.id is not None:
@@ -6052,6 +7162,8 @@ class DataProductDraftPrototype:
           at the time of data product version creation or retiring.
     :param AssetListAccessControl access_control: (optional) Access control object.
     :param datetime last_updated_at: (optional) Timestamp of last asset update.
+    :param ContainerIdentity sub_container: (optional) The identity schema for a IBM
+          knowledge catalog container (catalog/project/space).
     :param bool is_restricted: (optional) Indicates whether the data product is
           restricted or not. A restricted data product indicates that orders of the data
           product requires explicit approval before data is delivered.
@@ -6078,6 +7190,7 @@ class DataProductDraftPrototype:
         comments: Optional[str] = None,
         access_control: Optional['AssetListAccessControl'] = None,
         last_updated_at: Optional[datetime] = None,
+        sub_container: Optional['ContainerIdentity'] = None,
         is_restricted: Optional[bool] = None,
     ) -> None:
         """
@@ -6123,6 +7236,8 @@ class DataProductDraftPrototype:
         :param AssetListAccessControl access_control: (optional) Access control
                object.
         :param datetime last_updated_at: (optional) Timestamp of last asset update.
+        :param ContainerIdentity sub_container: (optional) The identity schema for
+               a IBM knowledge catalog container (catalog/project/space).
         :param bool is_restricted: (optional) Indicates whether the data product is
                restricted or not. A restricted data product indicates that orders of the
                data product requires explicit approval before data is delivered.
@@ -6143,6 +7258,7 @@ class DataProductDraftPrototype:
         self.comments = comments
         self.access_control = access_control
         self.last_updated_at = last_updated_at
+        self.sub_container = sub_container
         self.is_restricted = is_restricted
         self.asset = asset
 
@@ -6182,6 +7298,8 @@ class DataProductDraftPrototype:
             args['access_control'] = AssetListAccessControl.from_dict(access_control)
         if (last_updated_at := _dict.get('last_updated_at')) is not None:
             args['last_updated_at'] = string_to_datetime(last_updated_at)
+        if (sub_container := _dict.get('sub_container')) is not None:
+            args['sub_container'] = ContainerIdentity.from_dict(sub_container)
         if (is_restricted := _dict.get('is_restricted')) is not None:
             args['is_restricted'] = is_restricted
         if (asset := _dict.get('asset')) is not None:
@@ -6260,6 +7378,11 @@ class DataProductDraftPrototype:
                 _dict['access_control'] = self.access_control.to_dict()
         if hasattr(self, 'last_updated_at') and self.last_updated_at is not None:
             _dict['last_updated_at'] = datetime_to_string(self.last_updated_at)
+        if hasattr(self, 'sub_container') and self.sub_container is not None:
+            if isinstance(self.sub_container, dict):
+                _dict['sub_container'] = self.sub_container
+            else:
+                _dict['sub_container'] = self.sub_container.to_dict()
         if hasattr(self, 'is_restricted') and self.is_restricted is not None:
             _dict['is_restricted'] = self.is_restricted
         if hasattr(self, 'asset') and self.asset is not None:
@@ -6342,6 +7465,8 @@ class DataProductDraftSummary:
           at the time of data product version creation or retiring.
     :param AssetListAccessControl access_control: (optional) Access control object.
     :param datetime last_updated_at: (optional) Timestamp of last asset update.
+    :param ContainerIdentity sub_container: (optional) The identity schema for a IBM
+          knowledge catalog container (catalog/project/space).
     :param bool is_restricted: Indicates whether the data product is restricted or
           not. A restricted data product indicates that orders of the data product
           requires explicit approval before data is delivered.
@@ -6371,6 +7496,7 @@ class DataProductDraftSummary:
         comments: Optional[str] = None,
         access_control: Optional['AssetListAccessControl'] = None,
         last_updated_at: Optional[datetime] = None,
+        sub_container: Optional['ContainerIdentity'] = None,
     ) -> None:
         """
         Initialize a DataProductDraftSummary object.
@@ -6413,6 +7539,8 @@ class DataProductDraftSummary:
         :param AssetListAccessControl access_control: (optional) Access control
                object.
         :param datetime last_updated_at: (optional) Timestamp of last asset update.
+        :param ContainerIdentity sub_container: (optional) The identity schema for
+               a IBM knowledge catalog container (catalog/project/space).
         """
         self.version = version
         self.state = state
@@ -6430,6 +7558,7 @@ class DataProductDraftSummary:
         self.comments = comments
         self.access_control = access_control
         self.last_updated_at = last_updated_at
+        self.sub_container = sub_container
         self.is_restricted = is_restricted
         self.id = id
         self.asset = asset
@@ -6490,6 +7619,8 @@ class DataProductDraftSummary:
             args['access_control'] = AssetListAccessControl.from_dict(access_control)
         if (last_updated_at := _dict.get('last_updated_at')) is not None:
             args['last_updated_at'] = string_to_datetime(last_updated_at)
+        if (sub_container := _dict.get('sub_container')) is not None:
+            args['sub_container'] = ContainerIdentity.from_dict(sub_container)
         if (is_restricted := _dict.get('is_restricted')) is not None:
             args['is_restricted'] = is_restricted
         else:
@@ -6574,6 +7705,11 @@ class DataProductDraftSummary:
                 _dict['access_control'] = self.access_control.to_dict()
         if hasattr(self, 'last_updated_at') and self.last_updated_at is not None:
             _dict['last_updated_at'] = datetime_to_string(self.last_updated_at)
+        if hasattr(self, 'sub_container') and self.sub_container is not None:
+            if isinstance(self.sub_container, dict):
+                _dict['sub_container'] = self.sub_container
+            else:
+                _dict['sub_container'] = self.sub_container.to_dict()
         if hasattr(self, 'is_restricted') and self.is_restricted is not None:
             _dict['is_restricted'] = self.is_restricted
         if hasattr(self, 'id') and self.id is not None:
@@ -7039,6 +8175,8 @@ class DataProductRelease:
           at the time of data product version creation or retiring.
     :param AssetListAccessControl access_control: (optional) Access control object.
     :param datetime last_updated_at: (optional) Timestamp of last asset update.
+    :param ContainerIdentity sub_container: (optional) The identity schema for a IBM
+          knowledge catalog container (catalog/project/space).
     :param bool is_restricted: Indicates whether the data product is restricted or
           not. A restricted data product indicates that orders of the data product
           requires explicit approval before data is delivered.
@@ -7079,6 +8217,7 @@ class DataProductRelease:
         comments: Optional[str] = None,
         access_control: Optional['AssetListAccessControl'] = None,
         last_updated_at: Optional[datetime] = None,
+        sub_container: Optional['ContainerIdentity'] = None,
         published_by: Optional[str] = None,
         published_at: Optional[datetime] = None,
         properties: Optional[dict] = None,
@@ -7127,6 +8266,8 @@ class DataProductRelease:
         :param AssetListAccessControl access_control: (optional) Access control
                object.
         :param datetime last_updated_at: (optional) Timestamp of last asset update.
+        :param ContainerIdentity sub_container: (optional) The identity schema for
+               a IBM knowledge catalog container (catalog/project/space).
         :param str published_by: (optional) The user who published this data
                product version.
         :param datetime published_at: (optional) The time when this data product
@@ -7151,6 +8292,7 @@ class DataProductRelease:
         self.comments = comments
         self.access_control = access_control
         self.last_updated_at = last_updated_at
+        self.sub_container = sub_container
         self.is_restricted = is_restricted
         self.id = id
         self.asset = asset
@@ -7217,6 +8359,8 @@ class DataProductRelease:
             args['access_control'] = AssetListAccessControl.from_dict(access_control)
         if (last_updated_at := _dict.get('last_updated_at')) is not None:
             args['last_updated_at'] = string_to_datetime(last_updated_at)
+        if (sub_container := _dict.get('sub_container')) is not None:
+            args['sub_container'] = ContainerIdentity.from_dict(sub_container)
         if (is_restricted := _dict.get('is_restricted')) is not None:
             args['is_restricted'] = is_restricted
         else:
@@ -7317,6 +8461,11 @@ class DataProductRelease:
                 _dict['access_control'] = self.access_control.to_dict()
         if hasattr(self, 'last_updated_at') and self.last_updated_at is not None:
             _dict['last_updated_at'] = datetime_to_string(self.last_updated_at)
+        if hasattr(self, 'sub_container') and self.sub_container is not None:
+            if isinstance(self.sub_container, dict):
+                _dict['sub_container'] = self.sub_container
+            else:
+                _dict['sub_container'] = self.sub_container.to_dict()
         if hasattr(self, 'is_restricted') and self.is_restricted is not None:
             _dict['is_restricted'] = self.is_restricted
         if hasattr(self, 'id') and self.id is not None:
@@ -7617,6 +8766,8 @@ class DataProductReleaseSummary:
           at the time of data product version creation or retiring.
     :param AssetListAccessControl access_control: (optional) Access control object.
     :param datetime last_updated_at: (optional) Timestamp of last asset update.
+    :param ContainerIdentity sub_container: (optional) The identity schema for a IBM
+          knowledge catalog container (catalog/project/space).
     :param bool is_restricted: Indicates whether the data product is restricted or
           not. A restricted data product indicates that orders of the data product
           requires explicit approval before data is delivered.
@@ -7646,6 +8797,7 @@ class DataProductReleaseSummary:
         comments: Optional[str] = None,
         access_control: Optional['AssetListAccessControl'] = None,
         last_updated_at: Optional[datetime] = None,
+        sub_container: Optional['ContainerIdentity'] = None,
     ) -> None:
         """
         Initialize a DataProductReleaseSummary object.
@@ -7689,6 +8841,8 @@ class DataProductReleaseSummary:
         :param AssetListAccessControl access_control: (optional) Access control
                object.
         :param datetime last_updated_at: (optional) Timestamp of last asset update.
+        :param ContainerIdentity sub_container: (optional) The identity schema for
+               a IBM knowledge catalog container (catalog/project/space).
         """
         self.version = version
         self.state = state
@@ -7706,6 +8860,7 @@ class DataProductReleaseSummary:
         self.comments = comments
         self.access_control = access_control
         self.last_updated_at = last_updated_at
+        self.sub_container = sub_container
         self.is_restricted = is_restricted
         self.id = id
         self.asset = asset
@@ -7760,6 +8915,8 @@ class DataProductReleaseSummary:
             args['access_control'] = AssetListAccessControl.from_dict(access_control)
         if (last_updated_at := _dict.get('last_updated_at')) is not None:
             args['last_updated_at'] = string_to_datetime(last_updated_at)
+        if (sub_container := _dict.get('sub_container')) is not None:
+            args['sub_container'] = ContainerIdentity.from_dict(sub_container)
         if (is_restricted := _dict.get('is_restricted')) is not None:
             args['is_restricted'] = is_restricted
         else:
@@ -7844,6 +9001,11 @@ class DataProductReleaseSummary:
                 _dict['access_control'] = self.access_control.to_dict()
         if hasattr(self, 'last_updated_at') and self.last_updated_at is not None:
             _dict['last_updated_at'] = datetime_to_string(self.last_updated_at)
+        if hasattr(self, 'sub_container') and self.sub_container is not None:
+            if isinstance(self.sub_container, dict):
+                _dict['sub_container'] = self.sub_container
+            else:
+                _dict['sub_container'] = self.sub_container.to_dict()
         if hasattr(self, 'is_restricted') and self.is_restricted is not None:
             _dict['is_restricted'] = self.is_restricted
         if hasattr(self, 'id') and self.id is not None:
@@ -8220,6 +9382,8 @@ class DataProductVersionSummary:
           at the time of data product version creation or retiring.
     :param AssetListAccessControl access_control: (optional) Access control object.
     :param datetime last_updated_at: (optional) Timestamp of last asset update.
+    :param ContainerIdentity sub_container: (optional) The identity schema for a IBM
+          knowledge catalog container (catalog/project/space).
     :param bool is_restricted: Indicates whether the data product is restricted or
           not. A restricted data product indicates that orders of the data product
           requires explicit approval before data is delivered.
@@ -8249,6 +9413,7 @@ class DataProductVersionSummary:
         comments: Optional[str] = None,
         access_control: Optional['AssetListAccessControl'] = None,
         last_updated_at: Optional[datetime] = None,
+        sub_container: Optional['ContainerIdentity'] = None,
     ) -> None:
         """
         Initialize a DataProductVersionSummary object.
@@ -8292,6 +9457,8 @@ class DataProductVersionSummary:
         :param AssetListAccessControl access_control: (optional) Access control
                object.
         :param datetime last_updated_at: (optional) Timestamp of last asset update.
+        :param ContainerIdentity sub_container: (optional) The identity schema for
+               a IBM knowledge catalog container (catalog/project/space).
         """
         self.version = version
         self.state = state
@@ -8309,6 +9476,7 @@ class DataProductVersionSummary:
         self.comments = comments
         self.access_control = access_control
         self.last_updated_at = last_updated_at
+        self.sub_container = sub_container
         self.is_restricted = is_restricted
         self.id = id
         self.asset = asset
@@ -8363,6 +9531,8 @@ class DataProductVersionSummary:
             args['access_control'] = AssetListAccessControl.from_dict(access_control)
         if (last_updated_at := _dict.get('last_updated_at')) is not None:
             args['last_updated_at'] = string_to_datetime(last_updated_at)
+        if (sub_container := _dict.get('sub_container')) is not None:
+            args['sub_container'] = ContainerIdentity.from_dict(sub_container)
         if (is_restricted := _dict.get('is_restricted')) is not None:
             args['is_restricted'] = is_restricted
         else:
@@ -8447,6 +9617,11 @@ class DataProductVersionSummary:
                 _dict['access_control'] = self.access_control.to_dict()
         if hasattr(self, 'last_updated_at') and self.last_updated_at is not None:
             _dict['last_updated_at'] = datetime_to_string(self.last_updated_at)
+        if hasattr(self, 'sub_container') and self.sub_container is not None:
+            if isinstance(self.sub_container, dict):
+                _dict['sub_container'] = self.sub_container
+            else:
+                _dict['sub_container'] = self.sub_container.to_dict()
         if hasattr(self, 'is_restricted') and self.is_restricted is not None:
             _dict['is_restricted'] = self.is_restricted
         if hasattr(self, 'id') and self.id is not None:
@@ -8990,12 +10165,14 @@ class EngineDetailsModel:
           product producer.
     :param str engine_host: (optional) The host of the engine defined by the data
           product producer.
+    :param str engine_type: The type of the engine (eg: Presto/Spark).
     :param List[str] associated_catalogs: (optional) The list of associated
           catalogs.
     """
 
     def __init__(
         self,
+        engine_type: str,
         *,
         display_name: Optional[str] = None,
         engine_id: Optional[str] = None,
@@ -9006,6 +10183,7 @@ class EngineDetailsModel:
         """
         Initialize a EngineDetailsModel object.
 
+        :param str engine_type: The type of the engine (eg: Presto/Spark).
         :param str display_name: (optional) The name of the engine defined by the
                data product producer.
         :param str engine_id: (optional) The id of the engine defined by the data
@@ -9021,6 +10199,7 @@ class EngineDetailsModel:
         self.engine_id = engine_id
         self.engine_port = engine_port
         self.engine_host = engine_host
+        self.engine_type = engine_type
         self.associated_catalogs = associated_catalogs
 
     @classmethod
@@ -9035,6 +10214,10 @@ class EngineDetailsModel:
             args['engine_port'] = engine_port
         if (engine_host := _dict.get('engine_host')) is not None:
             args['engine_host'] = engine_host
+        if (engine_type := _dict.get('engine_type')) is not None:
+            args['engine_type'] = engine_type
+        else:
+            raise ValueError('Required property \'engine_type\' not present in EngineDetailsModel JSON')
         if (associated_catalogs := _dict.get('associated_catalogs')) is not None:
             args['associated_catalogs'] = associated_catalogs
         return cls(**args)
@@ -9055,6 +10238,8 @@ class EngineDetailsModel:
             _dict['engine_port'] = self.engine_port
         if hasattr(self, 'engine_host') and self.engine_host is not None:
             _dict['engine_host'] = self.engine_host
+        if hasattr(self, 'engine_type') and self.engine_type is not None:
+            _dict['engine_type'] = self.engine_type
         if hasattr(self, 'associated_catalogs') and self.associated_catalogs is not None:
             _dict['associated_catalogs'] = self.associated_catalogs
         return _dict
@@ -9076,6 +10261,15 @@ class EngineDetailsModel:
     def __ne__(self, other: 'EngineDetailsModel') -> bool:
         """Return `true` when self and other are not equal, false otherwise."""
         return not self == other
+
+    class EngineTypeEnum(str, Enum):
+        """
+        The type of the engine (eg: Presto/Spark).
+        """
+
+        SPARK = 'spark'
+        PRESTO = 'presto'
+
 
 
 class ErrorExtraResource:
@@ -10180,20 +11374,26 @@ class ProducerInputModel:
 
     :param EngineDetailsModel engine_details: (optional) Engine details as defined
           by the data product producer.
+    :param List[EngineDetailsModel] engines: (optional) List of engines defined by
+          the data product producer.
     """
 
     def __init__(
         self,
         *,
         engine_details: Optional['EngineDetailsModel'] = None,
+        engines: Optional[List['EngineDetailsModel']] = None,
     ) -> None:
         """
         Initialize a ProducerInputModel object.
 
         :param EngineDetailsModel engine_details: (optional) Engine details as
                defined by the data product producer.
+        :param List[EngineDetailsModel] engines: (optional) List of engines defined
+               by the data product producer.
         """
         self.engine_details = engine_details
+        self.engines = engines
 
     @classmethod
     def from_dict(cls, _dict: Dict) -> 'ProducerInputModel':
@@ -10201,6 +11401,8 @@ class ProducerInputModel:
         args = {}
         if (engine_details := _dict.get('engine_details')) is not None:
             args['engine_details'] = EngineDetailsModel.from_dict(engine_details)
+        if (engines := _dict.get('engines')) is not None:
+            args['engines'] = [EngineDetailsModel.from_dict(v) for v in engines]
         return cls(**args)
 
     @classmethod
@@ -10216,6 +11418,14 @@ class ProducerInputModel:
                 _dict['engine_details'] = self.engine_details
             else:
                 _dict['engine_details'] = self.engine_details.to_dict()
+        if hasattr(self, 'engines') and self.engines is not None:
+            engines_list = []
+            for v in self.engines:
+                if isinstance(v, dict):
+                    engines_list.append(v)
+                else:
+                    engines_list.append(v.to_dict())
+            _dict['engines'] = engines_list
         return _dict
 
     def _to_dict(self):
@@ -10434,6 +11644,149 @@ class ProvidedWorkflowResource:
         return not self == other
 
 
+class RevokeAccessResponse:
+    """
+    This class holds the response message from the revoke access operation.
+
+    :param str message: (optional) Response message of revoke access.
+    """
+
+    def __init__(
+        self,
+        *,
+        message: Optional[str] = None,
+    ) -> None:
+        """
+        Initialize a RevokeAccessResponse object.
+
+        :param str message: (optional) Response message of revoke access.
+        """
+        self.message = message
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'RevokeAccessResponse':
+        """Initialize a RevokeAccessResponse object from a json dictionary."""
+        args = {}
+        if (message := _dict.get('message')) is not None:
+            args['message'] = message
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a RevokeAccessResponse object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'message') and self.message is not None:
+            _dict['message'] = self.message
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this RevokeAccessResponse object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'RevokeAccessResponse') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'RevokeAccessResponse') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
+class RevokeAccessStateResponse:
+    """
+    Revoke access states with pagination support.
+
+    :param List[Asset] results: (optional) Holds revoke access state.
+    :param int total_count: (optional) Total number of rows available.
+    :param SearchAssetPaginationInfo next: (optional) Pagination information for the
+          next page of results.
+    """
+
+    def __init__(
+        self,
+        *,
+        results: Optional[List['Asset']] = None,
+        total_count: Optional[int] = None,
+        next: Optional['SearchAssetPaginationInfo'] = None,
+    ) -> None:
+        """
+        Initialize a RevokeAccessStateResponse object.
+
+        :param List[Asset] results: (optional) Holds revoke access state.
+        :param int total_count: (optional) Total number of rows available.
+        :param SearchAssetPaginationInfo next: (optional) Pagination information
+               for the next page of results.
+        """
+        self.results = results
+        self.total_count = total_count
+        self.next = next
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'RevokeAccessStateResponse':
+        """Initialize a RevokeAccessStateResponse object from a json dictionary."""
+        args = {}
+        if (results := _dict.get('results')) is not None:
+            args['results'] = [Asset.from_dict(v) for v in results]
+        if (total_count := _dict.get('total_count')) is not None:
+            args['total_count'] = total_count
+        if (next := _dict.get('next')) is not None:
+            args['next'] = SearchAssetPaginationInfo.from_dict(next)
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a RevokeAccessStateResponse object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'results') and self.results is not None:
+            results_list = []
+            for v in self.results:
+                if isinstance(v, dict):
+                    results_list.append(v)
+                else:
+                    results_list.append(v.to_dict())
+            _dict['results'] = results_list
+        if hasattr(self, 'total_count') and self.total_count is not None:
+            _dict['total_count'] = self.total_count
+        if hasattr(self, 'next') and self.next is not None:
+            if isinstance(self.next, dict):
+                _dict['next'] = self.next
+            else:
+                _dict['next'] = self.next.to_dict()
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this RevokeAccessStateResponse object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'RevokeAccessStateResponse') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'RevokeAccessStateResponse') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
 class Roles:
     """
     Represents a role associated with the contract.
@@ -10488,6 +11841,96 @@ class Roles:
         return self.__dict__ == other.__dict__
 
     def __ne__(self, other: 'Roles') -> bool:
+        """Return `true` when self and other are not equal, false otherwise."""
+        return not self == other
+
+
+class SearchAssetPaginationInfo:
+    """
+    Pagination information for the next page of results.
+
+    :param str query: (optional) Search query for filtering results.
+    :param int limit: (optional) Number of items per page.
+    :param str bookmark: (optional) Bookmark for pagination.
+    :param str include: (optional) What to include in the results.
+    :param int skip: (optional) Number of items to skip.
+    """
+
+    def __init__(
+        self,
+        *,
+        query: Optional[str] = None,
+        limit: Optional[int] = None,
+        bookmark: Optional[str] = None,
+        include: Optional[str] = None,
+        skip: Optional[int] = None,
+    ) -> None:
+        """
+        Initialize a SearchAssetPaginationInfo object.
+
+        :param str query: (optional) Search query for filtering results.
+        :param int limit: (optional) Number of items per page.
+        :param str bookmark: (optional) Bookmark for pagination.
+        :param str include: (optional) What to include in the results.
+        :param int skip: (optional) Number of items to skip.
+        """
+        self.query = query
+        self.limit = limit
+        self.bookmark = bookmark
+        self.include = include
+        self.skip = skip
+
+    @classmethod
+    def from_dict(cls, _dict: Dict) -> 'SearchAssetPaginationInfo':
+        """Initialize a SearchAssetPaginationInfo object from a json dictionary."""
+        args = {}
+        if (query := _dict.get('query')) is not None:
+            args['query'] = query
+        if (limit := _dict.get('limit')) is not None:
+            args['limit'] = limit
+        if (bookmark := _dict.get('bookmark')) is not None:
+            args['bookmark'] = bookmark
+        if (include := _dict.get('include')) is not None:
+            args['include'] = include
+        if (skip := _dict.get('skip')) is not None:
+            args['skip'] = skip
+        return cls(**args)
+
+    @classmethod
+    def _from_dict(cls, _dict):
+        """Initialize a SearchAssetPaginationInfo object from a json dictionary."""
+        return cls.from_dict(_dict)
+
+    def to_dict(self) -> Dict:
+        """Return a json dictionary representing this model."""
+        _dict = {}
+        if hasattr(self, 'query') and self.query is not None:
+            _dict['query'] = self.query
+        if hasattr(self, 'limit') and self.limit is not None:
+            _dict['limit'] = self.limit
+        if hasattr(self, 'bookmark') and self.bookmark is not None:
+            _dict['bookmark'] = self.bookmark
+        if hasattr(self, 'include') and self.include is not None:
+            _dict['include'] = self.include
+        if hasattr(self, 'skip') and self.skip is not None:
+            _dict['skip'] = self.skip
+        return _dict
+
+    def _to_dict(self):
+        """Return a json dictionary representing this model."""
+        return self.to_dict()
+
+    def __str__(self) -> str:
+        """Return a `str` version of this SearchAssetPaginationInfo object."""
+        return json.dumps(self.to_dict(), indent=2)
+
+    def __eq__(self, other: 'SearchAssetPaginationInfo') -> bool:
+        """Return `true` when self and other are equal, false otherwise."""
+        if not isinstance(other, self.__class__):
+            return False
+        return self.__dict__ == other.__dict__
+
+    def __ne__(self, other: 'SearchAssetPaginationInfo') -> bool:
         """Return `true` when self and other are not equal, false otherwise."""
         return not self == other
 
