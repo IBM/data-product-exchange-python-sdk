@@ -2,21 +2,41 @@ name: build
 
 on:
   push:
-    branches:
-      - main
-    tags:
-      - '*' # Triggers PyPI deploy when semantic-release creates a tag
+    branches: ['**']
   pull_request:
-    branches:
-      - main
+    branches: ['**']
+  workflow_dispatch:
 
 jobs:
-  test:
-    runs-on: ubuntu-20.04 # Equivalent to dist: focal
+  detect-secrets:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    name: detect-secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install detect-secrets
+        run: pip install --upgrade "git+https://github.com/ibm/detect-secrets.git@master#egg=detect-secrets"
+
+      - name: Run detect-secrets
+        run: |
+          detect-secrets scan --update .secrets.baseline
+          detect-secrets -v audit --report --fail-on-unaudited --fail-on-live --fail-on-audited-real .secrets.baseline
+
+  build:
+    name: build-test (python ${{ matrix.python-version }})
+    needs: detect-secrets
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11']
-    
+        python-version: ['3.9', '3.10', '3.11'] # Kept your requested versions
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,68 +56,51 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           pip install pypandoc
 
-      - name: Run tests
+      - name: Build & Test
         run: make ci
 
-  release:
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-20.04
-    
+  results:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Final Test Results
+    needs: [build]
+    steps:
+      - run: |
+          result="${{ needs.build.result }}"
+          if [[ $result == "success" || $result == "skipped" ]]; then
+            exit 0
+          else
+            exit 1
+          fi
+
+  create-release:
+    name: semantic-release
+    if: "github.ref_name == 'main' && github.event_name != 'pull_request'"
+    needs: build
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN }} 
+          persist-credentials: false
 
-      - name: Set up Node.js 18
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 22
 
-      - name: Set up Python 3.9
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
-      - name: Install dependencies
+      - name: Install Publishing Tools
         run: |
+          pip install bump-my-version
           npm install
-          python -m pip install --upgrade pip setuptools wheel twine bump2version
 
       - name: Run semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }} 
         run: npm run semantic-release
-
-  deploy-pypi:
-    needs: test
-    if: startsWith(github.ref, 'refs/tags/') # Only runs when a tag is pushed
-    runs-on: ubuntu-20.04
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.9'
-          
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y pandoc
-
-      - name: Install Build Dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools wheel pypandoc build twine
-
-      - name: Build and Publish to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          python -m build
-          twine upload dist/*
