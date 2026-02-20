@@ -14,30 +14,20 @@
 # limitations under the License.
 
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
 import os
 import sys
-import pkg_resources
 
 __version__ = '1.6.0'
 
 PACKAGE_NAME = 'dph_services'
 PACKAGE_DESC = 'Python client library for DPH Services'
 
-with open('requirements.txt') as f:
-    install_requires = [str(req) for req in pkg_resources.parse_requirements(f)]
-with open('requirements-dev.txt') as f:
-    tests_require = [str(req) for req in pkg_resources.parse_requirements(f)]
+def read_requirements(filename):
+    with open(filename) as f:
+        return [line.strip() for line in f if line.strip() and not line.startswith('#')]
 
-if sys.argv[-1] == 'publish':
-    # test server
-    os.system('python setup.py register -r pypitest')
-    os.system('python setup.py sdist upload -r pypitest')
-
-    # production server
-    os.system('python setup.py register -r pypi')
-    os.system('python setup.py sdist upload -r pypi')
-    sys.exit()
+install_requires = read_requirements('requirements.txt')
+tests_require = read_requirements('requirements-dev.txt')
 
 with open("README.md", "r") as fh:
     readme = fh.read()
@@ -48,9 +38,9 @@ setup(
     description=PACKAGE_DESC,
     license='Apache 2.0',
     install_requires=install_requires,
-    tests_require=tests_require,
+    extras_require={'test': tests_require},
     author='IBM',
-    author_email='selva.kumar.jothi.arumugam@ibm.com',
+    author_email='shashank.bhushan.jha@ibm.com',
     long_description=readme,
     long_description_content_type='text/markdown',
     url='https://github.com/IBM/data-product-exchange-python-sdk',
