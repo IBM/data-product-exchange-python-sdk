@@ -17,7 +17,7 @@ from setuptools import setup
 import os
 import sys
 
-__version__ = '1.6.0'
+__version__ = '1.7.0'
 
 PACKAGE_NAME = 'dph_services'
 PACKAGE_DESC = 'Python client library for DPH Services'
