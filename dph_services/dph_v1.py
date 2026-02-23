@@ -94,11 +94,11 @@ class DphV1(BaseService):
             operation_id=operation_id,
         )
         headers.update(sdk_headers)
-        
+
         if 'headers' in kwargs:
             headers.update(kwargs.get('headers'))
             del kwargs['headers']
-        
+
         return headers
 
     def _set_accept_header(self, headers: Dict, accept_type: Optional[str] = 'application/json') -> None:
@@ -238,7 +238,7 @@ class DphV1(BaseService):
 
         if container is not None:
             container = convert_model(container)
-        
+
         headers = self._prepare_headers('initialize', **kwargs)
         self._set_accept_header(headers)
 

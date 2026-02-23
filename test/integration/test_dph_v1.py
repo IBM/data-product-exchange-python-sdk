@@ -683,13 +683,13 @@ class TestDphV1:
     @pytest.mark.dependency(depends=["test_replace_data_product_draft_contract_terms"])
     @needscredentials
     def test_update_data_product_draft_contract_terms(self):
-        
+
         # Construct a dict representation of a Domain model
         domain_model = {
             'id': '35b3ca59-98ee-4eb0-adb2-a1858ea5f5d7',
             'name': 'Accounting and Finance',
         }
-        
+
         # Construct a dict representation of a Overview model
         overview_model = {
             'name': 'Sample Data Contract',
@@ -767,7 +767,7 @@ class TestDphV1:
         assert response.get_status_code() == 200
         result = response.get_result()
         assert result is not None
-    
+
     @pytest.mark.dependency(depends=["test_get_published_data_product_draft_contract_terms"])
     @needscredentials
     def test_get_data_product_release(self):
@@ -1078,7 +1078,7 @@ class TestDphV1:
         assert response.get_status_code() == 201
         data_product_contract_template = response.get_result()
         create_contract_template_id = data_product_contract_template['id']
-        
+
         assert data_product_contract_template is not None
 
     @pytest.mark.dependency(depends=["test_create_contract_template"])
