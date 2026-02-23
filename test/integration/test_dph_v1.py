@@ -18,6 +18,7 @@ Integration Tests for DphV1
 """
 
 from ibm_cloud_sdk_core import *
+import io
 import os
 import pytest
 from dph_services.dph_v1 import *
@@ -107,7 +108,7 @@ class TestDphV1:
 
         # Construct a dict representation of a ContainerReference model
         container_reference_model = {
-            'id': 'a7ca67e8-1fac-4061-ae9b-7604e15c4ab3',
+            'id': 'ef065526-1aba-4a8d-b998-e47cd34f98fd',
             'type': 'catalog',
         }
 
@@ -181,31 +182,183 @@ class TestDphV1:
             'id': create_data_product_by_catalog_id_link,
             'type': 'catalog',
         }
-
         # Construct a dict representation of a ContainerIdentity model
         container_identity_model = {
             'id': create_data_product_by_catalog_id_link,
         }
-        # Construct a dict representation of a AssetPrototype model
-        asset_prototype_model = {
-            'id': '2b0bf220-079c-11ee-be56-0242ac120002',
-            'container': container_identity_model,
+        # Construct a dict representation of a AssetReference model
+        asset_reference_model = {
+            'id': 'caeee3f3-756e-47d5-846d-da4600809e22',
+            'name': 'testString',
+            'container': container_reference_model,
         }
         # Construct a dict representation of a Domain model
         domain_model = {
-            'id': 'ccacbfb4-7180-4632-b1ed-6709c7001f1e',
-            'name': 'Customer Management',
+            'id': '35b3ca59-98ee-4eb0-adb2-a1858ea5f5d7',
+            'name': 'Accounting and Finance',
             'container': container_reference_model,
+        }
+        # Construct a dict representation of a Overview model
+        overview_model = {
+            'api_version': 'v3.0.1',
+            'kind': 'DataContract',
+            'name': 'Sample Data Contract',
+            'version': '0.0.0',
+            'domain': domain_model,
+            'more_info': 'List of links to sources that provide more details on the data contract.',
+        }
+        # Construct a dict representation of a ContractTermsMoreInfo model
+        contract_terms_more_info_model = {
+            'type': 'privacy-statement',
+            'url': 'https://moreinfo.example.com',
+        }
+        # Construct a dict representation of a Description model
+        description_model = {
+            'purpose': 'Used for customer behavior analysis.',
+            'limitations': 'Data cannot be used for marketing.',
+            'usage': 'Data should be used only for analytics.',
+            'more_info': [contract_terms_more_info_model],
+            'custom_properties': '{"property1":"value1"}',
+        }
+        # Construct a dict representation of a ContractTemplateOrganization model
+        contract_template_organization_model = {
+            'user_id': 'IBMid-691000IN4G',
+            'role': 'owner',
+        }
+        # Construct a dict representation of a Roles model
+        roles_model = {
+            'role': 'owner',
+        }
+        # Construct a dict representation of a Pricing model
+        pricing_model = {
+            'amount': '100.0',
+            'currency': 'USD',
+            'unit': 'megabyte',
+        }
+        # Construct a dict representation of a ContractTemplateSLAProperty model
+        contract_template_sla_property_model = {
+            'property': 'Uptime Guarantee',
+            'value': '99.9',
+        }
+        # Construct a dict representation of a ContractTemplateSLA model
+        contract_template_sla_model = {
+            'default_element': 'Standard SLA Policy',
+            'properties': [contract_template_sla_property_model],
+        }
+        # Construct a dict representation of a ContractTemplateSupportAndCommunication model
+        contract_template_support_and_communication_model = {
+            'channel': 'Email Support',
+            'url': 'https://support.example.com',
+        }
+        # Construct a dict representation of a ContractTemplateCustomProperty model
+        contract_template_custom_property_model = {
+            'key': 'customPropertyKey',
+            'value': 'customPropertyValue',
+        }
+        # Construct a dict representation of a ContractAsset model
+        contract_asset_model = {
+            'id': 'testString',
+            'name': 'testString',
+        }
+        # Construct a dict representation of a ContractServer model
+        contract_server_model = {
+            'server': 'testString',
+            'asset': contract_asset_model,
+            'connection_id': 'testString',
+            'type': 'testString',
+            'description': 'testString',
+            'environment': 'testString',
+            'account': 'testString',
+            'catalog': 'testString',
+            'database': 'testString',
+            'dataset': 'testString',
+            'delimiter': 'testString',
+            'endpoint_url': 'testString',
+            'format': 'testString',
+            'host': 'testString',
+            'location': 'testString',
+            'path': 'testString',
+            'port': 'testString',
+            'project': 'testString',
+            'region': 'testString',
+            'region_name': 'testString',
+            'schema': 'testString',
+            'service_name': 'testString',
+            'staging_dir': 'testString',
+            'stream': 'testString',
+            'warehouse': 'testString',
+            'roles': ['testString'],
+            'custom_properties': [contract_template_custom_property_model],
+        }
+        # Construct a dict representation of a ContractSchemaPropertyType model
+        contract_schema_property_type_model = {
+            'type': 'testString',
+            'length': 'testString',
+            'scale': 'testString',
+            'nullable': 'testString',
+            'signed': 'testString',
+            'native_type': 'testString',
+        }
+        # Construct a dict representation of a ContractQualityRule model
+        contract_quality_rule_model = {
+            'type': 'sql',
+            'description': 'testString',
+            'rule': 'testString',
+            'implementation': 'testString',
+            'engine': 'testString',
+            'must_be_less_than': 'testString',
+            'must_be_less_or_equal_to': 'testString',
+            'must_be_greater_than': 'testString',
+            'must_be_greater_or_equal_to': 'testString',
+            'must_be_between': ['testString'],
+            'must_not_be_between': ['testString'],
+            'must_be': 'testString',
+            'must_not_be': 'testString',
+            'name': 'testString',
+            'unit': 'testString',
+            'query': 'testString',
+        }
+        # Construct a dict representation of a ContractSchemaProperty model
+        contract_schema_property_model = {
+            'name': 'testString',
+            'type': contract_schema_property_type_model,
+            'quality': [contract_quality_rule_model],
+        }
+        # Construct a dict representation of a ContractSchema model
+        contract_schema_model = {
+            'asset_id': '2b0bf220-079c-11ee-be56-0242ac120002',
+            'connection_id': '2b0bf220-079c-11ee-be56-0242ac120002',
+            'name': 'testString',
+            'description': 'testString',
+            'connection_path': 'testString',
+            'physical_type': 'testString',
+            'properties': [contract_schema_property_model],
+            'quality': [contract_quality_rule_model],
+        }
+        # Construct a dict representation of a ContractTerms model
+        contract_terms_model = {
+            'asset': asset_reference_model,
+            'overview': overview_model,
+            'description': description_model,
+            'organization': [contract_template_organization_model],
+            'roles': [roles_model],
+            'price': pricing_model,
+            'sla': [contract_template_sla_model],
+            'support_and_communication': [contract_template_support_and_communication_model],
+            'custom_properties': [contract_template_custom_property_model],
+            'servers': [contract_server_model],
+            'schema': [contract_schema_model],
         }
         # Construct a dict representation of a AssetPartReference model
         asset_part_reference_model = {
-            'id': '16a8f683-f947-48d9-a92c-b81758b1a5f5',
+            'id': '5fc42c45-303b-4da1-9355-46c32e84c7c1',
+            'name': 'testString',
             'container': container_reference_model,
             'type': 'data_asset',
         }
         # Construct a dict representation of a DeliveryMethod model
         delivery_method_model = {
-            'id': '8848fd43-7384-4435-aff3-6a9f113768c4',
+            'id': '1fdcb2d8-fe28-4467-b9cd-9655af8a8f0c',
             'container': container_reference_model,
         }
         # Construct a dict representation of a DataProductPart model
@@ -213,28 +366,41 @@ class TestDphV1:
             'asset': asset_part_reference_model,
             'delivery_methods': [delivery_method_model],
         }
-
-        # Construct a dict representation of a DataProductVersionPrototype model
-        data_product_version_prototype_model = {
+        # Construct a dict representation of a AssetListAccessControl model
+        asset_list_access_control_model = {
+            'owner': 'IBMid-696000KYV9',
+        }
+        # Construct a dict representation of a AssetPrototype model
+        asset_prototype_model = {
+            'id': '2b0bf220-079c-11ee-be56-0242ac120002',
+            'container': container_identity_model,
+        }
+        # Construct a dict representation of a DataProductDraftPrototype model
+        data_product_draft_prototype_model = {
             'version': '1.0.0',
             'state': 'draft',
-            'name': 'My New Data Product using Python SDK',
-            'description': 'My Data Product generation using Python SDK.',
+            'name': 'My New Data Product - Python SDK',
+            'description': 'This is a description of My Data Product.',
             'types': ['data'],
-            'asset': asset_prototype_model,
+            'contract_terms': [contract_terms_model],
             'domain': domain_model,
             'parts_out': [data_product_part_model],
+            'dataview_enabled': False,
+            'comments': 'Comments by a producer that are provided either at the time of data product version creation or retiring',
+            'access_control': asset_list_access_control_model,
+            'sub_container': container_identity_model,
+            'is_restricted': False,
+            'asset': asset_prototype_model,
         }
 
         response = self.dph_service.create_data_product(
-            drafts=[data_product_version_prototype_model],
+            drafts=[data_product_draft_prototype_model],
         )
 
         assert response.get_status_code() == 201
         data_product = response.get_result()
         assert data_product is not None
 
-        print(data_product)
         create_new_draft_by_data_product_id_link = data_product['id']
         get_contract_document_by_data_product_id_link = data_product['id']
         retire_a_releases_of_data_product_by_data_product_id_link = data_product['id']
@@ -309,7 +475,7 @@ class TestDphV1:
     @needscredentials
     def test_get_data_product_draft(self):
         response = self.dph_service.get_data_product_draft(
-            data_product_id='-',
+            data_product_id=get_a_draft_of_data_product_by_data_product_id_link,
             draft_id=get_draft_by_draft_id_link,
         )
 
@@ -324,12 +490,12 @@ class TestDphV1:
         json_patch_operation_model = {
             'op': 'replace',
             'path': '/description',
-            'value': 'Updated the description by Node SDK.',
+            'value': 'Updated the description by Python SDK.',
         }
 
         response = self.dph_service.update_data_product_draft(
             data_product_id='-',
-            draft_id=create_a_contract_terms_doc_by_draft_id_link,
+            draft_id=get_draft_by_draft_id_link,
             json_patch_instructions=[json_patch_operation_model],
         )
 
@@ -408,83 +574,15 @@ class TestDphV1:
             data_product_id=get_contract_document_by_data_product_id_link,
             draft_id=create_a_contract_terms_doc_by_draft_id_link,
             contract_terms_id=create_a_contract_terms_doc_by_contract_terms_id_link,
+            accept='application/json',
             include_contract_documents=True,
         )
 
         assert response.get_status_code() == 200
-        result = response.get_result()
-        assert result is not None
+        contract_terms = response.get_result()
+        assert contract_terms is not None
 
     @pytest.mark.dependency(depends=["test_get_data_product_draft_contract_terms"])
-    @needscredentials
-    def test_publish_data_product_draft(self):
-        global update_a_release_by_release_id_link
-        global get_a_release_contract_terms_by_release_id_link
-        global retire_a_release_contract_terms_by_release_id_link
-        global get_a_release_by_release_id_link
-
-        response = self.dph_service.publish_data_product_draft(
-            data_product_id=publish_a_draft_of_data_product_by_data_product_id_link,
-            draft_id=get_draft_by_draft_id_link,
-        )
-
-        assert response.get_status_code() == 200
-        data_product_release = response.get_result()
-        assert data_product_release is not None
-
-        update_a_release_by_release_id_link = data_product_release['id']
-        get_a_release_contract_terms_by_release_id_link = data_product_release['id']
-        retire_a_release_contract_terms_by_release_id_link = data_product_release['id']
-        get_a_release_by_release_id_link = data_product_release['id']
-
-    @pytest.mark.dependency(depends=["test_publish_data_product_draft"])
-    @needscredentials
-    def test_get_data_product_release(self):
-        response = self.dph_service.get_data_product_release(
-            data_product_id=get_a_release_of_data_product_by_data_product_id_link,
-            release_id=get_a_release_by_release_id_link,
-            check_caller_approval=False,
-        )
-
-        assert response.get_status_code() == 200
-        data_product_release = response.get_result()
-        assert data_product_release is not None
-
-    @pytest.mark.dependency(depends=["test_get_data_product_release"])
-    @needscredentials
-    def test_update_data_product_release(self):
-        # Construct a dict representation of a JsonPatchOperation model
-        json_patch_operation_model = {
-            'op': 'replace',
-            'path': '/description',
-            'value': 'New description for my data product',
-        }
-
-        response = self.dph_service.update_data_product_release(
-            data_product_id=update_release_of_data_product_by_data_product_id_link,
-            release_id=get_a_release_by_release_id_link,
-            json_patch_instructions=[json_patch_operation_model],
-        )
-
-        assert response.get_status_code() == 200
-        data_product_release = response.get_result()
-        assert data_product_release is not None
-
-    @pytest.mark.dependency(depends=["test_update_data_product_release"])
-    @needscredentials
-    def test_get_release_contract_terms_document(self):
-        response = self.dph_service.get_release_contract_terms_document(
-            data_product_id=get_release_contract_document_by_data_product_id_link,
-            release_id=get_a_release_contract_terms_by_release_id_link,
-            contract_terms_id=get_a_release_contract_terms_by_contract_terms_id_link,
-            document_id=get_release_contract_document_by_document_id_link,
-        )
-
-        assert response.get_status_code() == 200
-        contract_terms_document = response.get_result()
-        assert contract_terms_document is not None
-
-    @pytest.mark.dependency(depends=["test_get_release_contract_terms_document"])
     @needscredentials
     def test_replace_data_product_draft_contract_terms(self):
 
@@ -502,8 +600,8 @@ class TestDphV1:
         }
         # Construct a dict representation of a Domain model
         domain_model = {
-            'id': 'b38df608-d34b-4d58-8136-ed25e6c6684e',
-            'name': 'domain_name',
+            'id': '35b3ca59-98ee-4eb0-adb2-a1858ea5f5d7',
+            'name': 'Accounting and Finance',
         }
         # Construct a dict representation of a Overview model
         overview_model = {
@@ -562,19 +660,12 @@ class TestDphV1:
             'key': 'The name of the key.',
             'value': 'The value of the key.',
         }
-        # Construct a dict representation of a ContractTest model
-        contract_test_model = {
-            'status': 'pass',
-            'last_tested_time': 'testString',
-            'message': 'testString',
-        }
 
         response = self.dph_service.replace_data_product_draft_contract_terms(
             data_product_id=get_contract_document_by_data_product_id_link,
             draft_id=create_a_contract_terms_doc_by_draft_id_link,
             contract_terms_id=create_a_contract_terms_doc_by_contract_terms_id_link,
             documents=[contract_terms_document_model],
-            error_msg='testString',
             overview=overview_model,
             description=description_model,
             organization=[contract_template_organization_model],
@@ -583,7 +674,6 @@ class TestDphV1:
             sla=[contract_template_sla_model],
             support_and_communication=[contract_template_support_and_communication_model],
             custom_properties=[contract_template_custom_property_model],
-            contract_test=contract_test_model,
         )
 
         assert response.get_status_code() == 200
@@ -596,14 +686,12 @@ class TestDphV1:
 
         # Construct a dict representation of a Domain model
         domain_model = {
-            'id': 'b38df608-d34b-4d58-8136-ed25e6c6684e',
-            'name': 'domain_name',
+            'id': '35b3ca59-98ee-4eb0-adb2-a1858ea5f5d7',
+            'name': 'Accounting and Finance',
         }
 
         # Construct a dict representation of a Overview model
         overview_model = {
-            'api_version': 'v3.0.1',
-            'kind': 'DataContract',
             'name': 'Sample Data Contract',
             'version': 'v0.0',
             'domain': domain_model,
@@ -627,7 +715,107 @@ class TestDphV1:
         contract_terms = response.get_result()
         assert contract_terms is not None
 
-    @pytest.mark.dependency(depends=["test_update_data_product_draft_contract_terms"])
+    @pytest.mark.dependency(depends=["test_get_data_product_draft_contract_terms"])
+    @needscredentials
+    def test_get_contract_terms_in_specified_format(self):
+        response = self.dph_service.get_contract_terms_in_specified_format(
+            data_product_id=get_contract_document_by_data_product_id_link,
+            draft_id=create_a_contract_terms_doc_by_draft_id_link,
+            contract_terms_id=create_a_contract_terms_doc_by_contract_terms_id_link,
+            format='odcs',
+            format_version='3',
+            accept='application/odcs+yaml',
+        )
+
+        assert response.get_status_code() == 200
+        result = response.get_result()
+        assert result is not None
+
+    @pytest.mark.dependency(depends=["test_get_contract_terms_in_specified_format"])
+    @needscredentials
+    def test_publish_data_product_draft(self):
+        global update_a_release_by_release_id_link
+        global get_a_release_contract_terms_by_release_id_link
+        global retire_a_release_contract_terms_by_release_id_link
+        global get_a_release_by_release_id_link
+
+        response = self.dph_service.publish_data_product_draft(
+            data_product_id=publish_a_draft_of_data_product_by_data_product_id_link,
+            draft_id=get_draft_by_draft_id_link,
+        )
+
+        assert response.get_status_code() == 200
+        data_product_release = response.get_result()
+        assert data_product_release is not None
+
+        update_a_release_by_release_id_link = data_product_release['id']
+        get_a_release_contract_terms_by_release_id_link = data_product_release['id']
+        retire_a_release_contract_terms_by_release_id_link = data_product_release['id']
+        get_a_release_by_release_id_link = data_product_release['id']
+
+    @pytest.mark.dependency(depends=["test_publish_data_product_draft"])
+    @needscredentials
+    def test_get_published_data_product_draft_contract_terms(self):
+        response = self.dph_service.get_published_data_product_draft_contract_terms(
+            data_product_id=get_release_contract_document_by_data_product_id_link,
+            release_id=get_a_release_contract_terms_by_release_id_link,
+            contract_terms_id=get_a_release_contract_terms_by_contract_terms_id_link,
+            accept='application/odcs+yaml',
+            include_contract_documents=True,
+        )
+
+        assert response.get_status_code() == 200
+        result = response.get_result()
+        assert result is not None
+
+    @pytest.mark.dependency(depends=["test_get_published_data_product_draft_contract_terms"])
+    @needscredentials
+    def test_get_data_product_release(self):
+        response = self.dph_service.get_data_product_release(
+            data_product_id=get_a_release_of_data_product_by_data_product_id_link,
+            release_id=get_a_release_by_release_id_link,
+            check_caller_approval=False,
+        )
+
+        assert response.get_status_code() == 200
+        data_product_release = response.get_result()
+        assert data_product_release is not None
+
+    @pytest.mark.dependency(depends=["test_get_data_product_release"])
+    @needscredentials
+    def test_update_data_product_release(self):
+        # Construct a dict representation of a JsonPatchOperation model
+        json_patch_operation_model = {
+            'op': 'replace',
+            'path': '/description',
+            'value': 'New description for my data product',
+        }
+
+        response = self.dph_service.update_data_product_release(
+            data_product_id=update_release_of_data_product_by_data_product_id_link,
+            release_id=get_a_release_by_release_id_link,
+            json_patch_instructions=[json_patch_operation_model],
+        )
+
+        assert response.get_status_code() == 200
+        data_product_release = response.get_result()
+        assert data_product_release is not None
+
+    @pytest.mark.dependency(depends=["test_update_data_product_release"])
+    @needscredentials
+    def test_get_release_contract_terms_document(self):
+        response = self.dph_service.get_release_contract_terms_document(
+            data_product_id=get_release_contract_document_by_data_product_id_link,
+            release_id=get_a_release_contract_terms_by_release_id_link,
+            contract_terms_id=get_a_release_contract_terms_by_contract_terms_id_link,
+            document_id=get_release_contract_document_by_document_id_link,
+        )
+
+        assert response.get_status_code() == 200
+        contract_terms_document = response.get_result()
+        assert contract_terms_document is not None
+
+    @pytest.mark.dependency(depends=["test_get_release_contract_terms_document"])
     @needscredentials
     def test_list_data_product_releases(self):
         response = self.dph_service.list_data_product_releases(
@@ -775,34 +963,10 @@ class TestDphV1:
             'id': get_status_by_catalog_id_link,
             'type': 'catalog',
         }
-        # Construct a dict representation of a ErrorMessage model
-        error_message_model = {
-            'code': 'testString',
-            'message': 'testString',
-        }
-        # Construct a dict representation of a AssetReference model
-        asset_reference_model = {
-            'id': '2b0bf220-079c-11ee-be56-0242ac120002',
-            'name': 'testString',
-            'container': container_reference_model,
-        }
-        # Construct a dict representation of a ContractTermsDocumentAttachment model
-        contract_terms_document_attachment_model = {
-            'id': 'testString',
-        }
-        # Construct a dict representation of a ContractTermsDocument model
-        contract_terms_document_model = {
-            'url': 'testString',
-            'type': 'terms_and_conditions',
-            'name': 'testString',
-            'id': '2b0bf220-079c-11ee-be56-0242ac120002',
-            'attachment': contract_terms_document_attachment_model,
-            'upload_url': 'testString',
-        }
         # Construct a dict representation of a Domain model
         domain_model = {
-            'id': 'b38df608-d34b-4d58-8136-ed25e6c6684e',
-            'name': 'domain_name',
+            'id': '35b3ca59-98ee-4eb0-adb2-a1858ea5f5d7',
+            'name': 'Accounting and Finance',
             'container': container_reference_model,
         }
         # Construct a dict representation of a Overview model
@@ -973,18 +1137,12 @@ class TestDphV1:
 
     @pytest.mark.dependency(depends=["test_delete_data_product_contract_template"])
     @needscredentials
-    def test_create_data_product_draft(self):
+    def test_create_data_product_draft_for_delete_op(self):
         global delete_a_contract_document_by_draft_id_link
         global delete_a_draft_by_contract_terms_id_link
         global create_a_contract_terms_doc_by_contract_terms_id_link
         global delete_a_draft_by_draft_id_link
         global create_a_contract_terms_doc_by_draft_id_link
-
-        # Construct a dict representation of a ContainerReference model
-        container_reference_model = {
-            'id': create_data_product_by_catalog_id_link,
-            'type': 'catalog',
-        }
 
         # Construct a dict representation of a ContainerIdentity model
         container_identity_model = {
@@ -995,28 +1153,6 @@ class TestDphV1:
             'id': '2b0bf220-079c-11ee-be56-0242ac120002',
             'container': container_identity_model,
         }
-        # Construct a dict representation of a Domain model
-        domain_model = {
-            'id': 'ccacbfb4-7180-4632-b1ed-6709c7001f1e',
-            'name': 'Customer Management',
-            'container': container_reference_model,
-        }
-        # Construct a dict representation of a AssetPartReference model
-        asset_part_reference_model = {
-            'id': '16a8f683-f947-48d9-a92c-b81758b1a5f5',
-            'container': container_reference_model,
-            'type': 'data_asset',
-        }
-        # Construct a dict representation of a DeliveryMethod model
-        delivery_method_model = {
-            'id': '8848fd43-7384-4435-aff3-6a9f113768c4',
-            'container': container_reference_model,
-        }
-        # Construct a dict representation of a DataProductPart model
-        data_product_part_model = {
-            'asset': asset_part_reference_model,
-            'delivery_methods': [delivery_method_model],
-        }
 
         # Construct a dict representation of a DataProductVersionPrototype model
         data_product_version_prototype_model = {
@@ -1026,8 +1162,6 @@ class TestDphV1:
             'description': 'This is a description of My Data Product which will get deleted using Python SDK.',
             'types': ['data'],
             'asset': asset_prototype_model,
-            'domain': domain_model,
-            'parts_out': [data_product_part_model],
         }
 
         response = self.dph_service.create_data_product(
@@ -1128,40 +1262,20 @@ class TestDphV1:
 
         assert response.get_status_code() == 204
 
-    @pytest.mark.dependency(depends=["test_delete_draft_contract_terms_document"])
-    @needscredentials
-    def test_list_data_product_domains(self):
-        response = self.dph_service.list_data_product_domains(
-            container_id=get_status_by_catalog_id_link,
-        )
-
-        assert response.get_status_code() == 200
-        data_product_domain_collection = response.get_result()
-        assert data_product_domain_collection is not None
-
     @pytest.mark.dependency(depends=["test_list_data_product_domains"])
     @needscredentials
     def test_create_data_product_domain(self):
         global create_data_product_domain_id
         # Construct a dict representation of a ContainerReference model
         container_reference_model = {
-            'id': get_status_by_catalog_id_link,
+            'id': create_data_product_by_catalog_id_link,
             'type': 'catalog',
-        }
-
-        # Construct a dict representation of a InitializeSubDomain model
-        initialize_sub_domain_model = {
-            'name': 'Sub domain 1',
-            'id': 'testString',
-            'description': 'New sub domain 1',
         }
 
         response = self.dph_service.create_data_product_domain(
             container=container_reference_model,
             name='Test domain - python sdk',
             description='The sample description for new domain',
-            sub_domains=[initialize_sub_domain_model],
-            container_id=get_status_by_catalog_id_link,
         )
 
         assert response.get_status_code() == 201
@@ -1235,6 +1349,17 @@ class TestDphV1:
 
         assert response.get_status_code() == 204
 
+    @pytest.mark.dependency(depends=["test_delete_draft_contract_terms_document"])
+    @needscredentials
+    def test_list_data_product_domains(self):
+        response = self.dph_service.list_data_product_domains(
+            container_id=get_status_by_catalog_id_link,
+        )
+
+        assert response.get_status_code() == 200
+        data_product_domain_collection = response.get_result()
+        assert data_product_domain_collection is not None
+
     @pytest.mark.skip(reason="Skipping unneccesary creation of bucket")
     def test_create_s3_bucket(self):
         response = self.dph_service.create_s3_bucket(
@@ -1255,6 +1380,31 @@ class TestDphV1:
         bucket_validation_response = response.get_result()
         assert bucket_validation_response is not None
 
+    @pytest.mark.skip(reason="Skipping revoke access")
+    def test_create_revoke_access_process(self):
+        response = self.dph_service.create_revoke_access_process(
+            data_product_id='testString',
+            release_id='testString',
+            body=io.BytesIO(b'This is a mock file.').getvalue(),
+            content_type='testString',
+        )
+
+        assert response.get_status_code() == 202
+        revoke_access_response = response.get_result()
+        assert revoke_access_response is not None
+
+    @pytest.mark.skip(reason="Skipping revoke access")
+    def test_get_revoke_access_process_state(self):
+        response = self.dph_service.get_revoke_access_process_state(
+            release_id='testString',
+            limit=200,
+            start='testString',
+        )
+
+        assert response.get_status_code() == 200
+        revoke_access_state_response = response.get_result()
+        assert revoke_access_state_response is not None
+
     @pytest.mark.dependency(depends=["test_delete_domain"])
     @needscredentials
     def test_delete_data_product_draft(self):
@@ -1264,5 +1414,3 @@ class TestDphV1:
         )
 
         assert response.get_status_code() == 204
-
-

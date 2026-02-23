@@ -21,12 +21,14 @@ from datetime import datetime, timezone
 from ibm_cloud_sdk_core.authenticators.no_auth_authenticator import NoAuthAuthenticator
 from ibm_cloud_sdk_core.utils import datetime_to_string, string_to_datetime
 import inspect
+import io
 import json
 import os
 import pytest
 import re
 import requests
 import responses
+import tempfile
 import urllib
 from dph_services.dph_v1 import *
 
@@ -691,7 +693,7 @@ class TestCreateDataProduct:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products')
-        mock_response = '{"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "name": "name", "latest_release": {"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
+        mock_response = '{"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "name": "name", "latest_release": {"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
         responses.add(
             responses.POST,
             url,
@@ -808,6 +810,41 @@ class TestCreateDataProduct:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        # Construct a dict representation of a ContractAsset model
+        contract_asset_model = {}
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        # Construct a dict representation of a ContractServer model
+        contract_server_model = {}
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         # Construct a dict representation of a ContractSchemaPropertyType model
         contract_schema_property_type_model = {}
         contract_schema_property_type_model['type'] = 'testString'
@@ -817,17 +854,41 @@ class TestCreateDataProduct:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        # Construct a dict representation of a ContractQualityRule model
+        contract_quality_rule_model = {}
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         # Construct a dict representation of a ContractSchemaProperty model
         contract_schema_property_model = {}
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractSchema model
         contract_schema_model = {}
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractTerms model
         contract_terms_model = {}
@@ -844,6 +905,7 @@ class TestCreateDataProduct:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         # Construct a dict representation of a AssetPartReference model
@@ -859,11 +921,13 @@ class TestCreateDataProduct:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         # Construct a dict representation of a ProducerInputModel model
         producer_input_model_model = {}
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         # Construct a dict representation of a DeliveryMethodPropertiesModel model
         delivery_method_properties_model_model = {}
@@ -925,6 +989,7 @@ class TestCreateDataProduct:
         data_product_draft_prototype_model['comments'] = 'Comments by a producer that are provided either at the time of data product version creation or retiring'
         data_product_draft_prototype_model['access_control'] = asset_list_access_control_model
         data_product_draft_prototype_model['last_updated_at'] = '2019-01-01T12:00:00Z'
+        data_product_draft_prototype_model['sub_container'] = container_identity_model
         data_product_draft_prototype_model['is_restricted'] = True
         data_product_draft_prototype_model['asset'] = asset_prototype_model
 
@@ -969,7 +1034,7 @@ class TestCreateDataProduct:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products')
-        mock_response = '{"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "name": "name", "latest_release": {"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
+        mock_response = '{"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "name": "name", "latest_release": {"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
         responses.add(
             responses.POST,
             url,
@@ -1086,6 +1151,41 @@ class TestCreateDataProduct:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        # Construct a dict representation of a ContractAsset model
+        contract_asset_model = {}
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        # Construct a dict representation of a ContractServer model
+        contract_server_model = {}
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         # Construct a dict representation of a ContractSchemaPropertyType model
         contract_schema_property_type_model = {}
         contract_schema_property_type_model['type'] = 'testString'
@@ -1095,17 +1195,41 @@ class TestCreateDataProduct:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        # Construct a dict representation of a ContractQualityRule model
+        contract_quality_rule_model = {}
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         # Construct a dict representation of a ContractSchemaProperty model
         contract_schema_property_model = {}
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractSchema model
         contract_schema_model = {}
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractTerms model
         contract_terms_model = {}
@@ -1122,6 +1246,7 @@ class TestCreateDataProduct:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         # Construct a dict representation of a AssetPartReference model
@@ -1137,11 +1262,13 @@ class TestCreateDataProduct:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         # Construct a dict representation of a ProducerInputModel model
         producer_input_model_model = {}
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         # Construct a dict representation of a DeliveryMethodPropertiesModel model
         delivery_method_properties_model_model = {}
@@ -1203,6 +1330,7 @@ class TestCreateDataProduct:
         data_product_draft_prototype_model['comments'] = 'Comments by a producer that are provided either at the time of data product version creation or retiring'
         data_product_draft_prototype_model['access_control'] = asset_list_access_control_model
         data_product_draft_prototype_model['last_updated_at'] = '2019-01-01T12:00:00Z'
+        data_product_draft_prototype_model['sub_container'] = container_identity_model
         data_product_draft_prototype_model['is_restricted'] = True
         data_product_draft_prototype_model['asset'] = asset_prototype_model
 
@@ -1238,7 +1366,7 @@ class TestCreateDataProduct:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products')
-        mock_response = '{"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "name": "name", "latest_release": {"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
+        mock_response = '{"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "name": "name", "latest_release": {"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
         responses.add(
             responses.POST,
             url,
@@ -1355,6 +1483,41 @@ class TestCreateDataProduct:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        # Construct a dict representation of a ContractAsset model
+        contract_asset_model = {}
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        # Construct a dict representation of a ContractServer model
+        contract_server_model = {}
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         # Construct a dict representation of a ContractSchemaPropertyType model
         contract_schema_property_type_model = {}
         contract_schema_property_type_model['type'] = 'testString'
@@ -1364,17 +1527,41 @@ class TestCreateDataProduct:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        # Construct a dict representation of a ContractQualityRule model
+        contract_quality_rule_model = {}
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         # Construct a dict representation of a ContractSchemaProperty model
         contract_schema_property_model = {}
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractSchema model
         contract_schema_model = {}
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractTerms model
         contract_terms_model = {}
@@ -1391,6 +1578,7 @@ class TestCreateDataProduct:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         # Construct a dict representation of a AssetPartReference model
@@ -1406,11 +1594,13 @@ class TestCreateDataProduct:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         # Construct a dict representation of a ProducerInputModel model
         producer_input_model_model = {}
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         # Construct a dict representation of a DeliveryMethodPropertiesModel model
         delivery_method_properties_model_model = {}
@@ -1472,6 +1662,7 @@ class TestCreateDataProduct:
         data_product_draft_prototype_model['comments'] = 'Comments by a producer that are provided either at the time of data product version creation or retiring'
         data_product_draft_prototype_model['access_control'] = asset_list_access_control_model
         data_product_draft_prototype_model['last_updated_at'] = '2019-01-01T12:00:00Z'
+        data_product_draft_prototype_model['sub_container'] = container_identity_model
         data_product_draft_prototype_model['is_restricted'] = True
         data_product_draft_prototype_model['asset'] = asset_prototype_model
 
@@ -1509,7 +1700,7 @@ class TestGetDataProduct:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString')
-        mock_response = '{"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "name": "name", "latest_release": {"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
+        mock_response = '{"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "name": "name", "latest_release": {"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -1547,7 +1738,7 @@ class TestGetDataProduct:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString')
-        mock_response = '{"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "name": "name", "latest_release": {"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
+        mock_response = '{"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "name": "name", "latest_release": {"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -1722,7 +1913,7 @@ class TestListDataProductDrafts:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts')
-        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
+        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -1775,7 +1966,7 @@ class TestListDataProductDrafts:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts')
-        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
+        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -1813,7 +2004,7 @@ class TestListDataProductDrafts:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts')
-        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
+        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "drafts": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -1850,8 +2041,8 @@ class TestListDataProductDrafts:
         """
         # Set up a two-page mock response
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts')
-        mock_response1 = '{"next":{"start":"1"},"total_count":2,"limit":1,"drafts":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"schema":[{"name":"name","description":"description","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"}}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","associated_catalogs":["associated_catalogs"]}}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
-        mock_response2 = '{"total_count":2,"limit":1,"drafts":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"schema":[{"name":"name","description":"description","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"}}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","associated_catalogs":["associated_catalogs"]}}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
+        mock_response1 = '{"next":{"start":"1"},"total_count":2,"limit":1,"drafts":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"servers":[{"server":"server","asset":{"id":"id","name":"name"},"connection_id":"connection_id","type":"type","description":"description","environment":"environment","account":"account","catalog":"catalog","database":"database","dataset":"dataset","delimiter":"delimiter","endpoint_url":"endpoint_url","format":"format","host":"host","location":"location","path":"path","port":"port","project":"project","region":"region","region_name":"region_name","schema":"schema","service_name":"service_name","staging_dir":"staging_dir","stream":"stream","warehouse":"warehouse","roles":["roles"],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}]}],"schema":[{"asset_id":"2b0bf220-079c-11ee-be56-0242ac120002","connection_id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","description":"description","connection_path":"connection_path","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"},"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}],"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]},"engines":[{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]}]}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","sub_container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd"},"is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
+        mock_response2 = '{"total_count":2,"limit":1,"drafts":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"servers":[{"server":"server","asset":{"id":"id","name":"name"},"connection_id":"connection_id","type":"type","description":"description","environment":"environment","account":"account","catalog":"catalog","database":"database","dataset":"dataset","delimiter":"delimiter","endpoint_url":"endpoint_url","format":"format","host":"host","location":"location","path":"path","port":"port","project":"project","region":"region","region_name":"region_name","schema":"schema","service_name":"service_name","staging_dir":"staging_dir","stream":"stream","warehouse":"warehouse","roles":["roles"],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}]}],"schema":[{"asset_id":"2b0bf220-079c-11ee-be56-0242ac120002","connection_id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","description":"description","connection_path":"connection_path","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"},"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}],"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]},"engines":[{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]}]}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","sub_container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd"},"is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -1889,8 +2080,8 @@ class TestListDataProductDrafts:
         """
         # Set up a two-page mock response
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts')
-        mock_response1 = '{"next":{"start":"1"},"total_count":2,"limit":1,"drafts":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"schema":[{"name":"name","description":"description","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"}}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","associated_catalogs":["associated_catalogs"]}}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
-        mock_response2 = '{"total_count":2,"limit":1,"drafts":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"schema":[{"name":"name","description":"description","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"}}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","associated_catalogs":["associated_catalogs"]}}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
+        mock_response1 = '{"next":{"start":"1"},"total_count":2,"limit":1,"drafts":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"servers":[{"server":"server","asset":{"id":"id","name":"name"},"connection_id":"connection_id","type":"type","description":"description","environment":"environment","account":"account","catalog":"catalog","database":"database","dataset":"dataset","delimiter":"delimiter","endpoint_url":"endpoint_url","format":"format","host":"host","location":"location","path":"path","port":"port","project":"project","region":"region","region_name":"region_name","schema":"schema","service_name":"service_name","staging_dir":"staging_dir","stream":"stream","warehouse":"warehouse","roles":["roles"],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}]}],"schema":[{"asset_id":"2b0bf220-079c-11ee-be56-0242ac120002","connection_id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","description":"description","connection_path":"connection_path","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"},"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}],"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]},"engines":[{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]}]}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","sub_container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd"},"is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
+        mock_response2 = '{"total_count":2,"limit":1,"drafts":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"servers":[{"server":"server","asset":{"id":"id","name":"name"},"connection_id":"connection_id","type":"type","description":"description","environment":"environment","account":"account","catalog":"catalog","database":"database","dataset":"dataset","delimiter":"delimiter","endpoint_url":"endpoint_url","format":"format","host":"host","location":"location","path":"path","port":"port","project":"project","region":"region","region_name":"region_name","schema":"schema","service_name":"service_name","staging_dir":"staging_dir","stream":"stream","warehouse":"warehouse","roles":["roles"],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}]}],"schema":[{"asset_id":"2b0bf220-079c-11ee-be56-0242ac120002","connection_id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","description":"description","connection_path":"connection_path","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"},"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}],"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]},"engines":[{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]}]}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","sub_container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd"},"is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -1931,7 +2122,7 @@ class TestCreateDataProductDraft:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.POST,
             url,
@@ -2057,6 +2248,41 @@ class TestCreateDataProductDraft:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        # Construct a dict representation of a ContractAsset model
+        contract_asset_model = {}
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        # Construct a dict representation of a ContractServer model
+        contract_server_model = {}
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         # Construct a dict representation of a ContractSchemaPropertyType model
         contract_schema_property_type_model = {}
         contract_schema_property_type_model['type'] = 'testString'
@@ -2066,17 +2292,41 @@ class TestCreateDataProductDraft:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        # Construct a dict representation of a ContractQualityRule model
+        contract_quality_rule_model = {}
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         # Construct a dict representation of a ContractSchemaProperty model
         contract_schema_property_model = {}
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractSchema model
         contract_schema_model = {}
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractTerms model
         contract_terms_model = {}
@@ -2093,6 +2343,7 @@ class TestCreateDataProductDraft:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         # Construct a dict representation of a AssetPartReference model
@@ -2108,11 +2359,13 @@ class TestCreateDataProductDraft:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         # Construct a dict representation of a ProducerInputModel model
         producer_input_model_model = {}
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         # Construct a dict representation of a DeliveryMethodPropertiesModel model
         delivery_method_properties_model_model = {}
@@ -2166,6 +2419,7 @@ class TestCreateDataProductDraft:
         comments = 'testString'
         access_control = asset_list_access_control_model
         last_updated_at = string_to_datetime('2019-01-01T12:00:00.000Z')
+        sub_container = container_identity_model
         is_restricted = True
 
         # Invoke method
@@ -2188,6 +2442,7 @@ class TestCreateDataProductDraft:
             comments=comments,
             access_control=access_control,
             last_updated_at=last_updated_at,
+            sub_container=sub_container,
             is_restricted=is_restricted,
             headers={},
         )
@@ -2214,6 +2469,7 @@ class TestCreateDataProductDraft:
         assert req_body['comments'] == 'testString'
         assert req_body['access_control'] == asset_list_access_control_model
         assert req_body['last_updated_at'] == '2019-01-01T12:00:00Z'
+        assert req_body['sub_container'] == container_identity_model
         assert req_body['is_restricted'] == True
 
     def test_create_data_product_draft_all_params_with_retries(self):
@@ -2232,7 +2488,7 @@ class TestCreateDataProductDraft:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.POST,
             url,
@@ -2358,6 +2614,41 @@ class TestCreateDataProductDraft:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        # Construct a dict representation of a ContractAsset model
+        contract_asset_model = {}
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        # Construct a dict representation of a ContractServer model
+        contract_server_model = {}
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         # Construct a dict representation of a ContractSchemaPropertyType model
         contract_schema_property_type_model = {}
         contract_schema_property_type_model['type'] = 'testString'
@@ -2367,17 +2658,41 @@ class TestCreateDataProductDraft:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        # Construct a dict representation of a ContractQualityRule model
+        contract_quality_rule_model = {}
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         # Construct a dict representation of a ContractSchemaProperty model
         contract_schema_property_model = {}
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractSchema model
         contract_schema_model = {}
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractTerms model
         contract_terms_model = {}
@@ -2394,6 +2709,7 @@ class TestCreateDataProductDraft:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         # Construct a dict representation of a AssetPartReference model
@@ -2409,11 +2725,13 @@ class TestCreateDataProductDraft:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         # Construct a dict representation of a ProducerInputModel model
         producer_input_model_model = {}
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         # Construct a dict representation of a DeliveryMethodPropertiesModel model
         delivery_method_properties_model_model = {}
@@ -2467,6 +2785,7 @@ class TestCreateDataProductDraft:
         comments = 'testString'
         access_control = asset_list_access_control_model
         last_updated_at = string_to_datetime('2019-01-01T12:00:00.000Z')
+        sub_container = container_identity_model
         is_restricted = True
 
         # Pass in all but one required param and check for a ValueError
@@ -2606,7 +2925,7 @@ class TestGetDataProductDraft:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.GET,
             url,
@@ -2646,7 +2965,7 @@ class TestGetDataProductDraft:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.GET,
             url,
@@ -2770,7 +3089,7 @@ class TestUpdateDataProductDraft:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.PATCH,
             url,
@@ -2822,7 +3141,7 @@ class TestUpdateDataProductDraft:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.PATCH,
             url,
@@ -3170,12 +3489,12 @@ class TestGetDataProductDraftContractTerms:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString')
-        mock_response = 'This is a mock binary response.'
+        mock_response = '{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}'
         responses.add(
             responses.GET,
             url,
             body=mock_response,
-            content_type='application/odcs+yaml',
+            content_type='application/json',
             status=200,
         )
 
@@ -3183,8 +3502,10 @@ class TestGetDataProductDraftContractTerms:
         data_product_id = 'testString'
         draft_id = 'testString'
         contract_terms_id = 'testString'
-        accept = 'application/odcs+yaml'
+        accept = 'application/json'
         include_contract_documents = True
+        autopopulate_server_information = False
+        server_asset_id = 'testString'
 
         # Invoke method
         response = _service.get_data_product_draft_contract_terms(
@@ -3193,6 +3514,8 @@ class TestGetDataProductDraftContractTerms:
             contract_terms_id,
             accept=accept,
             include_contract_documents=include_contract_documents,
+            autopopulate_server_information=autopopulate_server_information,
+            server_asset_id=server_asset_id,
             headers={},
         )
 
@@ -3203,6 +3526,8 @@ class TestGetDataProductDraftContractTerms:
         query_string = responses.calls[0].request.url.split('?', 1)[1]
         query_string = urllib.parse.unquote_plus(query_string)
         assert 'include_contract_documents={}'.format('true' if include_contract_documents else 'false') in query_string
+        assert 'autopopulate_server_information={}'.format('true' if autopopulate_server_information else 'false') in query_string
+        assert 'server_asset_id={}'.format(server_asset_id) in query_string
 
     def test_get_data_product_draft_contract_terms_all_params_with_retries(self):
         # Enable retries and run test_get_data_product_draft_contract_terms_all_params.
@@ -3220,12 +3545,12 @@ class TestGetDataProductDraftContractTerms:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString')
-        mock_response = 'This is a mock binary response.'
+        mock_response = '{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}'
         responses.add(
             responses.GET,
             url,
             body=mock_response,
-            content_type='application/odcs+yaml',
+            content_type='application/json',
             status=200,
         )
 
@@ -3262,12 +3587,12 @@ class TestGetDataProductDraftContractTerms:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString')
-        mock_response = 'This is a mock binary response.'
+        mock_response = '{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}'
         responses.add(
             responses.GET,
             url,
             body=mock_response,
-            content_type='application/odcs+yaml',
+            content_type='application/json',
             status=200,
         )
 
@@ -3309,7 +3634,7 @@ class TestReplaceDataProductDraftContractTerms:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString')
-        mock_response = '{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}'
+        mock_response = '{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}'
         responses.add(
             responses.PUT,
             url,
@@ -3381,9 +3706,9 @@ class TestReplaceDataProductDraftContractTerms:
 
         # Construct a dict representation of a Pricing model
         pricing_model = {}
-        pricing_model['amount'] = '100.0'
-        pricing_model['currency'] = 'USD'
-        pricing_model['unit'] = 'megabyte'
+        pricing_model['amount'] = 'Amount'
+        pricing_model['currency'] = 'Currency'
+        pricing_model['unit'] = 'Unit'
 
         # Construct a dict representation of a ContractTemplateSLAProperty model
         contract_template_sla_property_model = {}
@@ -3411,26 +3736,85 @@ class TestReplaceDataProductDraftContractTerms:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        # Construct a dict representation of a ContractAsset model
+        contract_asset_model = {}
+        contract_asset_model['id'] = '684d6aa0-9f93-4564-8a20-e354bc469857'
+        contract_asset_model['name'] = 'PAYMENT_TRANSACTIONS1'
+
+        # Construct a dict representation of a ContractServer model
+        contract_server_model = {}
+        contract_server_model['server'] = 'snowflake-server-01'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = '8d7701be-709a-49c0-ae4e-a7daeaae6def'
+        contract_server_model['type'] = 'snowflake'
+        contract_server_model['description'] = 'Snowflake analytics server'
+        contract_server_model['environment'] = 'dev'
+        contract_server_model['account'] = 'acc-456'
+        contract_server_model['catalog'] = 'analytics_cat'
+        contract_server_model['database'] = 'analytics_db'
+        contract_server_model['dataset'] = 'customer_data'
+        contract_server_model['delimiter'] = ','
+        contract_server_model['endpoint_url'] = 'https://xy12345.snowflakecomputing.com'
+        contract_server_model['format'] = 'parquet'
+        contract_server_model['host'] = 'xy12345.snowflakecomputing.com'
+        contract_server_model['location'] = 'Mumbai'
+        contract_server_model['path'] = '/analytics/data'
+        contract_server_model['port'] = '443'
+        contract_server_model['project'] = 'projectY'
+        contract_server_model['region'] = 'ap-south-1'
+        contract_server_model['region_name'] = 'Asia South 1'
+        contract_server_model['schema'] = 'PAYMENT_TRANSACTIONS1'
+        contract_server_model['service_name'] = 'snowflake'
+        contract_server_model['staging_dir'] = '/snowflake/staging'
+        contract_server_model['stream'] = 'stream_analytics'
+        contract_server_model['warehouse'] = 'wh_xlarge'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         # Construct a dict representation of a ContractSchemaPropertyType model
         contract_schema_property_type_model = {}
-        contract_schema_property_type_model['type'] = 'testString'
-        contract_schema_property_type_model['length'] = 'testString'
-        contract_schema_property_type_model['scale'] = 'testString'
-        contract_schema_property_type_model['nullable'] = 'testString'
-        contract_schema_property_type_model['signed'] = 'testString'
+        contract_schema_property_type_model['type'] = 'varchar'
+        contract_schema_property_type_model['length'] = '1024'
+        contract_schema_property_type_model['scale'] = '0'
+        contract_schema_property_type_model['nullable'] = 'true'
+        contract_schema_property_type_model['signed'] = 'false'
         contract_schema_property_type_model['native_type'] = 'testString'
+
+        # Construct a dict representation of a ContractQualityRule model
+        contract_quality_rule_model = {}
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
 
         # Construct a dict representation of a ContractSchemaProperty model
         contract_schema_property_model = {}
-        contract_schema_property_model['name'] = 'testString'
+        contract_schema_property_model['name'] = 'product_brand_code'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractSchema model
         contract_schema_model = {}
-        contract_schema_model['name'] = 'testString'
+        contract_schema_model['asset_id'] = '09ca6b40-7c89-412a-8951-ad820da709d1'
+        contract_schema_model['connection_id'] = '6cc57d4d-2229-438f-91a0-2c455556422b'
+        contract_schema_model['name'] = '000000_0-2025-06-20-20-28-52.csv'
         contract_schema_model['description'] = 'testString'
-        contract_schema_model['physical_type'] = 'testString'
+        contract_schema_model['connection_path'] = '/dpx-test-bucket/000000_0-2025-06-20-20-28-52.csv'
+        contract_schema_model['physical_type'] = 'text/csv'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         # Set up parameter values
         data_product_id = 'testString'
@@ -3449,6 +3833,7 @@ class TestReplaceDataProductDraftContractTerms:
         support_and_communication = [contract_template_support_and_communication_model]
         custom_properties = [contract_template_custom_property_model]
         contract_test = contract_test_model
+        servers = [contract_server_model]
         schema = [contract_schema_model]
 
         # Invoke method
@@ -3469,6 +3854,7 @@ class TestReplaceDataProductDraftContractTerms:
             support_and_communication=support_and_communication,
             custom_properties=custom_properties,
             contract_test=contract_test,
+            servers=servers,
             schema=schema,
             headers={},
         )
@@ -3491,6 +3877,7 @@ class TestReplaceDataProductDraftContractTerms:
         assert req_body['support_and_communication'] == [contract_template_support_and_communication_model]
         assert req_body['custom_properties'] == [contract_template_custom_property_model]
         assert req_body['contract_test'] == contract_test_model
+        assert req_body['servers'] == [contract_server_model]
         assert req_body['schema'] == [contract_schema_model]
 
     def test_replace_data_product_draft_contract_terms_all_params_with_retries(self):
@@ -3509,7 +3896,7 @@ class TestReplaceDataProductDraftContractTerms:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString')
-        mock_response = '{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}'
+        mock_response = '{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}'
         responses.add(
             responses.PUT,
             url,
@@ -3581,9 +3968,9 @@ class TestReplaceDataProductDraftContractTerms:
 
         # Construct a dict representation of a Pricing model
         pricing_model = {}
-        pricing_model['amount'] = '100.0'
-        pricing_model['currency'] = 'USD'
-        pricing_model['unit'] = 'megabyte'
+        pricing_model['amount'] = 'Amount'
+        pricing_model['currency'] = 'Currency'
+        pricing_model['unit'] = 'Unit'
 
         # Construct a dict representation of a ContractTemplateSLAProperty model
         contract_template_sla_property_model = {}
@@ -3611,26 +3998,85 @@ class TestReplaceDataProductDraftContractTerms:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        # Construct a dict representation of a ContractAsset model
+        contract_asset_model = {}
+        contract_asset_model['id'] = '684d6aa0-9f93-4564-8a20-e354bc469857'
+        contract_asset_model['name'] = 'PAYMENT_TRANSACTIONS1'
+
+        # Construct a dict representation of a ContractServer model
+        contract_server_model = {}
+        contract_server_model['server'] = 'snowflake-server-01'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = '8d7701be-709a-49c0-ae4e-a7daeaae6def'
+        contract_server_model['type'] = 'snowflake'
+        contract_server_model['description'] = 'Snowflake analytics server'
+        contract_server_model['environment'] = 'dev'
+        contract_server_model['account'] = 'acc-456'
+        contract_server_model['catalog'] = 'analytics_cat'
+        contract_server_model['database'] = 'analytics_db'
+        contract_server_model['dataset'] = 'customer_data'
+        contract_server_model['delimiter'] = ','
+        contract_server_model['endpoint_url'] = 'https://xy12345.snowflakecomputing.com'
+        contract_server_model['format'] = 'parquet'
+        contract_server_model['host'] = 'xy12345.snowflakecomputing.com'
+        contract_server_model['location'] = 'Mumbai'
+        contract_server_model['path'] = '/analytics/data'
+        contract_server_model['port'] = '443'
+        contract_server_model['project'] = 'projectY'
+        contract_server_model['region'] = 'ap-south-1'
+        contract_server_model['region_name'] = 'Asia South 1'
+        contract_server_model['schema'] = 'PAYMENT_TRANSACTIONS1'
+        contract_server_model['service_name'] = 'snowflake'
+        contract_server_model['staging_dir'] = '/snowflake/staging'
+        contract_server_model['stream'] = 'stream_analytics'
+        contract_server_model['warehouse'] = 'wh_xlarge'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         # Construct a dict representation of a ContractSchemaPropertyType model
         contract_schema_property_type_model = {}
-        contract_schema_property_type_model['type'] = 'testString'
-        contract_schema_property_type_model['length'] = 'testString'
-        contract_schema_property_type_model['scale'] = 'testString'
-        contract_schema_property_type_model['nullable'] = 'testString'
-        contract_schema_property_type_model['signed'] = 'testString'
+        contract_schema_property_type_model['type'] = 'varchar'
+        contract_schema_property_type_model['length'] = '1024'
+        contract_schema_property_type_model['scale'] = '0'
+        contract_schema_property_type_model['nullable'] = 'true'
+        contract_schema_property_type_model['signed'] = 'false'
         contract_schema_property_type_model['native_type'] = 'testString'
+
+        # Construct a dict representation of a ContractQualityRule model
+        contract_quality_rule_model = {}
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
 
         # Construct a dict representation of a ContractSchemaProperty model
         contract_schema_property_model = {}
-        contract_schema_property_model['name'] = 'testString'
+        contract_schema_property_model['name'] = 'product_brand_code'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractSchema model
         contract_schema_model = {}
-        contract_schema_model['name'] = 'testString'
+        contract_schema_model['asset_id'] = '09ca6b40-7c89-412a-8951-ad820da709d1'
+        contract_schema_model['connection_id'] = '6cc57d4d-2229-438f-91a0-2c455556422b'
+        contract_schema_model['name'] = '000000_0-2025-06-20-20-28-52.csv'
         contract_schema_model['description'] = 'testString'
-        contract_schema_model['physical_type'] = 'testString'
+        contract_schema_model['connection_path'] = '/dpx-test-bucket/000000_0-2025-06-20-20-28-52.csv'
+        contract_schema_model['physical_type'] = 'text/csv'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         # Set up parameter values
         data_product_id = 'testString'
@@ -3649,6 +4095,7 @@ class TestReplaceDataProductDraftContractTerms:
         support_and_communication = [contract_template_support_and_communication_model]
         custom_properties = [contract_template_custom_property_model]
         contract_test = contract_test_model
+        servers = [contract_server_model]
         schema = [contract_schema_model]
 
         # Pass in all but one required param and check for a ValueError
@@ -3684,7 +4131,7 @@ class TestUpdateDataProductDraftContractTerms:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString')
-        mock_response = '{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}'
+        mock_response = '{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}'
         responses.add(
             responses.PATCH,
             url,
@@ -3738,7 +4185,7 @@ class TestUpdateDataProductDraftContractTerms:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString')
-        mock_response = '{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}'
+        mock_response = '{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}'
         responses.add(
             responses.PATCH,
             url,
@@ -3782,6 +4229,161 @@ class TestUpdateDataProductDraftContractTerms:
         self.test_update_data_product_draft_contract_terms_value_error()
 
 
+class TestGetContractTermsInSpecifiedFormat:
+    """
+    Test Class for get_contract_terms_in_specified_format
+    """
+
+    @responses.activate
+    def test_get_contract_terms_in_specified_format_all_params(self):
+        """
+        get_contract_terms_in_specified_format()
+        """
+        # Set up mock
+        url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/format')
+        mock_response = 'This is a mock binary response.'
+        responses.add(
+            responses.GET,
+            url,
+            body=mock_response,
+            content_type='application/odcs+yaml',
+            status=200,
+        )
+
+        # Set up parameter values
+        data_product_id = 'testString'
+        draft_id = 'testString'
+        contract_terms_id = 'testString'
+        format = 'testString'
+        format_version = 'testString'
+        accept = 'application/odcs+yaml'
+
+        # Invoke method
+        response = _service.get_contract_terms_in_specified_format(
+            data_product_id,
+            draft_id,
+            contract_terms_id,
+            format,
+            format_version,
+            accept=accept,
+            headers={},
+        )
+
+        # Check for correct operation
+        assert len(responses.calls) == 1
+        assert response.status_code == 200
+        # Validate query params
+        query_string = responses.calls[0].request.url.split('?', 1)[1]
+        query_string = urllib.parse.unquote_plus(query_string)
+        assert 'format={}'.format(format) in query_string
+        assert 'format_version={}'.format(format_version) in query_string
+
+    def test_get_contract_terms_in_specified_format_all_params_with_retries(self):
+        # Enable retries and run test_get_contract_terms_in_specified_format_all_params.
+        _service.enable_retries()
+        self.test_get_contract_terms_in_specified_format_all_params()
+
+        # Disable retries and run test_get_contract_terms_in_specified_format_all_params.
+        _service.disable_retries()
+        self.test_get_contract_terms_in_specified_format_all_params()
+
+    @responses.activate
+    def test_get_contract_terms_in_specified_format_required_params(self):
+        """
+        test_get_contract_terms_in_specified_format_required_params()
+        """
+        # Set up mock
+        url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/format')
+        mock_response = 'This is a mock binary response.'
+        responses.add(
+            responses.GET,
+            url,
+            body=mock_response,
+            content_type='application/odcs+yaml',
+            status=200,
+        )
+
+        # Set up parameter values
+        data_product_id = 'testString'
+        draft_id = 'testString'
+        contract_terms_id = 'testString'
+        format = 'testString'
+        format_version = 'testString'
+
+        # Invoke method
+        response = _service.get_contract_terms_in_specified_format(
+            data_product_id,
+            draft_id,
+            contract_terms_id,
+            format,
+            format_version,
+            headers={},
+        )
+
+        # Check for correct operation
+        assert len(responses.calls) == 1
+        assert response.status_code == 200
+        # Validate query params
+        query_string = responses.calls[0].request.url.split('?', 1)[1]
+        query_string = urllib.parse.unquote_plus(query_string)
+        assert 'format={}'.format(format) in query_string
+        assert 'format_version={}'.format(format_version) in query_string
+
+    def test_get_contract_terms_in_specified_format_required_params_with_retries(self):
+        # Enable retries and run test_get_contract_terms_in_specified_format_required_params.
+        _service.enable_retries()
+        self.test_get_contract_terms_in_specified_format_required_params()
+
+        # Disable retries and run test_get_contract_terms_in_specified_format_required_params.
+        _service.disable_retries()
+        self.test_get_contract_terms_in_specified_format_required_params()
+
+    @responses.activate
+    def test_get_contract_terms_in_specified_format_value_error(self):
+        """
+        test_get_contract_terms_in_specified_format_value_error()
+        """
+        # Set up mock
+        url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/contract_terms/testString/format')
+        mock_response = 'This is a mock binary response.'
+        responses.add(
+            responses.GET,
+            url,
+            body=mock_response,
+            content_type='application/odcs+yaml',
+            status=200,
+        )
+
+        # Set up parameter values
+        data_product_id = 'testString'
+        draft_id = 'testString'
+        contract_terms_id = 'testString'
+        format = 'testString'
+        format_version = 'testString'
+
+        # Pass in all but one required param and check for a ValueError
+        req_param_dict = {
+            "data_product_id": data_product_id,
+            "draft_id": draft_id,
+            "contract_terms_id": contract_terms_id,
+            "format": format,
+            "format_version": format_version,
+        }
+        for param in req_param_dict.keys():
+            req_copy = {key: val if key is not param else None for (key, val) in req_param_dict.items()}
+            with pytest.raises(ValueError):
+                _service.get_contract_terms_in_specified_format(**req_copy)
+
+    def test_get_contract_terms_in_specified_format_value_error_with_retries(self):
+        # Enable retries and run test_get_contract_terms_in_specified_format_value_error.
+        _service.enable_retries()
+        self.test_get_contract_terms_in_specified_format_value_error()
+
+        # Disable retries and run test_get_contract_terms_in_specified_format_value_error.
+        _service.disable_retries()
+        self.test_get_contract_terms_in_specified_format_value_error()
+
+
 class TestPublishDataProductDraft:
     """
     Test Class for publish_data_product_draft
@@ -3794,7 +4396,7 @@ class TestPublishDataProductDraft:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/publish')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.POST,
             url,
@@ -3834,7 +4436,7 @@ class TestPublishDataProductDraft:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/drafts/testString/publish')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.POST,
             url,
@@ -3918,7 +4520,7 @@ class TestGetDataProductRelease:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.GET,
             url,
@@ -3964,7 +4566,7 @@ class TestGetDataProductRelease:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.GET,
             url,
@@ -4004,7 +4606,7 @@ class TestGetDataProductRelease:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.GET,
             url,
@@ -4049,7 +4651,7 @@ class TestUpdateDataProductRelease:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.PATCH,
             url,
@@ -4101,7 +4703,7 @@ class TestUpdateDataProductRelease:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.PATCH,
             url,
@@ -4236,6 +4838,145 @@ class TestGetReleaseContractTermsDocument:
         self.test_get_release_contract_terms_document_value_error()
 
 
+class TestGetPublishedDataProductDraftContractTerms:
+    """
+    Test Class for get_published_data_product_draft_contract_terms
+    """
+
+    @responses.activate
+    def test_get_published_data_product_draft_contract_terms_all_params(self):
+        """
+        get_published_data_product_draft_contract_terms()
+        """
+        # Set up mock
+        url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString/contract_terms/testString')
+        mock_response = 'This is a mock binary response.'
+        responses.add(
+            responses.GET,
+            url,
+            body=mock_response,
+            content_type='application/odcs+yaml',
+            status=200,
+        )
+
+        # Set up parameter values
+        data_product_id = 'testString'
+        release_id = 'testString'
+        contract_terms_id = 'testString'
+        accept = 'application/odcs+yaml'
+        include_contract_documents = True
+
+        # Invoke method
+        response = _service.get_published_data_product_draft_contract_terms(
+            data_product_id,
+            release_id,
+            contract_terms_id,
+            accept=accept,
+            include_contract_documents=include_contract_documents,
+            headers={},
+        )
+
+        # Check for correct operation
+        assert len(responses.calls) == 1
+        assert response.status_code == 200
+        # Validate query params
+        query_string = responses.calls[0].request.url.split('?', 1)[1]
+        query_string = urllib.parse.unquote_plus(query_string)
+        assert 'include_contract_documents={}'.format('true' if include_contract_documents else 'false') in query_string
+
+    def test_get_published_data_product_draft_contract_terms_all_params_with_retries(self):
+        # Enable retries and run test_get_published_data_product_draft_contract_terms_all_params.
+        _service.enable_retries()
+        self.test_get_published_data_product_draft_contract_terms_all_params()
+
+        # Disable retries and run test_get_published_data_product_draft_contract_terms_all_params.
+        _service.disable_retries()
+        self.test_get_published_data_product_draft_contract_terms_all_params()
+
+    @responses.activate
+    def test_get_published_data_product_draft_contract_terms_required_params(self):
+        """
+        test_get_published_data_product_draft_contract_terms_required_params()
+        """
+        # Set up mock
+        url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString/contract_terms/testString')
+        mock_response = 'This is a mock binary response.'
+        responses.add(
+            responses.GET,
+            url,
+            body=mock_response,
+            content_type='application/odcs+yaml',
+            status=200,
+        )
+
+        # Set up parameter values
+        data_product_id = 'testString'
+        release_id = 'testString'
+        contract_terms_id = 'testString'
+
+        # Invoke method
+        response = _service.get_published_data_product_draft_contract_terms(
+            data_product_id,
+            release_id,
+            contract_terms_id,
+            headers={},
+        )
+
+        # Check for correct operation
+        assert len(responses.calls) == 1
+        assert response.status_code == 200
+
+    def test_get_published_data_product_draft_contract_terms_required_params_with_retries(self):
+        # Enable retries and run test_get_published_data_product_draft_contract_terms_required_params.
+        _service.enable_retries()
+        self.test_get_published_data_product_draft_contract_terms_required_params()
+
+        # Disable retries and run test_get_published_data_product_draft_contract_terms_required_params.
+        _service.disable_retries()
+        self.test_get_published_data_product_draft_contract_terms_required_params()
+
+    @responses.activate
+    def test_get_published_data_product_draft_contract_terms_value_error(self):
+        """
+        test_get_published_data_product_draft_contract_terms_value_error()
+        """
+        # Set up mock
+        url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString/contract_terms/testString')
+        mock_response = 'This is a mock binary response.'
+        responses.add(
+            responses.GET,
+            url,
+            body=mock_response,
+            content_type='application/odcs+yaml',
+            status=200,
+        )
+
+        # Set up parameter values
+        data_product_id = 'testString'
+        release_id = 'testString'
+        contract_terms_id = 'testString'
+
+        # Pass in all but one required param and check for a ValueError
+        req_param_dict = {
+            "data_product_id": data_product_id,
+            "release_id": release_id,
+            "contract_terms_id": contract_terms_id,
+        }
+        for param in req_param_dict.keys():
+            req_copy = {key: val if key is not param else None for (key, val) in req_param_dict.items()}
+            with pytest.raises(ValueError):
+                _service.get_published_data_product_draft_contract_terms(**req_copy)
+
+    def test_get_published_data_product_draft_contract_terms_value_error_with_retries(self):
+        # Enable retries and run test_get_published_data_product_draft_contract_terms_value_error.
+        _service.enable_retries()
+        self.test_get_published_data_product_draft_contract_terms_value_error()
+
+        # Disable retries and run test_get_published_data_product_draft_contract_terms_value_error.
+        _service.disable_retries()
+        self.test_get_published_data_product_draft_contract_terms_value_error()
+
+
 class TestListDataProductReleases:
     """
     Test Class for list_data_product_releases
@@ -4248,7 +4989,7 @@ class TestListDataProductReleases:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases')
-        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "releases": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
+        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "releases": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -4304,7 +5045,7 @@ class TestListDataProductReleases:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases')
-        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "releases": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
+        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "releases": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -4342,7 +5083,7 @@ class TestListDataProductReleases:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases')
-        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "releases": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
+        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "releases": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -4379,8 +5120,8 @@ class TestListDataProductReleases:
         """
         # Set up a two-page mock response
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases')
-        mock_response1 = '{"next":{"start":"1"},"total_count":2,"limit":1,"releases":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"schema":[{"name":"name","description":"description","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"}}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","associated_catalogs":["associated_catalogs"]}}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
-        mock_response2 = '{"total_count":2,"limit":1,"releases":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"schema":[{"name":"name","description":"description","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"}}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","associated_catalogs":["associated_catalogs"]}}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
+        mock_response1 = '{"next":{"start":"1"},"total_count":2,"limit":1,"releases":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"servers":[{"server":"server","asset":{"id":"id","name":"name"},"connection_id":"connection_id","type":"type","description":"description","environment":"environment","account":"account","catalog":"catalog","database":"database","dataset":"dataset","delimiter":"delimiter","endpoint_url":"endpoint_url","format":"format","host":"host","location":"location","path":"path","port":"port","project":"project","region":"region","region_name":"region_name","schema":"schema","service_name":"service_name","staging_dir":"staging_dir","stream":"stream","warehouse":"warehouse","roles":["roles"],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}]}],"schema":[{"asset_id":"2b0bf220-079c-11ee-be56-0242ac120002","connection_id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","description":"description","connection_path":"connection_path","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"},"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}],"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]},"engines":[{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]}]}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","sub_container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd"},"is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
+        mock_response2 = '{"total_count":2,"limit":1,"releases":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"servers":[{"server":"server","asset":{"id":"id","name":"name"},"connection_id":"connection_id","type":"type","description":"description","environment":"environment","account":"account","catalog":"catalog","database":"database","dataset":"dataset","delimiter":"delimiter","endpoint_url":"endpoint_url","format":"format","host":"host","location":"location","path":"path","port":"port","project":"project","region":"region","region_name":"region_name","schema":"schema","service_name":"service_name","staging_dir":"staging_dir","stream":"stream","warehouse":"warehouse","roles":["roles"],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}]}],"schema":[{"asset_id":"2b0bf220-079c-11ee-be56-0242ac120002","connection_id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","description":"description","connection_path":"connection_path","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"},"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}],"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]},"engines":[{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]}]}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","sub_container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd"},"is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -4419,8 +5160,8 @@ class TestListDataProductReleases:
         """
         # Set up a two-page mock response
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases')
-        mock_response1 = '{"next":{"start":"1"},"total_count":2,"limit":1,"releases":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"schema":[{"name":"name","description":"description","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"}}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","associated_catalogs":["associated_catalogs"]}}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
-        mock_response2 = '{"total_count":2,"limit":1,"releases":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"schema":[{"name":"name","description":"description","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"}}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","associated_catalogs":["associated_catalogs"]}}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
+        mock_response1 = '{"next":{"start":"1"},"total_count":2,"limit":1,"releases":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"servers":[{"server":"server","asset":{"id":"id","name":"name"},"connection_id":"connection_id","type":"type","description":"description","environment":"environment","account":"account","catalog":"catalog","database":"database","dataset":"dataset","delimiter":"delimiter","endpoint_url":"endpoint_url","format":"format","host":"host","location":"location","path":"path","port":"port","project":"project","region":"region","region_name":"region_name","schema":"schema","service_name":"service_name","staging_dir":"staging_dir","stream":"stream","warehouse":"warehouse","roles":["roles"],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}]}],"schema":[{"asset_id":"2b0bf220-079c-11ee-be56-0242ac120002","connection_id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","description":"description","connection_path":"connection_path","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"},"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}],"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]},"engines":[{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]}]}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","sub_container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd"},"is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
+        mock_response2 = '{"total_count":2,"limit":1,"releases":[{"version":"1.0.0","state":"draft","data_product":{"id":"b38df608-d34b-4d58-8136-ed25e6c6684e","release":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"},"container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"name":"My Data Product","description":"This is a description of My Data Product.","tags":["tags"],"use_cases":[{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}],"types":["data"],"contract_terms":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"id":"id","documents":[{"url":"url","type":"terms_and_conditions","name":"name","id":"2b0bf220-079c-11ee-be56-0242ac120002","attachment":{"id":"id"},"upload_url":"upload_url"}],"error_msg":"error_msg","overview":{"api_version":"v3.0.1","kind":"DataContract","name":"Sample Data Contract","version":"0.0.0","domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"more_info":"List of links to sources that provide more details on the data contract."},"description":{"purpose":"Used for customer behavior analysis.","limitations":"Data cannot be used for marketing.","usage":"Data should be used only for analytics.","more_info":[{"type":"privacy-statement","url":"https://moreinfo.example.com"}],"custom_properties":"{\\"property1\\":\\"value1\\"}"},"organization":[{"user_id":"IBMid-691000IN4G","role":"owner"}],"roles":[{"role":"owner"}],"price":{"amount":"100.0","currency":"USD","unit":"megabyte"},"sla":[{"default_element":"Standard SLA Policy","properties":[{"property":"Uptime Guarantee","value":"99.9"}]}],"support_and_communication":[{"channel":"Email Support","url":"https://support.example.com"}],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}],"contract_test":{"status":"pass","last_tested_time":"last_tested_time","message":"message"},"servers":[{"server":"server","asset":{"id":"id","name":"name"},"connection_id":"connection_id","type":"type","description":"description","environment":"environment","account":"account","catalog":"catalog","database":"database","dataset":"dataset","delimiter":"delimiter","endpoint_url":"endpoint_url","format":"format","host":"host","location":"location","path":"path","port":"port","project":"project","region":"region","region_name":"region_name","schema":"schema","service_name":"service_name","staging_dir":"staging_dir","stream":"stream","warehouse":"warehouse","roles":["roles"],"custom_properties":[{"key":"customPropertyKey","value":"customPropertyValue"}]}],"schema":[{"asset_id":"2b0bf220-079c-11ee-be56-0242ac120002","connection_id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","description":"description","connection_path":"connection_path","physical_type":"physical_type","properties":[{"name":"name","type":{"type":"type","length":"length","scale":"scale","nullable":"nullable","signed":"signed","native_type":"native_type"},"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}],"quality":[{"type":"sql","description":"description","rule":"rule","implementation":"implementation","engine":"engine","must_be_less_than":"must_be_less_than","must_be_less_or_equal_to":"must_be_less_or_equal_to","must_be_greater_than":"must_be_greater_than","must_be_greater_or_equal_to":"must_be_greater_or_equal_to","must_be_between":["must_be_between"],"must_not_be_between":["must_not_be_between"],"must_be":"must_be","must_not_be":"must_not_be","name":"name","unit":"unit","query":"query"}]}]}],"domain":{"id":"id","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}},"parts_out":[{"asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"type":"data_asset"},"delivery_methods":[{"id":"09cf5fcc-cb9d-4995-a8e4-16517b25229f","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"},"getproperties":{"producer_input":{"engine_details":{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]},"engines":[{"display_name":"Iceberg Engine","engine_id":"presto767","engine_port":"34567","engine_host":"a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud","engine_type":"spark","associated_catalogs":["associated_catalogs"]}]}}}]}],"workflows":{"order_access_request":{"task_assignee_users":["task_assignee_users"],"pre_approved_users":["pre_approved_users"],"custom_workflow_definition":{"id":"18bdbde1-918e-4ecf-aa23-6727bf319e14"}}},"dataview_enabled":true,"comments":"Comments by a producer that are provided either at the time of data product version creation or retiring","access_control":{"owner":"IBMid-696000KYV9"},"last_updated_at":"2019-01-01T12:00:00.000Z","sub_container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd"},"is_restricted":false,"id":"2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd","asset":{"id":"2b0bf220-079c-11ee-be56-0242ac120002","name":"name","container":{"id":"d29c42eb-7100-4b7a-8257-c196dbcca1cd","type":"catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -4462,7 +5203,7 @@ class TestRetireDataProductRelease:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString/retire')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.POST,
             url,
@@ -4475,12 +5216,14 @@ class TestRetireDataProductRelease:
         data_product_id = 'testString'
         release_id = 'testString'
         revoke_access = False
+        start_at = 'testString'
 
         # Invoke method
         response = _service.retire_data_product_release(
             data_product_id,
             release_id,
             revoke_access=revoke_access,
+            start_at=start_at,
             headers={},
         )
 
@@ -4491,6 +5234,7 @@ class TestRetireDataProductRelease:
         query_string = responses.calls[0].request.url.split('?', 1)[1]
         query_string = urllib.parse.unquote_plus(query_string)
         assert 'revoke_access={}'.format('true' if revoke_access else 'false') in query_string
+        assert 'start_at={}'.format(start_at) in query_string
 
     def test_retire_data_product_release_all_params_with_retries(self):
         # Enable retries and run test_retire_data_product_release_all_params.
@@ -4508,7 +5252,7 @@ class TestRetireDataProductRelease:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString/retire')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.POST,
             url,
@@ -4548,7 +5292,7 @@ class TestRetireDataProductRelease:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString/retire')
-        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
+        mock_response = '{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "published_by": "published_by", "published_at": "2019-01-01T12:00:00.000Z", "created_by": "created_by", "created_at": "2019-01-01T12:00:00.000Z", "properties": {"anyKey": "anyValue"}, "visualization_errors": [{"visualization": {"id": "id", "name": "name"}, "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "related_asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "error": {"code": "code", "message": "message"}}]}'
         responses.add(
             responses.POST,
             url,
@@ -4579,6 +5323,136 @@ class TestRetireDataProductRelease:
         # Disable retries and run test_retire_data_product_release_value_error.
         _service.disable_retries()
         self.test_retire_data_product_release_value_error()
+
+
+class TestCreateRevokeAccessProcess:
+    """
+    Test Class for create_revoke_access_process
+    """
+
+    @responses.activate
+    def test_create_revoke_access_process_all_params(self):
+        """
+        create_revoke_access_process()
+        """
+        # Set up mock
+        url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString/revoke_access')
+        mock_response = '{"message": "message"}'
+        responses.add(
+            responses.POST,
+            url,
+            body=mock_response,
+            content_type='application/json',
+            status=202,
+        )
+
+        # Set up parameter values
+        data_product_id = 'testString'
+        release_id = 'testString'
+        body = io.BytesIO(b'This is a mock file.').getvalue()
+        content_type = 'testString'
+
+        # Invoke method
+        response = _service.create_revoke_access_process(
+            data_product_id,
+            release_id,
+            body=body,
+            content_type=content_type,
+            headers={},
+        )
+
+        # Check for correct operation
+        assert len(responses.calls) == 1
+        assert response.status_code == 202
+        # Validate body params
+
+    def test_create_revoke_access_process_all_params_with_retries(self):
+        # Enable retries and run test_create_revoke_access_process_all_params.
+        _service.enable_retries()
+        self.test_create_revoke_access_process_all_params()
+
+        # Disable retries and run test_create_revoke_access_process_all_params.
+        _service.disable_retries()
+        self.test_create_revoke_access_process_all_params()
+
+    @responses.activate
+    def test_create_revoke_access_process_required_params(self):
+        """
+        test_create_revoke_access_process_required_params()
+        """
+        # Set up mock
+        url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString/revoke_access')
+        mock_response = '{"message": "message"}'
+        responses.add(
+            responses.POST,
+            url,
+            body=mock_response,
+            content_type='application/json',
+            status=202,
+        )
+
+        # Set up parameter values
+        data_product_id = 'testString'
+        release_id = 'testString'
+
+        # Invoke method
+        response = _service.create_revoke_access_process(
+            data_product_id,
+            release_id,
+            headers={},
+        )
+
+        # Check for correct operation
+        assert len(responses.calls) == 1
+        assert response.status_code == 202
+
+    def test_create_revoke_access_process_required_params_with_retries(self):
+        # Enable retries and run test_create_revoke_access_process_required_params.
+        _service.enable_retries()
+        self.test_create_revoke_access_process_required_params()
+
+        # Disable retries and run test_create_revoke_access_process_required_params.
+        _service.disable_retries()
+        self.test_create_revoke_access_process_required_params()
+
+    @responses.activate
+    def test_create_revoke_access_process_value_error(self):
+        """
+        test_create_revoke_access_process_value_error()
+        """
+        # Set up mock
+        url = preprocess_url('/data_product_exchange/v1/data_products/testString/releases/testString/revoke_access')
+        mock_response = '{"message": "message"}'
+        responses.add(
+            responses.POST,
+            url,
+            body=mock_response,
+            content_type='application/json',
+            status=202,
+        )
+
+        # Set up parameter values
+        data_product_id = 'testString'
+        release_id = 'testString'
+
+        # Pass in all but one required param and check for a ValueError
+        req_param_dict = {
+            "data_product_id": data_product_id,
+            "release_id": release_id,
+        }
+        for param in req_param_dict.keys():
+            req_copy = {key: val if key is not param else None for (key, val) in req_param_dict.items()}
+            with pytest.raises(ValueError):
+                _service.create_revoke_access_process(**req_copy)
+
+    def test_create_revoke_access_process_value_error_with_retries(self):
+        # Enable retries and run test_create_revoke_access_process_value_error.
+        _service.enable_retries()
+        self.test_create_revoke_access_process_value_error()
+
+        # Disable retries and run test_create_revoke_access_process_value_error.
+        _service.disable_retries()
+        self.test_create_revoke_access_process_value_error()
 
 
 # endregion
@@ -4632,7 +5506,7 @@ class TestListDataProductContractTemplate:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/contract_templates')
-        mock_response = '{"contract_templates": [{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}}]}'
+        mock_response = '{"contract_templates": [{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "creator_id": "IBMid-123456ABC", "created_at": "2025-06-26T12:30:20.000Z", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}}]}'
         responses.add(
             responses.GET,
             url,
@@ -4644,11 +5518,13 @@ class TestListDataProductContractTemplate:
         # Set up parameter values
         container_id = 'testString'
         contract_template_name = 'testString'
+        domain_ids = 'testString'
 
         # Invoke method
         response = _service.list_data_product_contract_template(
             container_id=container_id,
             contract_template_name=contract_template_name,
+            domain_ids=domain_ids,
             headers={},
         )
 
@@ -4660,6 +5536,7 @@ class TestListDataProductContractTemplate:
         query_string = urllib.parse.unquote_plus(query_string)
         assert 'container.id={}'.format(container_id) in query_string
         assert 'contract_template.name={}'.format(contract_template_name) in query_string
+        assert 'domain.ids={}'.format(domain_ids) in query_string
 
     def test_list_data_product_contract_template_all_params_with_retries(self):
         # Enable retries and run test_list_data_product_contract_template_all_params.
@@ -4677,7 +5554,7 @@ class TestListDataProductContractTemplate:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/contract_templates')
-        mock_response = '{"contract_templates": [{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}}]}'
+        mock_response = '{"contract_templates": [{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "creator_id": "IBMid-123456ABC", "created_at": "2025-06-26T12:30:20.000Z", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}}]}'
         responses.add(
             responses.GET,
             url,
@@ -4715,7 +5592,7 @@ class TestCreateContractTemplate:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/contract_templates')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "creator_id": "IBMid-123456ABC", "created_at": "2025-06-26T12:30:20.000Z", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}}'
         responses.add(
             responses.POST,
             url,
@@ -4726,7 +5603,7 @@ class TestCreateContractTemplate:
 
         # Construct a dict representation of a ContainerReference model
         container_reference_model = {}
-        container_reference_model['id'] = 'f531f74a-01c8-4e91-8e29-b018db683c86'
+        container_reference_model['id'] = '531f74a-01c8-4e91-8e29-b018db683c86'
         container_reference_model['type'] = 'catalog'
 
         # Construct a dict representation of a ErrorMessage model
@@ -4755,8 +5632,8 @@ class TestCreateContractTemplate:
 
         # Construct a dict representation of a Domain model
         domain_model = {}
-        domain_model['id'] = 'b38df608-d34b-4d58-8136-ed25e6c6684e'
-        domain_model['name'] = 'domain_name'
+        domain_model['id'] = '0094ebe9-abc3-473b-80ea-c777ede095ea'
+        domain_model['name'] = 'Test Domain New'
         domain_model['container'] = container_reference_model
 
         # Construct a dict representation of a Overview model
@@ -4822,6 +5699,41 @@ class TestCreateContractTemplate:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        # Construct a dict representation of a ContractAsset model
+        contract_asset_model = {}
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        # Construct a dict representation of a ContractServer model
+        contract_server_model = {}
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         # Construct a dict representation of a ContractSchemaPropertyType model
         contract_schema_property_type_model = {}
         contract_schema_property_type_model['type'] = 'testString'
@@ -4831,17 +5743,41 @@ class TestCreateContractTemplate:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        # Construct a dict representation of a ContractQualityRule model
+        contract_quality_rule_model = {}
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         # Construct a dict representation of a ContractSchemaProperty model
         contract_schema_property_model = {}
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractSchema model
         contract_schema_model = {}
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractTerms model
         contract_terms_model = {}
@@ -4858,26 +5794,33 @@ class TestCreateContractTemplate:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         # Set up parameter values
         container = container_reference_model
         id = 'testString'
+        creator_id = 'testString'
+        created_at = 'testString'
         name = 'Sample Data Contract Template'
         error = error_message_model
         contract_terms = contract_terms_model
         container_id = 'testString'
         contract_template_name = 'testString'
+        domain_ids = 'testString'
 
         # Invoke method
         response = _service.create_contract_template(
             container,
             id=id,
+            creator_id=creator_id,
+            created_at=created_at,
             name=name,
             error=error,
             contract_terms=contract_terms,
             container_id=container_id,
             contract_template_name=contract_template_name,
+            domain_ids=domain_ids,
             headers={},
         )
 
@@ -4889,10 +5832,13 @@ class TestCreateContractTemplate:
         query_string = urllib.parse.unquote_plus(query_string)
         assert 'container.id={}'.format(container_id) in query_string
         assert 'contract_template.name={}'.format(contract_template_name) in query_string
+        assert 'domain.ids={}'.format(domain_ids) in query_string
         # Validate body params
         req_body = json.loads(str(responses.calls[0].request.body, 'utf-8'))
         assert req_body['container'] == container_reference_model
         assert req_body['id'] == 'testString'
+        assert req_body['creator_id'] == 'testString'
+        assert req_body['created_at'] == 'testString'
         assert req_body['name'] == 'Sample Data Contract Template'
         assert req_body['error'] == error_message_model
         assert req_body['contract_terms'] == contract_terms_model
@@ -4913,7 +5859,7 @@ class TestCreateContractTemplate:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/contract_templates')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "creator_id": "IBMid-123456ABC", "created_at": "2025-06-26T12:30:20.000Z", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}}'
         responses.add(
             responses.POST,
             url,
@@ -4924,7 +5870,7 @@ class TestCreateContractTemplate:
 
         # Construct a dict representation of a ContainerReference model
         container_reference_model = {}
-        container_reference_model['id'] = 'f531f74a-01c8-4e91-8e29-b018db683c86'
+        container_reference_model['id'] = '531f74a-01c8-4e91-8e29-b018db683c86'
         container_reference_model['type'] = 'catalog'
 
         # Construct a dict representation of a ErrorMessage model
@@ -4953,8 +5899,8 @@ class TestCreateContractTemplate:
 
         # Construct a dict representation of a Domain model
         domain_model = {}
-        domain_model['id'] = 'b38df608-d34b-4d58-8136-ed25e6c6684e'
-        domain_model['name'] = 'domain_name'
+        domain_model['id'] = '0094ebe9-abc3-473b-80ea-c777ede095ea'
+        domain_model['name'] = 'Test Domain New'
         domain_model['container'] = container_reference_model
 
         # Construct a dict representation of a Overview model
@@ -5020,6 +5966,41 @@ class TestCreateContractTemplate:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        # Construct a dict representation of a ContractAsset model
+        contract_asset_model = {}
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        # Construct a dict representation of a ContractServer model
+        contract_server_model = {}
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         # Construct a dict representation of a ContractSchemaPropertyType model
         contract_schema_property_type_model = {}
         contract_schema_property_type_model['type'] = 'testString'
@@ -5029,17 +6010,41 @@ class TestCreateContractTemplate:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        # Construct a dict representation of a ContractQualityRule model
+        contract_quality_rule_model = {}
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         # Construct a dict representation of a ContractSchemaProperty model
         contract_schema_property_model = {}
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractSchema model
         contract_schema_model = {}
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractTerms model
         contract_terms_model = {}
@@ -5056,11 +6061,14 @@ class TestCreateContractTemplate:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         # Set up parameter values
         container = container_reference_model
         id = 'testString'
+        creator_id = 'testString'
+        created_at = 'testString'
         name = 'Sample Data Contract Template'
         error = error_message_model
         contract_terms = contract_terms_model
@@ -5069,6 +6077,8 @@ class TestCreateContractTemplate:
         response = _service.create_contract_template(
             container,
             id=id,
+            creator_id=creator_id,
+            created_at=created_at,
             name=name,
             error=error,
             contract_terms=contract_terms,
@@ -5082,6 +6092,8 @@ class TestCreateContractTemplate:
         req_body = json.loads(str(responses.calls[0].request.body, 'utf-8'))
         assert req_body['container'] == container_reference_model
         assert req_body['id'] == 'testString'
+        assert req_body['creator_id'] == 'testString'
+        assert req_body['created_at'] == 'testString'
         assert req_body['name'] == 'Sample Data Contract Template'
         assert req_body['error'] == error_message_model
         assert req_body['contract_terms'] == contract_terms_model
@@ -5102,7 +6114,7 @@ class TestCreateContractTemplate:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/contract_templates')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "creator_id": "IBMid-123456ABC", "created_at": "2025-06-26T12:30:20.000Z", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}}'
         responses.add(
             responses.POST,
             url,
@@ -5113,7 +6125,7 @@ class TestCreateContractTemplate:
 
         # Construct a dict representation of a ContainerReference model
         container_reference_model = {}
-        container_reference_model['id'] = 'f531f74a-01c8-4e91-8e29-b018db683c86'
+        container_reference_model['id'] = '531f74a-01c8-4e91-8e29-b018db683c86'
         container_reference_model['type'] = 'catalog'
 
         # Construct a dict representation of a ErrorMessage model
@@ -5142,8 +6154,8 @@ class TestCreateContractTemplate:
 
         # Construct a dict representation of a Domain model
         domain_model = {}
-        domain_model['id'] = 'b38df608-d34b-4d58-8136-ed25e6c6684e'
-        domain_model['name'] = 'domain_name'
+        domain_model['id'] = '0094ebe9-abc3-473b-80ea-c777ede095ea'
+        domain_model['name'] = 'Test Domain New'
         domain_model['container'] = container_reference_model
 
         # Construct a dict representation of a Overview model
@@ -5209,6 +6221,41 @@ class TestCreateContractTemplate:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        # Construct a dict representation of a ContractAsset model
+        contract_asset_model = {}
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        # Construct a dict representation of a ContractServer model
+        contract_server_model = {}
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         # Construct a dict representation of a ContractSchemaPropertyType model
         contract_schema_property_type_model = {}
         contract_schema_property_type_model['type'] = 'testString'
@@ -5218,17 +6265,41 @@ class TestCreateContractTemplate:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        # Construct a dict representation of a ContractQualityRule model
+        contract_quality_rule_model = {}
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         # Construct a dict representation of a ContractSchemaProperty model
         contract_schema_property_model = {}
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractSchema model
         contract_schema_model = {}
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         # Construct a dict representation of a ContractTerms model
         contract_terms_model = {}
@@ -5245,11 +6316,14 @@ class TestCreateContractTemplate:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         # Set up parameter values
         container = container_reference_model
         id = 'testString'
+        creator_id = 'testString'
+        created_at = 'testString'
         name = 'Sample Data Contract Template'
         error = error_message_model
         contract_terms = contract_terms_model
@@ -5285,7 +6359,7 @@ class TestGetContractTemplate:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/contract_templates/testString')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "creator_id": "IBMid-123456ABC", "created_at": "2025-06-26T12:30:20.000Z", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}}'
         responses.add(
             responses.GET,
             url,
@@ -5329,7 +6403,7 @@ class TestGetContractTemplate:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/contract_templates/testString')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "creator_id": "IBMid-123456ABC", "created_at": "2025-06-26T12:30:20.000Z", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}}'
         responses.add(
             responses.GET,
             url,
@@ -5457,7 +6531,7 @@ class TestUpdateDataProductContractTemplate:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/contract_templates/testString')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "creator_id": "IBMid-123456ABC", "created_at": "2025-06-26T12:30:20.000Z", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}}'
         responses.add(
             responses.PATCH,
             url,
@@ -5513,7 +6587,7 @@ class TestUpdateDataProductContractTemplate:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/contract_templates/testString')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "id": "20aa7c97-cfcc-4d16-ae76-2ca1847ce733", "creator_id": "IBMid-123456ABC", "created_at": "2025-06-26T12:30:20.000Z", "name": "Sample Data Contract Template", "error": {"code": "code", "message": "message"}, "contract_terms": {"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}}'
         responses.add(
             responses.PATCH,
             url,
@@ -5606,7 +6680,7 @@ class TestListDataProductDomains:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/domains')
-        mock_response = '{"domains": [{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}]}]}'
+        mock_response = '{"domains": [{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "created_by": "created_by", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}], "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}}]}'
         responses.add(
             responses.GET,
             url,
@@ -5617,10 +6691,12 @@ class TestListDataProductDomains:
 
         # Set up parameter values
         container_id = 'testString'
+        include_subdomains = True
 
         # Invoke method
         response = _service.list_data_product_domains(
             container_id=container_id,
+            include_subdomains=include_subdomains,
             headers={},
         )
 
@@ -5631,6 +6707,7 @@ class TestListDataProductDomains:
         query_string = responses.calls[0].request.url.split('?', 1)[1]
         query_string = urllib.parse.unquote_plus(query_string)
         assert 'container.id={}'.format(container_id) in query_string
+        assert 'include_subdomains={}'.format('true' if include_subdomains else 'false') in query_string
 
     def test_list_data_product_domains_all_params_with_retries(self):
         # Enable retries and run test_list_data_product_domains_all_params.
@@ -5648,7 +6725,7 @@ class TestListDataProductDomains:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/domains')
-        mock_response = '{"domains": [{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}]}]}'
+        mock_response = '{"domains": [{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "created_by": "created_by", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}], "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}}]}'
         responses.add(
             responses.GET,
             url,
@@ -5686,7 +6763,7 @@ class TestCreateDataProductDomain:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/domains')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}]}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "created_by": "created_by", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}], "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}}'
         responses.add(
             responses.POST,
             url,
@@ -5732,6 +6809,10 @@ class TestCreateDataProductDomain:
         initialize_sub_domain_model['id'] = 'testString'
         initialize_sub_domain_model['description'] = 'New sub domain 1'
 
+        # Construct a dict representation of a ContainerIdentity model
+        container_identity_model = {}
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
+
         # Set up parameter values
         container = container_reference_model
         trace = 'testString'
@@ -5739,10 +6820,12 @@ class TestCreateDataProductDomain:
         name = 'Test domain'
         description = 'The sample description for new domain'
         id = 'testString'
+        created_by = 'testString'
         member_roles = member_roles_schema_model
         properties = properties_schema_model
         sub_domains = [initialize_sub_domain_model]
-        container_id = 'testString'
+        sub_container = container_identity_model
+        link_to_subcontainers = False
 
         # Invoke method
         response = _service.create_data_product_domain(
@@ -5752,10 +6835,12 @@ class TestCreateDataProductDomain:
             name=name,
             description=description,
             id=id,
+            created_by=created_by,
             member_roles=member_roles,
             properties=properties,
             sub_domains=sub_domains,
-            container_id=container_id,
+            sub_container=sub_container,
+            link_to_subcontainers=link_to_subcontainers,
             headers={},
         )
 
@@ -5765,7 +6850,7 @@ class TestCreateDataProductDomain:
         # Validate query params
         query_string = responses.calls[0].request.url.split('?', 1)[1]
         query_string = urllib.parse.unquote_plus(query_string)
-        assert 'container.id={}'.format(container_id) in query_string
+        assert 'link_to_subcontainers={}'.format('true' if link_to_subcontainers else 'false') in query_string
         # Validate body params
         req_body = json.loads(str(responses.calls[0].request.body, 'utf-8'))
         assert req_body['container'] == container_reference_model
@@ -5774,9 +6859,11 @@ class TestCreateDataProductDomain:
         assert req_body['name'] == 'Test domain'
         assert req_body['description'] == 'The sample description for new domain'
         assert req_body['id'] == 'testString'
+        assert req_body['created_by'] == 'testString'
         assert req_body['member_roles'] == member_roles_schema_model
         assert req_body['properties'] == properties_schema_model
         assert req_body['sub_domains'] == [initialize_sub_domain_model]
+        assert req_body['sub_container'] == container_identity_model
 
     def test_create_data_product_domain_all_params_with_retries(self):
         # Enable retries and run test_create_data_product_domain_all_params.
@@ -5794,7 +6881,7 @@ class TestCreateDataProductDomain:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/domains')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}]}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "created_by": "created_by", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}], "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}}'
         responses.add(
             responses.POST,
             url,
@@ -5840,6 +6927,10 @@ class TestCreateDataProductDomain:
         initialize_sub_domain_model['id'] = 'testString'
         initialize_sub_domain_model['description'] = 'New sub domain 1'
 
+        # Construct a dict representation of a ContainerIdentity model
+        container_identity_model = {}
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
+
         # Set up parameter values
         container = container_reference_model
         trace = 'testString'
@@ -5847,9 +6938,11 @@ class TestCreateDataProductDomain:
         name = 'Test domain'
         description = 'The sample description for new domain'
         id = 'testString'
+        created_by = 'testString'
         member_roles = member_roles_schema_model
         properties = properties_schema_model
         sub_domains = [initialize_sub_domain_model]
+        sub_container = container_identity_model
 
         # Invoke method
         response = _service.create_data_product_domain(
@@ -5859,9 +6952,11 @@ class TestCreateDataProductDomain:
             name=name,
             description=description,
             id=id,
+            created_by=created_by,
             member_roles=member_roles,
             properties=properties,
             sub_domains=sub_domains,
+            sub_container=sub_container,
             headers={},
         )
 
@@ -5876,9 +6971,11 @@ class TestCreateDataProductDomain:
         assert req_body['name'] == 'Test domain'
         assert req_body['description'] == 'The sample description for new domain'
         assert req_body['id'] == 'testString'
+        assert req_body['created_by'] == 'testString'
         assert req_body['member_roles'] == member_roles_schema_model
         assert req_body['properties'] == properties_schema_model
         assert req_body['sub_domains'] == [initialize_sub_domain_model]
+        assert req_body['sub_container'] == container_identity_model
 
     def test_create_data_product_domain_required_params_with_retries(self):
         # Enable retries and run test_create_data_product_domain_required_params.
@@ -5896,7 +6993,7 @@ class TestCreateDataProductDomain:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/domains')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}]}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "created_by": "created_by", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}], "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}}'
         responses.add(
             responses.POST,
             url,
@@ -5942,6 +7039,10 @@ class TestCreateDataProductDomain:
         initialize_sub_domain_model['id'] = 'testString'
         initialize_sub_domain_model['description'] = 'New sub domain 1'
 
+        # Construct a dict representation of a ContainerIdentity model
+        container_identity_model = {}
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
+
         # Set up parameter values
         container = container_reference_model
         trace = 'testString'
@@ -5949,9 +7050,11 @@ class TestCreateDataProductDomain:
         name = 'Test domain'
         description = 'The sample description for new domain'
         id = 'testString'
+        created_by = 'testString'
         member_roles = member_roles_schema_model
         properties = properties_schema_model
         sub_domains = [initialize_sub_domain_model]
+        sub_container = container_identity_model
 
         # Pass in all but one required param and check for a ValueError
         req_param_dict = {
@@ -6087,7 +7190,7 @@ class TestGetDomain:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/domains/testString')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}]}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "created_by": "created_by", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}], "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}}'
         responses.add(
             responses.GET,
             url,
@@ -6125,7 +7228,7 @@ class TestGetDomain:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/domains/testString')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}]}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "created_by": "created_by", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}], "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}}'
         responses.add(
             responses.GET,
             url,
@@ -6243,7 +7346,7 @@ class TestUpdateDataProductDomain:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/domains/testString')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}]}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "created_by": "created_by", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}], "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}}'
         responses.add(
             responses.PATCH,
             url,
@@ -6299,7 +7402,7 @@ class TestUpdateDataProductDomain:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/domains/testString')
-        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}]}'
+        mock_response = '{"container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "trace": "trace", "errors": [{"code": "request_body_error", "message": "message", "extra": {"id": "id", "timestamp": "2019-01-01T12:00:00.000Z", "environment_name": "environment_name", "http_status": 0, "source_cluster": 0, "source_component": 0, "transaction_id": 0}, "more_info": "more_info"}], "name": "Operations", "description": "This is a description of the data product domain.", "id": "id", "created_by": "created_by", "member_roles": {"user_iam_id": "user_iam_id", "roles": ["roles"]}, "properties": {"value": "value"}, "sub_domains": [{"name": "Operations", "id": "id", "description": "description"}], "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}}'
         responses.add(
             responses.PATCH,
             url,
@@ -6353,7 +7456,7 @@ class TestGetDataProductByDomain:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/domains/testString/data_products')
-        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "data_product_versions": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
+        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "data_product_versions": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -6397,7 +7500,7 @@ class TestGetDataProductByDomain:
         """
         # Set up mock
         url = preprocess_url('/data_product_exchange/v1/domains/testString/data_products')
-        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "data_product_versions": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "schema": [{"name": "name", "description": "description", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "associated_catalogs": ["associated_catalogs"]}}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
+        mock_response = '{"limit": 200, "first": {"href": "https://api.example.com/collection"}, "next": {"href": "https://api.example.com/collection?start=eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9", "start": "eyJvZmZzZXQiOjAsImRvbmUiOnRydWV9"}, "total_results": 200, "data_product_versions": [{"version": "1.0.0", "state": "draft", "data_product": {"id": "b38df608-d34b-4d58-8136-ed25e6c6684e", "release": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}, "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "name": "My Data Product", "description": "This is a description of My Data Product.", "tags": ["tags"], "use_cases": [{"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}], "types": ["data"], "contract_terms": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "id": "id", "documents": [{"url": "url", "type": "terms_and_conditions", "name": "name", "id": "2b0bf220-079c-11ee-be56-0242ac120002", "attachment": {"id": "id"}, "upload_url": "upload_url"}], "error_msg": "error_msg", "overview": {"api_version": "v3.0.1", "kind": "DataContract", "name": "Sample Data Contract", "version": "0.0.0", "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "more_info": "List of links to sources that provide more details on the data contract."}, "description": {"purpose": "Used for customer behavior analysis.", "limitations": "Data cannot be used for marketing.", "usage": "Data should be used only for analytics.", "more_info": [{"type": "privacy-statement", "url": "https://moreinfo.example.com"}], "custom_properties": "{\\"property1\\":\\"value1\\"}"}, "organization": [{"user_id": "IBMid-691000IN4G", "role": "owner"}], "roles": [{"role": "owner"}], "price": {"amount": "100.0", "currency": "USD", "unit": "megabyte"}, "sla": [{"default_element": "Standard SLA Policy", "properties": [{"property": "Uptime Guarantee", "value": "99.9"}]}], "support_and_communication": [{"channel": "Email Support", "url": "https://support.example.com"}], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}], "contract_test": {"status": "pass", "last_tested_time": "last_tested_time", "message": "message"}, "servers": [{"server": "server", "asset": {"id": "id", "name": "name"}, "connection_id": "connection_id", "type": "type", "description": "description", "environment": "environment", "account": "account", "catalog": "catalog", "database": "database", "dataset": "dataset", "delimiter": "delimiter", "endpoint_url": "endpoint_url", "format": "format", "host": "host", "location": "location", "path": "path", "port": "port", "project": "project", "region": "region", "region_name": "region_name", "schema": "schema", "service_name": "service_name", "staging_dir": "staging_dir", "stream": "stream", "warehouse": "warehouse", "roles": ["roles"], "custom_properties": [{"key": "customPropertyKey", "value": "customPropertyValue"}]}], "schema": [{"asset_id": "2b0bf220-079c-11ee-be56-0242ac120002", "connection_id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "description": "description", "connection_path": "connection_path", "physical_type": "physical_type", "properties": [{"name": "name", "type": {"type": "type", "length": "length", "scale": "scale", "nullable": "nullable", "signed": "signed", "native_type": "native_type"}, "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}], "quality": [{"type": "sql", "description": "description", "rule": "rule", "implementation": "implementation", "engine": "engine", "must_be_less_than": "must_be_less_than", "must_be_less_or_equal_to": "must_be_less_or_equal_to", "must_be_greater_than": "must_be_greater_than", "must_be_greater_or_equal_to": "must_be_greater_or_equal_to", "must_be_between": ["must_be_between"], "must_not_be_between": ["must_not_be_between"], "must_be": "must_be", "must_not_be": "must_not_be", "name": "name", "unit": "unit", "query": "query"}]}]}], "domain": {"id": "id", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}, "parts_out": [{"asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "type": "data_asset"}, "delivery_methods": [{"id": "09cf5fcc-cb9d-4995-a8e4-16517b25229f", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}, "getproperties": {"producer_input": {"engine_details": {"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}, "engines": [{"display_name": "Iceberg Engine", "engine_id": "presto767", "engine_port": "34567", "engine_host": "a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud", "engine_type": "spark", "associated_catalogs": ["associated_catalogs"]}]}}}]}], "workflows": {"order_access_request": {"task_assignee_users": ["task_assignee_users"], "pre_approved_users": ["pre_approved_users"], "custom_workflow_definition": {"id": "18bdbde1-918e-4ecf-aa23-6727bf319e14"}}}, "dataview_enabled": true, "comments": "Comments by a producer that are provided either at the time of data product version creation or retiring", "access_control": {"owner": "IBMid-696000KYV9"}, "last_updated_at": "2019-01-01T12:00:00.000Z", "sub_container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd"}, "is_restricted": false, "id": "2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd", "asset": {"id": "2b0bf220-079c-11ee-be56-0242ac120002", "name": "name", "container": {"id": "d29c42eb-7100-4b7a-8257-c196dbcca1cd", "type": "catalog"}}}]}'
         responses.add(
             responses.GET,
             url,
@@ -6640,11 +7743,214 @@ class TestGetS3BucketValidation:
 # End of Service: BucketServices
 ##############################################################################
 
+##############################################################################
+# Start of Service: DataProductRevokeAccessJobRuns
+##############################################################################
+# region
+
+
+class TestNewInstance:
+    """
+    Test Class for new_instance
+    """
+
+    def test_new_instance(self):
+        """
+        new_instance()
+        """
+        os.environ['TEST_SERVICE_AUTH_TYPE'] = 'noAuth'
+
+        service = DphV1.new_instance(
+            service_name='TEST_SERVICE',
+        )
+
+        assert service is not None
+        assert isinstance(service, DphV1)
+
+    def test_new_instance_without_authenticator(self):
+        """
+        new_instance_without_authenticator()
+        """
+        with pytest.raises(ValueError, match='authenticator must be provided'):
+            service = DphV1.new_instance(
+                service_name='TEST_SERVICE_NOT_FOUND',
+            )
+
+
+class TestGetRevokeAccessProcessState:
+    """
+    Test Class for get_revoke_access_process_state
+    """
+
+    @responses.activate
+    def test_get_revoke_access_process_state_all_params(self):
+        """
+        get_revoke_access_process_state()
+        """
+        # Set up mock
+        url = preprocess_url('/data_product_exchange/v1/data_product_revoke_access/job_runs')
+        mock_response = '{"results": [{"metadata": {"anyKey": "anyValue"}, "entity": {"anyKey": "anyValue"}}], "total_count": 42, "next": {"query": "ibm_data_product_revoke_access.state:(SCHEDULED OR FAILED)", "limit": 1, "bookmark": "MQ==", "include": "entity", "skip": 0}}'
+        responses.add(
+            responses.GET,
+            url,
+            body=mock_response,
+            content_type='application/json',
+            status=200,
+        )
+
+        # Set up parameter values
+        release_id = 'testString'
+        limit = 200
+        start = 'testString'
+
+        # Invoke method
+        response = _service.get_revoke_access_process_state(
+            release_id,
+            limit=limit,
+            start=start,
+            headers={},
+        )
+
+        # Check for correct operation
+        assert len(responses.calls) == 1
+        assert response.status_code == 200
+        # Validate query params
+        query_string = responses.calls[0].request.url.split('?', 1)[1]
+        query_string = urllib.parse.unquote_plus(query_string)
+        assert 'release_id={}'.format(release_id) in query_string
+        assert 'limit={}'.format(limit) in query_string
+        assert 'start={}'.format(start) in query_string
+
+    def test_get_revoke_access_process_state_all_params_with_retries(self):
+        # Enable retries and run test_get_revoke_access_process_state_all_params.
+        _service.enable_retries()
+        self.test_get_revoke_access_process_state_all_params()
+
+        # Disable retries and run test_get_revoke_access_process_state_all_params.
+        _service.disable_retries()
+        self.test_get_revoke_access_process_state_all_params()
+
+    @responses.activate
+    def test_get_revoke_access_process_state_required_params(self):
+        """
+        test_get_revoke_access_process_state_required_params()
+        """
+        # Set up mock
+        url = preprocess_url('/data_product_exchange/v1/data_product_revoke_access/job_runs')
+        mock_response = '{"results": [{"metadata": {"anyKey": "anyValue"}, "entity": {"anyKey": "anyValue"}}], "total_count": 42, "next": {"query": "ibm_data_product_revoke_access.state:(SCHEDULED OR FAILED)", "limit": 1, "bookmark": "MQ==", "include": "entity", "skip": 0}}'
+        responses.add(
+            responses.GET,
+            url,
+            body=mock_response,
+            content_type='application/json',
+            status=200,
+        )
+
+        # Set up parameter values
+        release_id = 'testString'
+
+        # Invoke method
+        response = _service.get_revoke_access_process_state(
+            release_id,
+            headers={},
+        )
+
+        # Check for correct operation
+        assert len(responses.calls) == 1
+        assert response.status_code == 200
+        # Validate query params
+        query_string = responses.calls[0].request.url.split('?', 1)[1]
+        query_string = urllib.parse.unquote_plus(query_string)
+        assert 'release_id={}'.format(release_id) in query_string
+
+    def test_get_revoke_access_process_state_required_params_with_retries(self):
+        # Enable retries and run test_get_revoke_access_process_state_required_params.
+        _service.enable_retries()
+        self.test_get_revoke_access_process_state_required_params()
+
+        # Disable retries and run test_get_revoke_access_process_state_required_params.
+        _service.disable_retries()
+        self.test_get_revoke_access_process_state_required_params()
+
+    @responses.activate
+    def test_get_revoke_access_process_state_value_error(self):
+        """
+        test_get_revoke_access_process_state_value_error()
+        """
+        # Set up mock
+        url = preprocess_url('/data_product_exchange/v1/data_product_revoke_access/job_runs')
+        mock_response = '{"results": [{"metadata": {"anyKey": "anyValue"}, "entity": {"anyKey": "anyValue"}}], "total_count": 42, "next": {"query": "ibm_data_product_revoke_access.state:(SCHEDULED OR FAILED)", "limit": 1, "bookmark": "MQ==", "include": "entity", "skip": 0}}'
+        responses.add(
+            responses.GET,
+            url,
+            body=mock_response,
+            content_type='application/json',
+            status=200,
+        )
+
+        # Set up parameter values
+        release_id = 'testString'
+
+        # Pass in all but one required param and check for a ValueError
+        req_param_dict = {
+            "release_id": release_id,
+        }
+        for param in req_param_dict.keys():
+            req_copy = {key: val if key is not param else None for (key, val) in req_param_dict.items()}
+            with pytest.raises(ValueError):
+                _service.get_revoke_access_process_state(**req_copy)
+
+    def test_get_revoke_access_process_state_value_error_with_retries(self):
+        # Enable retries and run test_get_revoke_access_process_state_value_error.
+        _service.enable_retries()
+        self.test_get_revoke_access_process_state_value_error()
+
+        # Disable retries and run test_get_revoke_access_process_state_value_error.
+        _service.disable_retries()
+        self.test_get_revoke_access_process_state_value_error()
+
+
+# endregion
+##############################################################################
+# End of Service: DataProductRevokeAccessJobRuns
+##############################################################################
+
 
 ##############################################################################
 # Start of Model Tests
 ##############################################################################
 # region
+
+
+class TestModel_Asset:
+    """
+    Test Class for Asset
+    """
+
+    def test_asset_serialization(self):
+        """
+        Test serialization/deserialization for Asset
+        """
+
+        # Construct a json representation of a Asset model
+        asset_model_json = {}
+        asset_model_json['metadata'] = {'anyKey': 'anyValue'}
+        asset_model_json['entity'] = {'anyKey': 'anyValue'}
+
+        # Construct a model instance of Asset by calling from_dict on the json representation
+        asset_model = Asset.from_dict(asset_model_json)
+        assert asset_model != False
+
+        # Construct a model instance of Asset by calling from_dict on the json representation
+        asset_model_dict = Asset.from_dict(asset_model_json).__dict__
+        asset_model2 = Asset(**asset_model_dict)
+
+        # Verify the model instances are equivalent
+        assert asset_model == asset_model2
+
+        # Convert model instance back to dict and verify no loss of data
+        asset_model_json2 = asset_model.to_dict()
+        assert asset_model_json2 == asset_model_json
 
 
 class TestModel_AssetListAccessControl:
@@ -6915,6 +8221,82 @@ class TestModel_ContainerReference:
         assert container_reference_model_json2 == container_reference_model_json
 
 
+class TestModel_ContractAsset:
+    """
+    Test Class for ContractAsset
+    """
+
+    def test_contract_asset_serialization(self):
+        """
+        Test serialization/deserialization for ContractAsset
+        """
+
+        # Construct a json representation of a ContractAsset model
+        contract_asset_model_json = {}
+        contract_asset_model_json['id'] = 'testString'
+        contract_asset_model_json['name'] = 'testString'
+
+        # Construct a model instance of ContractAsset by calling from_dict on the json representation
+        contract_asset_model = ContractAsset.from_dict(contract_asset_model_json)
+        assert contract_asset_model != False
+
+        # Construct a model instance of ContractAsset by calling from_dict on the json representation
+        contract_asset_model_dict = ContractAsset.from_dict(contract_asset_model_json).__dict__
+        contract_asset_model2 = ContractAsset(**contract_asset_model_dict)
+
+        # Verify the model instances are equivalent
+        assert contract_asset_model == contract_asset_model2
+
+        # Convert model instance back to dict and verify no loss of data
+        contract_asset_model_json2 = contract_asset_model.to_dict()
+        assert contract_asset_model_json2 == contract_asset_model_json
+
+
+class TestModel_ContractQualityRule:
+    """
+    Test Class for ContractQualityRule
+    """
+
+    def test_contract_quality_rule_serialization(self):
+        """
+        Test serialization/deserialization for ContractQualityRule
+        """
+
+        # Construct a json representation of a ContractQualityRule model
+        contract_quality_rule_model_json = {}
+        contract_quality_rule_model_json['type'] = 'sql'
+        contract_quality_rule_model_json['description'] = 'testString'
+        contract_quality_rule_model_json['rule'] = 'testString'
+        contract_quality_rule_model_json['implementation'] = 'testString'
+        contract_quality_rule_model_json['engine'] = 'testString'
+        contract_quality_rule_model_json['must_be_less_than'] = 'testString'
+        contract_quality_rule_model_json['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model_json['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model_json['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model_json['must_be_between'] = ['testString']
+        contract_quality_rule_model_json['must_not_be_between'] = ['testString']
+        contract_quality_rule_model_json['must_be'] = 'testString'
+        contract_quality_rule_model_json['must_not_be'] = 'testString'
+        contract_quality_rule_model_json['name'] = 'testString'
+        contract_quality_rule_model_json['unit'] = 'testString'
+        contract_quality_rule_model_json['query'] = 'testString'
+
+        # Construct a model instance of ContractQualityRule by calling from_dict on the json representation
+        contract_quality_rule_model = ContractQualityRule.from_dict(contract_quality_rule_model_json)
+        assert contract_quality_rule_model != False
+
+        # Construct a model instance of ContractQualityRule by calling from_dict on the json representation
+        contract_quality_rule_model_dict = ContractQualityRule.from_dict(contract_quality_rule_model_json).__dict__
+        contract_quality_rule_model2 = ContractQualityRule(**contract_quality_rule_model_dict)
+
+        # Verify the model instances are equivalent
+        assert contract_quality_rule_model == contract_quality_rule_model2
+
+        # Convert model instance back to dict and verify no loss of data
+        contract_quality_rule_model_json2 = contract_quality_rule_model.to_dict()
+        assert contract_quality_rule_model_json2 == contract_quality_rule_model_json
+
+
 class TestModel_ContractSchema:
     """
     Test Class for ContractSchema
@@ -6935,16 +8317,39 @@ class TestModel_ContractSchema:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         # Construct a json representation of a ContractSchema model
         contract_schema_model_json = {}
+        contract_schema_model_json['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model_json['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model_json['name'] = 'testString'
         contract_schema_model_json['description'] = 'testString'
+        contract_schema_model_json['connection_path'] = 'testString'
         contract_schema_model_json['physical_type'] = 'testString'
         contract_schema_model_json['properties'] = [contract_schema_property_model]
+        contract_schema_model_json['quality'] = [contract_quality_rule_model]
 
         # Construct a model instance of ContractSchema by calling from_dict on the json representation
         contract_schema_model = ContractSchema.from_dict(contract_schema_model_json)
@@ -6982,10 +8387,29 @@ class TestModel_ContractSchemaProperty:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         # Construct a json representation of a ContractSchemaProperty model
         contract_schema_property_model_json = {}
         contract_schema_property_model_json['name'] = 'testString'
         contract_schema_property_model_json['type'] = contract_schema_property_type_model
+        contract_schema_property_model_json['quality'] = [contract_quality_rule_model]
 
         # Construct a model instance of ContractSchemaProperty by calling from_dict on the json representation
         contract_schema_property_model = ContractSchemaProperty.from_dict(contract_schema_property_model_json)
@@ -7036,6 +8460,72 @@ class TestModel_ContractSchemaPropertyType:
         # Convert model instance back to dict and verify no loss of data
         contract_schema_property_type_model_json2 = contract_schema_property_type_model.to_dict()
         assert contract_schema_property_type_model_json2 == contract_schema_property_type_model_json
+
+
+class TestModel_ContractServer:
+    """
+    Test Class for ContractServer
+    """
+
+    def test_contract_server_serialization(self):
+        """
+        Test serialization/deserialization for ContractServer
+        """
+
+        # Construct dict forms of any model objects needed in order to build this model.
+
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_template_custom_property_model = {}  # ContractTemplateCustomProperty
+        contract_template_custom_property_model['key'] = 'customPropertyKey'
+        contract_template_custom_property_model['value'] = 'customPropertyValue'
+
+        # Construct a json representation of a ContractServer model
+        contract_server_model_json = {}
+        contract_server_model_json['server'] = 'testString'
+        contract_server_model_json['asset'] = contract_asset_model
+        contract_server_model_json['connection_id'] = 'testString'
+        contract_server_model_json['type'] = 'testString'
+        contract_server_model_json['description'] = 'testString'
+        contract_server_model_json['environment'] = 'testString'
+        contract_server_model_json['account'] = 'testString'
+        contract_server_model_json['catalog'] = 'testString'
+        contract_server_model_json['database'] = 'testString'
+        contract_server_model_json['dataset'] = 'testString'
+        contract_server_model_json['delimiter'] = 'testString'
+        contract_server_model_json['endpoint_url'] = 'testString'
+        contract_server_model_json['format'] = 'testString'
+        contract_server_model_json['host'] = 'testString'
+        contract_server_model_json['location'] = 'testString'
+        contract_server_model_json['path'] = 'testString'
+        contract_server_model_json['port'] = 'testString'
+        contract_server_model_json['project'] = 'testString'
+        contract_server_model_json['region'] = 'testString'
+        contract_server_model_json['region_name'] = 'testString'
+        contract_server_model_json['schema'] = 'testString'
+        contract_server_model_json['service_name'] = 'testString'
+        contract_server_model_json['staging_dir'] = 'testString'
+        contract_server_model_json['stream'] = 'testString'
+        contract_server_model_json['warehouse'] = 'testString'
+        contract_server_model_json['roles'] = ['testString']
+        contract_server_model_json['custom_properties'] = [contract_template_custom_property_model]
+
+        # Construct a model instance of ContractServer by calling from_dict on the json representation
+        contract_server_model = ContractServer.from_dict(contract_server_model_json)
+        assert contract_server_model != False
+
+        # Construct a model instance of ContractServer by calling from_dict on the json representation
+        contract_server_model_dict = ContractServer.from_dict(contract_server_model_json).__dict__
+        contract_server_model2 = ContractServer(**contract_server_model_dict)
+
+        # Verify the model instances are equivalent
+        assert contract_server_model == contract_server_model2
+
+        # Convert model instance back to dict and verify no loss of data
+        contract_server_model_json2 = contract_server_model.to_dict()
+        assert contract_server_model_json2 == contract_server_model_json
 
 
 class TestModel_ContractTemplateCustomProperty:
@@ -7288,6 +8778,39 @@ class TestModel_ContractTerms:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_server_model = {}  # ContractServer
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         contract_schema_property_type_model = {}  # ContractSchemaPropertyType
         contract_schema_property_type_model['type'] = 'testString'
         contract_schema_property_type_model['length'] = 'testString'
@@ -7296,15 +8819,38 @@ class TestModel_ContractTerms:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         contract_schema_model = {}  # ContractSchema
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         # Construct a json representation of a ContractTerms model
         contract_terms_model_json = {}
@@ -7321,6 +8867,7 @@ class TestModel_ContractTerms:
         contract_terms_model_json['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model_json['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model_json['contract_test'] = contract_test_model
+        contract_terms_model_json['servers'] = [contract_server_model]
         contract_terms_model_json['schema'] = [contract_schema_model]
 
         # Construct a model instance of ContractTerms by calling from_dict on the json representation
@@ -7681,6 +9228,39 @@ class TestModel_DataProduct:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_server_model = {}  # ContractServer
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         contract_schema_property_type_model = {}  # ContractSchemaPropertyType
         contract_schema_property_type_model['type'] = 'testString'
         contract_schema_property_type_model['length'] = 'testString'
@@ -7689,15 +9269,38 @@ class TestModel_DataProduct:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         contract_schema_model = {}  # ContractSchema
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         contract_terms_model = {}  # ContractTerms
         contract_terms_model['asset'] = asset_reference_model
@@ -7713,6 +9316,7 @@ class TestModel_DataProduct:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         asset_part_reference_model = {}  # AssetPartReference
@@ -7726,10 +9330,12 @@ class TestModel_DataProduct:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         producer_input_model_model = {}  # ProducerInputModel
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         delivery_method_properties_model_model = {}  # DeliveryMethodPropertiesModel
         delivery_method_properties_model_model['producer_input'] = producer_input_model_model
@@ -7757,6 +9363,9 @@ class TestModel_DataProduct:
         asset_list_access_control_model = {}  # AssetListAccessControl
         asset_list_access_control_model['owner'] = 'IBMid-696000KYV9'
 
+        container_identity_model = {}  # ContainerIdentity
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
+
         data_product_version_summary_model = {}  # DataProductVersionSummary
         data_product_version_summary_model['version'] = '1.0.0'
         data_product_version_summary_model['state'] = 'draft'
@@ -7774,6 +9383,7 @@ class TestModel_DataProduct:
         data_product_version_summary_model['comments'] = 'Comments by a producer that are provided either at the time of data product version creation or retiring'
         data_product_version_summary_model['access_control'] = asset_list_access_control_model
         data_product_version_summary_model['last_updated_at'] = '2019-01-01T12:00:00Z'
+        data_product_version_summary_model['sub_container'] = container_identity_model
         data_product_version_summary_model['is_restricted'] = True
         data_product_version_summary_model['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
         data_product_version_summary_model['asset'] = asset_reference_model
@@ -7952,6 +9562,39 @@ class TestModel_DataProductContractTemplate:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_server_model = {}  # ContractServer
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         contract_schema_property_type_model = {}  # ContractSchemaPropertyType
         contract_schema_property_type_model['type'] = 'testString'
         contract_schema_property_type_model['length'] = 'testString'
@@ -7960,15 +9603,38 @@ class TestModel_DataProductContractTemplate:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         contract_schema_model = {}  # ContractSchema
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         contract_terms_model = {}  # ContractTerms
         contract_terms_model['asset'] = asset_reference_model
@@ -7984,12 +9650,15 @@ class TestModel_DataProductContractTemplate:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         # Construct a json representation of a DataProductContractTemplate model
         data_product_contract_template_model_json = {}
         data_product_contract_template_model_json['container'] = container_reference_model
         data_product_contract_template_model_json['id'] = '20aa7c97-cfcc-4d16-ae76-2ca1847ce733'
+        data_product_contract_template_model_json['creator_id'] = 'IBMid-123456ABC'
+        data_product_contract_template_model_json['created_at'] = '2025-06-26T12:30:20.000Z'
         data_product_contract_template_model_json['name'] = 'Sample Data Contract Template'
         data_product_contract_template_model_json['error'] = error_message_model
         data_product_contract_template_model_json['contract_terms'] = contract_terms_model
@@ -8103,6 +9772,39 @@ class TestModel_DataProductContractTemplateCollection:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_server_model = {}  # ContractServer
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         contract_schema_property_type_model = {}  # ContractSchemaPropertyType
         contract_schema_property_type_model['type'] = 'testString'
         contract_schema_property_type_model['length'] = 'testString'
@@ -8111,15 +9813,38 @@ class TestModel_DataProductContractTemplateCollection:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         contract_schema_model = {}  # ContractSchema
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         contract_terms_model = {}  # ContractTerms
         contract_terms_model['asset'] = asset_reference_model
@@ -8135,11 +9860,14 @@ class TestModel_DataProductContractTemplateCollection:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         data_product_contract_template_model = {}  # DataProductContractTemplate
         data_product_contract_template_model['container'] = container_reference_model
         data_product_contract_template_model['id'] = '20aa7c97-cfcc-4d16-ae76-2ca1847ce733'
+        data_product_contract_template_model['creator_id'] = 'IBMid-123456ABC'
+        data_product_contract_template_model['created_at'] = '2025-06-26T12:30:20.000Z'
         data_product_contract_template_model['name'] = 'Sample Data Contract Template'
         data_product_contract_template_model['error'] = error_message_model
         data_product_contract_template_model['contract_terms'] = contract_terms_model
@@ -8237,6 +9965,9 @@ class TestModel_DataProductDomain:
         initialize_sub_domain_model['id'] = 'testString'
         initialize_sub_domain_model['description'] = 'testString'
 
+        container_identity_model = {}  # ContainerIdentity
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
+
         # Construct a json representation of a DataProductDomain model
         data_product_domain_model_json = {}
         data_product_domain_model_json['container'] = container_reference_model
@@ -8245,9 +9976,11 @@ class TestModel_DataProductDomain:
         data_product_domain_model_json['name'] = 'Operations'
         data_product_domain_model_json['description'] = 'This is a description of the data product domain.'
         data_product_domain_model_json['id'] = 'testString'
+        data_product_domain_model_json['created_by'] = 'testString'
         data_product_domain_model_json['member_roles'] = member_roles_schema_model
         data_product_domain_model_json['properties'] = properties_schema_model
         data_product_domain_model_json['sub_domains'] = [initialize_sub_domain_model]
+        data_product_domain_model_json['sub_container'] = container_identity_model
 
         # Construct a model instance of DataProductDomain by calling from_dict on the json representation
         data_product_domain_model = DataProductDomain.from_dict(data_product_domain_model_json)
@@ -8308,6 +10041,9 @@ class TestModel_DataProductDomainCollection:
         initialize_sub_domain_model['id'] = 'testString'
         initialize_sub_domain_model['description'] = 'testString'
 
+        container_identity_model = {}  # ContainerIdentity
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
+
         data_product_domain_model = {}  # DataProductDomain
         data_product_domain_model['container'] = container_reference_model
         data_product_domain_model['trace'] = 'testString'
@@ -8315,9 +10051,11 @@ class TestModel_DataProductDomainCollection:
         data_product_domain_model['name'] = 'Operations'
         data_product_domain_model['description'] = 'This is a description of the data product domain.'
         data_product_domain_model['id'] = 'testString'
+        data_product_domain_model['created_by'] = 'testString'
         data_product_domain_model['member_roles'] = member_roles_schema_model
         data_product_domain_model['properties'] = properties_schema_model
         data_product_domain_model['sub_domains'] = [initialize_sub_domain_model]
+        data_product_domain_model['sub_container'] = container_identity_model
 
         # Construct a json representation of a DataProductDomainCollection model
         data_product_domain_collection_model_json = {}
@@ -8441,6 +10179,39 @@ class TestModel_DataProductDraft:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_server_model = {}  # ContractServer
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         contract_schema_property_type_model = {}  # ContractSchemaPropertyType
         contract_schema_property_type_model['type'] = 'testString'
         contract_schema_property_type_model['length'] = 'testString'
@@ -8449,15 +10220,38 @@ class TestModel_DataProductDraft:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         contract_schema_model = {}  # ContractSchema
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         contract_terms_model = {}  # ContractTerms
         contract_terms_model['asset'] = asset_reference_model
@@ -8473,6 +10267,7 @@ class TestModel_DataProductDraft:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         asset_part_reference_model = {}  # AssetPartReference
@@ -8486,10 +10281,12 @@ class TestModel_DataProductDraft:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         producer_input_model_model = {}  # ProducerInputModel
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         delivery_method_properties_model_model = {}  # DeliveryMethodPropertiesModel
         delivery_method_properties_model_model['producer_input'] = producer_input_model_model
@@ -8516,6 +10313,9 @@ class TestModel_DataProductDraft:
 
         asset_list_access_control_model = {}  # AssetListAccessControl
         asset_list_access_control_model['owner'] = 'IBMid-696000KYV9'
+
+        container_identity_model = {}  # ContainerIdentity
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
 
         visualization_model = {}  # Visualization
         visualization_model['id'] = 'testString'
@@ -8549,6 +10349,7 @@ class TestModel_DataProductDraft:
         data_product_draft_model_json['comments'] = 'Comments by a producer that are provided either at the time of data product version creation or retiring'
         data_product_draft_model_json['access_control'] = asset_list_access_control_model
         data_product_draft_model_json['last_updated_at'] = '2019-01-01T12:00:00Z'
+        data_product_draft_model_json['sub_container'] = container_identity_model
         data_product_draft_model_json['is_restricted'] = True
         data_product_draft_model_json['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
         data_product_draft_model_json['asset'] = asset_reference_model
@@ -8684,6 +10485,39 @@ class TestModel_DataProductDraftCollection:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_server_model = {}  # ContractServer
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         contract_schema_property_type_model = {}  # ContractSchemaPropertyType
         contract_schema_property_type_model['type'] = 'testString'
         contract_schema_property_type_model['length'] = 'testString'
@@ -8692,15 +10526,38 @@ class TestModel_DataProductDraftCollection:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         contract_schema_model = {}  # ContractSchema
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         contract_terms_model = {}  # ContractTerms
         contract_terms_model['asset'] = asset_reference_model
@@ -8716,6 +10573,7 @@ class TestModel_DataProductDraftCollection:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         asset_part_reference_model = {}  # AssetPartReference
@@ -8729,10 +10587,12 @@ class TestModel_DataProductDraftCollection:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         producer_input_model_model = {}  # ProducerInputModel
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         delivery_method_properties_model_model = {}  # DeliveryMethodPropertiesModel
         delivery_method_properties_model_model['producer_input'] = producer_input_model_model
@@ -8760,6 +10620,9 @@ class TestModel_DataProductDraftCollection:
         asset_list_access_control_model = {}  # AssetListAccessControl
         asset_list_access_control_model['owner'] = 'IBMid-696000KYV9'
 
+        container_identity_model = {}  # ContainerIdentity
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
+
         data_product_draft_summary_model = {}  # DataProductDraftSummary
         data_product_draft_summary_model['version'] = '1.0.0'
         data_product_draft_summary_model['state'] = 'draft'
@@ -8777,6 +10640,7 @@ class TestModel_DataProductDraftCollection:
         data_product_draft_summary_model['comments'] = 'Comments by a producer that are provided either at the time of data product version creation or retiring'
         data_product_draft_summary_model['access_control'] = asset_list_access_control_model
         data_product_draft_summary_model['last_updated_at'] = '2019-01-01T12:00:00Z'
+        data_product_draft_summary_model['sub_container'] = container_identity_model
         data_product_draft_summary_model['is_restricted'] = True
         data_product_draft_summary_model['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
         data_product_draft_summary_model['asset'] = asset_reference_model
@@ -8947,6 +10811,39 @@ class TestModel_DataProductDraftPrototype:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_server_model = {}  # ContractServer
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         contract_schema_property_type_model = {}  # ContractSchemaPropertyType
         contract_schema_property_type_model['type'] = 'testString'
         contract_schema_property_type_model['length'] = 'testString'
@@ -8955,15 +10852,38 @@ class TestModel_DataProductDraftPrototype:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         contract_schema_model = {}  # ContractSchema
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         contract_terms_model = {}  # ContractTerms
         contract_terms_model['asset'] = asset_reference_model
@@ -8979,6 +10899,7 @@ class TestModel_DataProductDraftPrototype:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         asset_part_reference_model = {}  # AssetPartReference
@@ -8992,10 +10913,12 @@ class TestModel_DataProductDraftPrototype:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         producer_input_model_model = {}  # ProducerInputModel
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         delivery_method_properties_model_model = {}  # DeliveryMethodPropertiesModel
         delivery_method_properties_model_model['producer_input'] = producer_input_model_model
@@ -9048,6 +10971,7 @@ class TestModel_DataProductDraftPrototype:
         data_product_draft_prototype_model_json['comments'] = 'Comments by a producer that are provided either at the time of data product version creation or retiring'
         data_product_draft_prototype_model_json['access_control'] = asset_list_access_control_model
         data_product_draft_prototype_model_json['last_updated_at'] = '2019-01-01T12:00:00Z'
+        data_product_draft_prototype_model_json['sub_container'] = container_identity_model
         data_product_draft_prototype_model_json['is_restricted'] = True
         data_product_draft_prototype_model_json['asset'] = asset_prototype_model
 
@@ -9169,6 +11093,39 @@ class TestModel_DataProductDraftSummary:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_server_model = {}  # ContractServer
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         contract_schema_property_type_model = {}  # ContractSchemaPropertyType
         contract_schema_property_type_model['type'] = 'testString'
         contract_schema_property_type_model['length'] = 'testString'
@@ -9177,15 +11134,38 @@ class TestModel_DataProductDraftSummary:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         contract_schema_model = {}  # ContractSchema
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         contract_terms_model = {}  # ContractTerms
         contract_terms_model['asset'] = asset_reference_model
@@ -9201,6 +11181,7 @@ class TestModel_DataProductDraftSummary:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         asset_part_reference_model = {}  # AssetPartReference
@@ -9214,10 +11195,12 @@ class TestModel_DataProductDraftSummary:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         producer_input_model_model = {}  # ProducerInputModel
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         delivery_method_properties_model_model = {}  # DeliveryMethodPropertiesModel
         delivery_method_properties_model_model['producer_input'] = producer_input_model_model
@@ -9245,6 +11228,9 @@ class TestModel_DataProductDraftSummary:
         asset_list_access_control_model = {}  # AssetListAccessControl
         asset_list_access_control_model['owner'] = 'IBMid-696000KYV9'
 
+        container_identity_model = {}  # ContainerIdentity
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
+
         # Construct a json representation of a DataProductDraftSummary model
         data_product_draft_summary_model_json = {}
         data_product_draft_summary_model_json['version'] = '1.0.0'
@@ -9263,6 +11249,7 @@ class TestModel_DataProductDraftSummary:
         data_product_draft_summary_model_json['comments'] = 'Comments by a producer that are provided either at the time of data product version creation or retiring'
         data_product_draft_summary_model_json['access_control'] = asset_list_access_control_model
         data_product_draft_summary_model_json['last_updated_at'] = '2019-01-01T12:00:00Z'
+        data_product_draft_summary_model_json['sub_container'] = container_identity_model
         data_product_draft_summary_model_json['is_restricted'] = True
         data_product_draft_summary_model_json['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
         data_product_draft_summary_model_json['asset'] = asset_reference_model
@@ -9454,10 +11441,12 @@ class TestModel_DataProductPart:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         producer_input_model_model = {}  # ProducerInputModel
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         delivery_method_properties_model_model = {}  # DeliveryMethodPropertiesModel
         delivery_method_properties_model_model['producer_input'] = producer_input_model_model
@@ -9590,6 +11579,39 @@ class TestModel_DataProductRelease:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_server_model = {}  # ContractServer
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         contract_schema_property_type_model = {}  # ContractSchemaPropertyType
         contract_schema_property_type_model['type'] = 'testString'
         contract_schema_property_type_model['length'] = 'testString'
@@ -9598,15 +11620,38 @@ class TestModel_DataProductRelease:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         contract_schema_model = {}  # ContractSchema
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         contract_terms_model = {}  # ContractTerms
         contract_terms_model['asset'] = asset_reference_model
@@ -9622,6 +11667,7 @@ class TestModel_DataProductRelease:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         asset_part_reference_model = {}  # AssetPartReference
@@ -9635,10 +11681,12 @@ class TestModel_DataProductRelease:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         producer_input_model_model = {}  # ProducerInputModel
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         delivery_method_properties_model_model = {}  # DeliveryMethodPropertiesModel
         delivery_method_properties_model_model['producer_input'] = producer_input_model_model
@@ -9665,6 +11713,9 @@ class TestModel_DataProductRelease:
 
         asset_list_access_control_model = {}  # AssetListAccessControl
         asset_list_access_control_model['owner'] = 'IBMid-696000KYV9'
+
+        container_identity_model = {}  # ContainerIdentity
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
 
         visualization_model = {}  # Visualization
         visualization_model['id'] = 'testString'
@@ -9698,6 +11749,7 @@ class TestModel_DataProductRelease:
         data_product_release_model_json['comments'] = 'Comments by a producer that are provided either at the time of data product version creation or retiring'
         data_product_release_model_json['access_control'] = asset_list_access_control_model
         data_product_release_model_json['last_updated_at'] = '2019-01-01T12:00:00Z'
+        data_product_release_model_json['sub_container'] = container_identity_model
         data_product_release_model_json['is_restricted'] = True
         data_product_release_model_json['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
         data_product_release_model_json['asset'] = asset_reference_model
@@ -9833,6 +11885,39 @@ class TestModel_DataProductReleaseCollection:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_server_model = {}  # ContractServer
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         contract_schema_property_type_model = {}  # ContractSchemaPropertyType
         contract_schema_property_type_model['type'] = 'testString'
         contract_schema_property_type_model['length'] = 'testString'
@@ -9841,15 +11926,38 @@ class TestModel_DataProductReleaseCollection:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         contract_schema_model = {}  # ContractSchema
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         contract_terms_model = {}  # ContractTerms
         contract_terms_model['asset'] = asset_reference_model
@@ -9865,6 +11973,7 @@ class TestModel_DataProductReleaseCollection:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         asset_part_reference_model = {}  # AssetPartReference
@@ -9878,10 +11987,12 @@ class TestModel_DataProductReleaseCollection:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         producer_input_model_model = {}  # ProducerInputModel
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         delivery_method_properties_model_model = {}  # DeliveryMethodPropertiesModel
         delivery_method_properties_model_model['producer_input'] = producer_input_model_model
@@ -9909,6 +12020,9 @@ class TestModel_DataProductReleaseCollection:
         asset_list_access_control_model = {}  # AssetListAccessControl
         asset_list_access_control_model['owner'] = 'IBMid-696000KYV9'
 
+        container_identity_model = {}  # ContainerIdentity
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
+
         data_product_release_summary_model = {}  # DataProductReleaseSummary
         data_product_release_summary_model['version'] = '1.0.0'
         data_product_release_summary_model['state'] = 'draft'
@@ -9926,6 +12040,7 @@ class TestModel_DataProductReleaseCollection:
         data_product_release_summary_model['comments'] = 'Comments by a producer that are provided either at the time of data product version creation or retiring'
         data_product_release_summary_model['access_control'] = asset_list_access_control_model
         data_product_release_summary_model['last_updated_at'] = '2019-01-01T12:00:00Z'
+        data_product_release_summary_model['sub_container'] = container_identity_model
         data_product_release_summary_model['is_restricted'] = True
         data_product_release_summary_model['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
         data_product_release_summary_model['asset'] = asset_reference_model
@@ -10097,6 +12212,39 @@ class TestModel_DataProductReleaseSummary:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_server_model = {}  # ContractServer
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         contract_schema_property_type_model = {}  # ContractSchemaPropertyType
         contract_schema_property_type_model['type'] = 'testString'
         contract_schema_property_type_model['length'] = 'testString'
@@ -10105,15 +12253,38 @@ class TestModel_DataProductReleaseSummary:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         contract_schema_model = {}  # ContractSchema
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         contract_terms_model = {}  # ContractTerms
         contract_terms_model['asset'] = asset_reference_model
@@ -10129,6 +12300,7 @@ class TestModel_DataProductReleaseSummary:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         asset_part_reference_model = {}  # AssetPartReference
@@ -10142,10 +12314,12 @@ class TestModel_DataProductReleaseSummary:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         producer_input_model_model = {}  # ProducerInputModel
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         delivery_method_properties_model_model = {}  # DeliveryMethodPropertiesModel
         delivery_method_properties_model_model['producer_input'] = producer_input_model_model
@@ -10173,6 +12347,9 @@ class TestModel_DataProductReleaseSummary:
         asset_list_access_control_model = {}  # AssetListAccessControl
         asset_list_access_control_model['owner'] = 'IBMid-696000KYV9'
 
+        container_identity_model = {}  # ContainerIdentity
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
+
         # Construct a json representation of a DataProductReleaseSummary model
         data_product_release_summary_model_json = {}
         data_product_release_summary_model_json['version'] = '1.0.0'
@@ -10191,6 +12368,7 @@ class TestModel_DataProductReleaseSummary:
         data_product_release_summary_model_json['comments'] = 'Comments by a producer that are provided either at the time of data product version creation or retiring'
         data_product_release_summary_model_json['access_control'] = asset_list_access_control_model
         data_product_release_summary_model_json['last_updated_at'] = '2019-01-01T12:00:00Z'
+        data_product_release_summary_model_json['sub_container'] = container_identity_model
         data_product_release_summary_model_json['is_restricted'] = True
         data_product_release_summary_model_json['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
         data_product_release_summary_model_json['asset'] = asset_reference_model
@@ -10403,6 +12581,39 @@ class TestModel_DataProductVersionCollection:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_server_model = {}  # ContractServer
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         contract_schema_property_type_model = {}  # ContractSchemaPropertyType
         contract_schema_property_type_model['type'] = 'testString'
         contract_schema_property_type_model['length'] = 'testString'
@@ -10411,15 +12622,38 @@ class TestModel_DataProductVersionCollection:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         contract_schema_model = {}  # ContractSchema
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         contract_terms_model = {}  # ContractTerms
         contract_terms_model['asset'] = asset_reference_model
@@ -10435,6 +12669,7 @@ class TestModel_DataProductVersionCollection:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         asset_part_reference_model = {}  # AssetPartReference
@@ -10448,10 +12683,12 @@ class TestModel_DataProductVersionCollection:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         producer_input_model_model = {}  # ProducerInputModel
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         delivery_method_properties_model_model = {}  # DeliveryMethodPropertiesModel
         delivery_method_properties_model_model['producer_input'] = producer_input_model_model
@@ -10479,6 +12716,9 @@ class TestModel_DataProductVersionCollection:
         asset_list_access_control_model = {}  # AssetListAccessControl
         asset_list_access_control_model['owner'] = 'IBMid-696000KYV9'
 
+        container_identity_model = {}  # ContainerIdentity
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
+
         data_product_version_summary_model = {}  # DataProductVersionSummary
         data_product_version_summary_model['version'] = '1.0.0'
         data_product_version_summary_model['state'] = 'draft'
@@ -10496,6 +12736,7 @@ class TestModel_DataProductVersionCollection:
         data_product_version_summary_model['comments'] = 'Comments by a producer that are provided either at the time of data product version creation or retiring'
         data_product_version_summary_model['access_control'] = asset_list_access_control_model
         data_product_version_summary_model['last_updated_at'] = '2019-01-01T12:00:00Z'
+        data_product_version_summary_model['sub_container'] = container_identity_model
         data_product_version_summary_model['is_restricted'] = True
         data_product_version_summary_model['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
         data_product_version_summary_model['asset'] = asset_reference_model
@@ -10626,6 +12867,39 @@ class TestModel_DataProductVersionSummary:
         contract_test_model['last_tested_time'] = 'testString'
         contract_test_model['message'] = 'testString'
 
+        contract_asset_model = {}  # ContractAsset
+        contract_asset_model['id'] = 'testString'
+        contract_asset_model['name'] = 'testString'
+
+        contract_server_model = {}  # ContractServer
+        contract_server_model['server'] = 'testString'
+        contract_server_model['asset'] = contract_asset_model
+        contract_server_model['connection_id'] = 'testString'
+        contract_server_model['type'] = 'testString'
+        contract_server_model['description'] = 'testString'
+        contract_server_model['environment'] = 'testString'
+        contract_server_model['account'] = 'testString'
+        contract_server_model['catalog'] = 'testString'
+        contract_server_model['database'] = 'testString'
+        contract_server_model['dataset'] = 'testString'
+        contract_server_model['delimiter'] = 'testString'
+        contract_server_model['endpoint_url'] = 'testString'
+        contract_server_model['format'] = 'testString'
+        contract_server_model['host'] = 'testString'
+        contract_server_model['location'] = 'testString'
+        contract_server_model['path'] = 'testString'
+        contract_server_model['port'] = 'testString'
+        contract_server_model['project'] = 'testString'
+        contract_server_model['region'] = 'testString'
+        contract_server_model['region_name'] = 'testString'
+        contract_server_model['schema'] = 'testString'
+        contract_server_model['service_name'] = 'testString'
+        contract_server_model['staging_dir'] = 'testString'
+        contract_server_model['stream'] = 'testString'
+        contract_server_model['warehouse'] = 'testString'
+        contract_server_model['roles'] = ['testString']
+        contract_server_model['custom_properties'] = [contract_template_custom_property_model]
+
         contract_schema_property_type_model = {}  # ContractSchemaPropertyType
         contract_schema_property_type_model['type'] = 'testString'
         contract_schema_property_type_model['length'] = 'testString'
@@ -10634,15 +12908,38 @@ class TestModel_DataProductVersionSummary:
         contract_schema_property_type_model['signed'] = 'testString'
         contract_schema_property_type_model['native_type'] = 'testString'
 
+        contract_quality_rule_model = {}  # ContractQualityRule
+        contract_quality_rule_model['type'] = 'sql'
+        contract_quality_rule_model['description'] = 'testString'
+        contract_quality_rule_model['rule'] = 'testString'
+        contract_quality_rule_model['implementation'] = 'testString'
+        contract_quality_rule_model['engine'] = 'testString'
+        contract_quality_rule_model['must_be_less_than'] = 'testString'
+        contract_quality_rule_model['must_be_less_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_greater_than'] = 'testString'
+        contract_quality_rule_model['must_be_greater_or_equal_to'] = 'testString'
+        contract_quality_rule_model['must_be_between'] = ['testString']
+        contract_quality_rule_model['must_not_be_between'] = ['testString']
+        contract_quality_rule_model['must_be'] = 'testString'
+        contract_quality_rule_model['must_not_be'] = 'testString'
+        contract_quality_rule_model['name'] = 'testString'
+        contract_quality_rule_model['unit'] = 'testString'
+        contract_quality_rule_model['query'] = 'testString'
+
         contract_schema_property_model = {}  # ContractSchemaProperty
         contract_schema_property_model['name'] = 'testString'
         contract_schema_property_model['type'] = contract_schema_property_type_model
+        contract_schema_property_model['quality'] = [contract_quality_rule_model]
 
         contract_schema_model = {}  # ContractSchema
+        contract_schema_model['asset_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
+        contract_schema_model['connection_id'] = '2b0bf220-079c-11ee-be56-0242ac120002'
         contract_schema_model['name'] = 'testString'
         contract_schema_model['description'] = 'testString'
+        contract_schema_model['connection_path'] = 'testString'
         contract_schema_model['physical_type'] = 'testString'
         contract_schema_model['properties'] = [contract_schema_property_model]
+        contract_schema_model['quality'] = [contract_quality_rule_model]
 
         contract_terms_model = {}  # ContractTerms
         contract_terms_model['asset'] = asset_reference_model
@@ -10658,6 +12955,7 @@ class TestModel_DataProductVersionSummary:
         contract_terms_model['support_and_communication'] = [contract_template_support_and_communication_model]
         contract_terms_model['custom_properties'] = [contract_template_custom_property_model]
         contract_terms_model['contract_test'] = contract_test_model
+        contract_terms_model['servers'] = [contract_server_model]
         contract_terms_model['schema'] = [contract_schema_model]
 
         asset_part_reference_model = {}  # AssetPartReference
@@ -10671,10 +12969,12 @@ class TestModel_DataProductVersionSummary:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         producer_input_model_model = {}  # ProducerInputModel
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         delivery_method_properties_model_model = {}  # DeliveryMethodPropertiesModel
         delivery_method_properties_model_model['producer_input'] = producer_input_model_model
@@ -10702,6 +13002,9 @@ class TestModel_DataProductVersionSummary:
         asset_list_access_control_model = {}  # AssetListAccessControl
         asset_list_access_control_model['owner'] = 'IBMid-696000KYV9'
 
+        container_identity_model = {}  # ContainerIdentity
+        container_identity_model['id'] = 'd29c42eb-7100-4b7a-8257-c196dbcca1cd'
+
         # Construct a json representation of a DataProductVersionSummary model
         data_product_version_summary_model_json = {}
         data_product_version_summary_model_json['version'] = '1.0.0'
@@ -10720,6 +13023,7 @@ class TestModel_DataProductVersionSummary:
         data_product_version_summary_model_json['comments'] = 'Comments by a producer that are provided either at the time of data product version creation or retiring'
         data_product_version_summary_model_json['access_control'] = asset_list_access_control_model
         data_product_version_summary_model_json['last_updated_at'] = '2019-01-01T12:00:00Z'
+        data_product_version_summary_model_json['sub_container'] = container_identity_model
         data_product_version_summary_model_json['is_restricted'] = True
         data_product_version_summary_model_json['id'] = '2b0bf220-079c-11ee-be56-0242ac120002@d29c42eb-7100-4b7a-8257-c196dbcca1cd'
         data_product_version_summary_model_json['asset'] = asset_reference_model
@@ -10842,10 +13146,12 @@ class TestModel_DeliveryMethod:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         producer_input_model_model = {}  # ProducerInputModel
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         delivery_method_properties_model_model = {}  # DeliveryMethodPropertiesModel
         delivery_method_properties_model_model['producer_input'] = producer_input_model_model
@@ -10889,10 +13195,12 @@ class TestModel_DeliveryMethodPropertiesModel:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         producer_input_model_model = {}  # ProducerInputModel
         producer_input_model_model['engine_details'] = engine_details_model_model
+        producer_input_model_model['engines'] = [engine_details_model_model]
 
         # Construct a json representation of a DeliveryMethodPropertiesModel model
         delivery_method_properties_model_model_json = {}
@@ -11008,6 +13316,7 @@ class TestModel_EngineDetailsModel:
         engine_details_model_model_json['engine_id'] = 'presto767'
         engine_details_model_model_json['engine_port'] = '34567'
         engine_details_model_model_json['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model_json['engine_type'] = 'spark'
         engine_details_model_model_json['associated_catalogs'] = ['testString']
 
         # Construct a model instance of EngineDetailsModel by calling from_dict on the json representation
@@ -11493,11 +13802,13 @@ class TestModel_ProducerInputModel:
         engine_details_model_model['engine_id'] = 'presto767'
         engine_details_model_model['engine_port'] = '34567'
         engine_details_model_model['engine_host'] = 'a109e0f6-2dfc-4954-a0ff-343d70f7da7b.someId.lakehouse.appdomain.cloud'
+        engine_details_model_model['engine_type'] = 'spark'
         engine_details_model_model['associated_catalogs'] = ['testString']
 
         # Construct a json representation of a ProducerInputModel model
         producer_input_model_model_json = {}
         producer_input_model_model_json['engine_details'] = engine_details_model_model
+        producer_input_model_model_json['engines'] = [engine_details_model_model]
 
         # Construct a model instance of ProducerInputModel by calling from_dict on the json representation
         producer_input_model_model = ProducerInputModel.from_dict(producer_input_model_model_json)
@@ -11619,6 +13930,81 @@ class TestModel_ProvidedWorkflowResource:
         assert provided_workflow_resource_model_json2 == provided_workflow_resource_model_json
 
 
+class TestModel_RevokeAccessResponse:
+    """
+    Test Class for RevokeAccessResponse
+    """
+
+    def test_revoke_access_response_serialization(self):
+        """
+        Test serialization/deserialization for RevokeAccessResponse
+        """
+
+        # Construct a json representation of a RevokeAccessResponse model
+        revoke_access_response_model_json = {}
+        revoke_access_response_model_json['message'] = 'testString'
+
+        # Construct a model instance of RevokeAccessResponse by calling from_dict on the json representation
+        revoke_access_response_model = RevokeAccessResponse.from_dict(revoke_access_response_model_json)
+        assert revoke_access_response_model != False
+
+        # Construct a model instance of RevokeAccessResponse by calling from_dict on the json representation
+        revoke_access_response_model_dict = RevokeAccessResponse.from_dict(revoke_access_response_model_json).__dict__
+        revoke_access_response_model2 = RevokeAccessResponse(**revoke_access_response_model_dict)
+
+        # Verify the model instances are equivalent
+        assert revoke_access_response_model == revoke_access_response_model2
+
+        # Convert model instance back to dict and verify no loss of data
+        revoke_access_response_model_json2 = revoke_access_response_model.to_dict()
+        assert revoke_access_response_model_json2 == revoke_access_response_model_json
+
+
+class TestModel_RevokeAccessStateResponse:
+    """
+    Test Class for RevokeAccessStateResponse
+    """
+
+    def test_revoke_access_state_response_serialization(self):
+        """
+        Test serialization/deserialization for RevokeAccessStateResponse
+        """
+
+        # Construct dict forms of any model objects needed in order to build this model.
+
+        asset_model = {}  # Asset
+        asset_model['metadata'] = {'anyKey': 'anyValue'}
+        asset_model['entity'] = {'anyKey': 'anyValue'}
+
+        search_asset_pagination_info_model = {}  # SearchAssetPaginationInfo
+        search_asset_pagination_info_model['query'] = 'ibm_data_product_revoke_access.state:(SCHEDULED OR FAILED)'
+        search_asset_pagination_info_model['limit'] = 1
+        search_asset_pagination_info_model['bookmark'] = 'MQ=='
+        search_asset_pagination_info_model['include'] = 'entity'
+        search_asset_pagination_info_model['skip'] = 0
+
+        # Construct a json representation of a RevokeAccessStateResponse model
+        revoke_access_state_response_model_json = {}
+        revoke_access_state_response_model_json['results'] = [asset_model]
+        revoke_access_state_response_model_json['total_count'] = 42
+        revoke_access_state_response_model_json['next'] = search_asset_pagination_info_model
+
+        # Construct a model instance of RevokeAccessStateResponse by calling from_dict on the json representation
+        revoke_access_state_response_model = RevokeAccessStateResponse.from_dict(revoke_access_state_response_model_json)
+        assert revoke_access_state_response_model != False
+
+        # Construct a model instance of RevokeAccessStateResponse by calling from_dict on the json representation
+        revoke_access_state_response_model_dict = RevokeAccessStateResponse.from_dict(revoke_access_state_response_model_json).__dict__
+        revoke_access_state_response_model2 = RevokeAccessStateResponse(**revoke_access_state_response_model_dict)
+
+        # Verify the model instances are equivalent
+        assert revoke_access_state_response_model == revoke_access_state_response_model2
+
+        # Convert model instance back to dict and verify no loss of data
+        revoke_access_state_response_model_json2 = revoke_access_state_response_model.to_dict()
+        assert revoke_access_state_response_model_json2 == revoke_access_state_response_model_json
+
+
 class TestModel_Roles:
     """
     Test Class for Roles
@@ -11647,6 +14033,40 @@ class TestModel_Roles:
         # Convert model instance back to dict and verify no loss of data
         roles_model_json2 = roles_model.to_dict()
         assert roles_model_json2 == roles_model_json
+
+
+class TestModel_SearchAssetPaginationInfo:
+    """
+    Test Class for SearchAssetPaginationInfo
+    """
+
+    def test_search_asset_pagination_info_serialization(self):
+        """
+        Test serialization/deserialization for SearchAssetPaginationInfo
+        """
+
+        # Construct a json representation of a SearchAssetPaginationInfo model
+        search_asset_pagination_info_model_json = {}
+        search_asset_pagination_info_model_json['query'] = 'ibm_data_product_revoke_access.state:(SCHEDULED OR FAILED)'
+        search_asset_pagination_info_model_json['limit'] = 1
+        search_asset_pagination_info_model_json['bookmark'] = 'MQ=='
+        search_asset_pagination_info_model_json['include'] = 'entity'
+        search_asset_pagination_info_model_json['skip'] = 0
+
+        # Construct a model instance of SearchAssetPaginationInfo by calling from_dict on the json representation
+        search_asset_pagination_info_model = SearchAssetPaginationInfo.from_dict(search_asset_pagination_info_model_json)
+        assert search_asset_pagination_info_model != False
+
+        # Construct a model instance of SearchAssetPaginationInfo by calling from_dict on the json representation
+        search_asset_pagination_info_model_dict = SearchAssetPaginationInfo.from_dict(search_asset_pagination_info_model_json).__dict__
+        search_asset_pagination_info_model2 = SearchAssetPaginationInfo(**search_asset_pagination_info_model_dict)
+
+        # Verify the model instances are equivalent
+        assert search_asset_pagination_info_model == search_asset_pagination_info_model2
+
+        # Convert model instance back to dict and verify no loss of data
+        search_asset_pagination_info_model_json2 = search_asset_pagination_info_model.to_dict()
+        assert search_asset_pagination_info_model_json2 == search_asset_pagination_info_model_json
 
 
 class TestModel_ServiceIdCredentials:
