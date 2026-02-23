@@ -1,3 +1,15 @@
+# [1.7.0](https://github.com/IBM/data-product-exchange-python-sdk/compare/v1.6.0...v1.7.0) (2026-02-23)
+
+
+### Bug Fixes
+
+* semantic release cmd ([#34](https://github.com/IBM/data-product-exchange-python-sdk/issues/34)) ([659b653](https://github.com/IBM/data-product-exchange-python-sdk/commit/659b6531e6665a95dc119f6a034e480d54c7b858))
+
+
+### Features
+
+* drop dpx 1.6.0 support \n\n BREAKING CHANGE: DPH Service updated ([#32](https://github.com/IBM/data-product-exchange-python-sdk/issues/32)) ([9db1988](https://github.com/IBM/data-product-exchange-python-sdk/commit/9db1988d9513e2d283b54568ea64adb0bc5d5774))
+
 # [1.6.0](https://github.com/IBM/data-product-exchange-python-sdk/compare/v1.5.0...v1.6.0) (2026-01-14)
 
 
