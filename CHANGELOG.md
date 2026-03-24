@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/IBM/data-product-exchange-python-sdk/compare/v1.7.0...v1.7.1) (2026-03-24)
+
+
+### Bug Fixes
+
+* explictly define PyJWT version for security ([#35](https://github.com/IBM/data-product-exchange-python-sdk/issues/35)) ([4444694](https://github.com/IBM/data-product-exchange-python-sdk/commit/4444694f12f2a2edb0380c0c3793286b83f200e0))
+
 # [1.7.0](https://github.com/IBM/data-product-exchange-python-sdk/compare/v1.6.0...v1.7.0) (2026-02-23)
 
 
