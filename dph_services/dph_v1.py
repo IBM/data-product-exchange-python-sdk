@@ -17,10 +17,25 @@
 # IBM OpenAPI SDK Code Generator Version: 3.96.0-d6dec9d7-20241008-212902
 
 """
-Data Product Hub API Service
+DEPRECATED: Data Product Hub API Service
+
+This module is deprecated and no longer maintained.
+Please migrate to: ibm-data-intelligence-sdk
+Repository: https://github.com/IBM/data-intelligence-sdk
 
 API Version: 1
 """
+
+import warnings
+
+# Issue deprecation warning when module is imported
+warnings.warn(
+    "The 'dph_services.dph_v1' module is deprecated. "
+    "Please migrate to 'ibm-data-intelligence-sdk'. "
+    "See: https://github.com/IBM/data-intelligence-sdk",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 from datetime import datetime
 from enum import Enum

@@ -1,3 +1,11 @@
+# ⚠️ DEPRECATED REPOSITORY
+
+**This repository has been deprecated and moved to: [IBM Data Intelligence SDK](https://github.com/IBM/data-intelligence-sdk)**
+
+Please see [DEPRECATED.md](DEPRECATED.md) for migration instructions.
+
+---
+
 ## [1.7.1](https://github.com/IBM/data-product-exchange-python-sdk/compare/v1.7.0...v1.7.1) (2026-03-24)
 
 

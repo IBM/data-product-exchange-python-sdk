@@ -16,11 +16,26 @@
 from setuptools import setup
 import os
 import sys
+import warnings
 
 __version__ = '1.7.1'
 
 PACKAGE_NAME = 'dph_services'
-PACKAGE_DESC = 'Python client library for DPH Services'
+PACKAGE_DESC = '[DEPRECATED] Python client library for DPH Services - Please use ibm-data-intelligence-sdk instead: https://github.com/IBM/data-intelligence-sdk'
+
+# Display deprecation warning during installation
+warnings.warn(
+    "\n" + "="*80 + "\n"
+    "WARNING: This package (dph-services) is DEPRECATED and no longer maintained.\n"
+    "\n"
+    "Please migrate to the new package:\n"
+    "  pip install ibm-data-intelligence-sdk\n"
+    "\n"
+    "New repository: https://github.com/IBM/data-intelligence-sdk\n"
+    + "="*80,
+    DeprecationWarning,
+    stacklevel=2
+)
 
 def read_requirements(filename):
     with open(filename) as f:
@@ -43,7 +58,7 @@ setup(
     author_email='shashank.bhushan.jha@ibm.com',
     long_description=readme,
     long_description_content_type='text/markdown',
-    url='https://github.com/IBM/data-product-exchange-python-sdk',
+    url='https://github.com/IBM/data-intelligence-sdk',
     packages=[PACKAGE_NAME],
     include_package_data=True,
     keywords=PACKAGE_NAME,
@@ -54,12 +69,13 @@ setup(
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
-        'Development Status :: 4 - Beta',
+        'Development Status :: 7 - Inactive',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
     ],
+    deprecated=True,
     zip_safe=True,
 )
