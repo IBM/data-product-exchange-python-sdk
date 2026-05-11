@@ -1,4 +1,12 @@
-# Data Product Hub Python SDK Version 1.7.1
+# ⚠️ DEPRECATED - Data Product Hub Python SDK Version 1.7.1
+
+> **DEPRECATION NOTICE**: This repository has been deprecated and is no longer maintained.
+>
+> **Please use the new repository**: [IBM Data Intelligence SDK](https://github.com/IBM/data-intelligence-sdk)
+>
+> All future development, bug fixes, and updates will be made in the new repository. Please migrate your applications to use the new SDK as soon as possible.
+
+---
 
 Python client library to interact with various Data Product Hub Service APIs.
 
@@ -71,17 +79,33 @@ please ask a question at
 [Stack Overflow](http://stackoverflow.com/questions/ask?tags=ibm-cloud).
 
 ## Issues
-If you encounter an issue with the project, you are welcome to submit a
-[bug report](https://github.ibm.com/wdp-gov/data-product-python-sdk/issues).
-Before that, please search for similar issues. It's possible that someone has already reported the problem.
+**This repository is deprecated.** Please report any issues in the new repository:
+[IBM Data Intelligence SDK Issues](https://github.com/IBM/data-intelligence-sdk/issues)
 
 ## Open source @ IBM
 Find more open source projects on the [IBM Github Page](http://ibm.github.io/)
 
 ## Contributing
-See [CONTRIBUTING.md](https://github.ibm.com/CloudEngineering/python-sdk-template/blob/main/CONTRIBUTING.md).
+**This repository is deprecated and no longer accepts contributions.** Please contribute to the new repository:
+[IBM Data Intelligence SDK](https://github.com/IBM/data-intelligence-sdk)
+
+## Migration Guide
+
+To migrate to the new SDK:
+
+1. Uninstall the old package:
+   ```bash
+   pip uninstall dph-services
+   ```
+
+2. Install the new package:
+   ```bash
+   pip install ibm-data-intelligence-sdk
+   ```
+
+3. Update your imports and code to use the new SDK. See the [migration documentation](https://github.com/IBM/data-intelligence-sdk) for details.
 
 ## License
 
 This SDK is released under the Apache 2.0 license.
-The license's full text can be found in [LICENSE](https://github.ibm.com/CloudEngineering/python-sdk-template/blob/main/LICENSE).
+The license's full text can be found in [LICENSE](LICENSE).

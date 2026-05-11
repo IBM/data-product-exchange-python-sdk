@@ -14,8 +14,20 @@
 # limitations under the License.
 
 """
-Examples for DphV1
+DEPRECATED: Examples for DphV1
+
+This example code is deprecated. Please refer to the new repository:
+https://github.com/IBM/data-intelligence-sdk
 """
+
+import warnings
+
+warnings.warn(
+    "This example is deprecated. Please use the new SDK: "
+    "https://github.com/IBM/data-intelligence-sdk",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 from ibm_cloud_sdk_core import ApiException, read_external_sources
 from ibm_cloud_sdk_core.utils import datetime_to_string, string_to_datetime

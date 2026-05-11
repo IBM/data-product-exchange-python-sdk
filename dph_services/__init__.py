@@ -13,7 +13,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Python client library for the DPH Services"""
+"""
+DEPRECATED: Python client library for the DPH Services
+
+This package is deprecated and no longer maintained.
+Please migrate to: ibm-data-intelligence-sdk
+Repository: https://github.com/IBM/data-intelligence-sdk
+"""
+
+import warnings
+
+# Issue deprecation warning when package is imported
+warnings.warn(
+    "\n" + "="*80 + "\n"
+    "DeprecationWarning: The 'dph_services' package is DEPRECATED.\n"
+    "\n"
+    "This package is no longer maintained. Please migrate to:\n"
+    "  pip install ibm-data-intelligence-sdk\n"
+    "\n"
+    "New repository: https://github.com/IBM/data-intelligence-sdk\n"
+    + "="*80,
+    DeprecationWarning,
+    stacklevel=2
+)
 
 from ibm_cloud_sdk_core import IAMTokenManager, DetailedResponse, BaseService, ApiException
 
