@@ -13,6 +13,8 @@ jobs:
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     name: detect-secrets
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,6 +38,8 @@ jobs:
     name: build-test (python ${{ matrix.python-version }})
     needs: detect-secrets
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11"]
@@ -67,6 +71,10 @@ jobs:
     needs: build
     name: semantic-release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -98,6 +106,8 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     name: deploy-pypi
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
